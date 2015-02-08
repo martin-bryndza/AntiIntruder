@@ -1,0 +1,25 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>AntiIntruder</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" media="all" 
+          href="../../css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+    </head>
+    <body>
+        <h1>AntiIntruder</h1>
+        <form data-th-action="@{/add}" data-th-object="${entity}" method="post" class="form">
+            <input type="text" data-th-field="*{username}" class="form-control"/>
+            <input type="text" data-th-field="*{displayName}" class="form-control"/>
+            <button type="submit" class="btn btn-primary"> Add </button>
+        </form>
+        <ul>
+            <li data-th-each="ent, status: ${entities}">
+                <span data-th-text="${ent.username}">Entity username</span>
+                <span data-th-text="${ent.displayName}">Entity displayName</span>
+                <a href="#" data-th-href="@{/delete(index=${status.index})}">Delete</a>
+            </li>
+        </ul>
+    </body>
+</html>
