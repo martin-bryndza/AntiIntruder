@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  *
@@ -65,6 +66,9 @@ public class Entitty implements Serializable{
 //    public void setState(State state) {
 //        this.state = state;
 //    }
+    
+    @Version
+    private long version;
 
     @Override
     public int hashCode() {
