@@ -1,1 +1,1 @@
-INSERT INTO ENTITTY (USERNAME, DISPLAYNAME) values ('admin', 'admin');
+INSERT INTO ENTITIES (USERNAME, DISPLAYNAME) values ('admin', 'admin');

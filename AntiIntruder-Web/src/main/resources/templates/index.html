@@ -15,10 +15,10 @@
             <button type="submit" class="btn btn-primary"> Add </button>
         </form>
         <ul>
-            <li data-th-each="ent, status: ${entities}">
+            <li data-th-each="ent: ${entities}">
                 <span data-th-text="${ent.username}">Entity username</span>
                 <span data-th-text="${ent.displayName}">Entity displayName</span>
-                <a href="#" data-th-href="@{/delete(index=${status.index})}">Delete</a>
+                <a href="#" data-th-href="@{/delete(entityId=${ent.id})}">Delete</a>
             </li>
         </ul>
     </body>

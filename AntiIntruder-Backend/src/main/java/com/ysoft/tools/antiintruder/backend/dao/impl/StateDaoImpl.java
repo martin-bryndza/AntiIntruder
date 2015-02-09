@@ -7,6 +7,8 @@ package com.ysoft.tools.antiintruder.backend.dao.impl;
 
 import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.backend.model.State;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,23 +19,23 @@ import org.springframework.stereotype.Repository;
 public class StateDaoImpl implements StateDao{
 
     @Override
-    public Long create(State entity) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public void delete(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public State get(Long pk) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<State> findAll() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void update(State entity) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Optional<State> findOne(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void remove(Long pk) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public State save(State entity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

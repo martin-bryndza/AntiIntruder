@@ -6,9 +6,7 @@
 package com.ysoft.tools.antiintruder.backend.dto.convert.impl;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.serviceapi.dto.convert.Convert;
 import com.ysoft.tools.antiintruder.backend.model.Entitty;
-import com.ysoft.tools.antiintruder.backend.model.State;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,20 +14,20 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class EntityConvert implements Convert<Entitty, EntityDto>{
+public class EntityConvert{
 
-    @Override
-    public Entitty fromDtoToEntity(EntityDto dto) {
+    public static Entitty fromDtoToEntity(EntityDto dto) {
      Entitty e = new Entitty();
+        e.setId(dto.getId());
         e.setUsername(dto.getUsername());
         e.setDisplayName(dto.getDisplayName());
 //        e.setState(State.AVAILABLE);
         return e;
     }
 
-    @Override
-    public EntityDto fromEntityToDto (Entitty entity) {
+    public static EntityDto fromEntityToDto (Entitty entity) {
         EntityDto dto = new EntityDto();
+        dto.setId(entity.getId());
         dto.setDisplayName(entity.getDisplayName());
         dto.setUsername(entity.getUsername());
         return dto;

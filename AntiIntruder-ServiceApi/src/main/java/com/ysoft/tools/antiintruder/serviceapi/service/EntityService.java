@@ -6,8 +6,7 @@
 package com.ysoft.tools.antiintruder.serviceapi.service;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 /**
  *
@@ -15,6 +14,6 @@ import org.springframework.data.domain.Pageable;
  */
 public interface EntityService extends Service<EntityDto>{
     
-    public Page<EntityDto> findAll(Pageable pageable);
+    public List<EntityDto> findAll();
     
 }

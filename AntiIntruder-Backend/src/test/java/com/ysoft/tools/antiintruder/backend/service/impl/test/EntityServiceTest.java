@@ -62,14 +62,19 @@ public class EntityServiceTest {
     public void testCreate() {
         entityDto.setId(null);    // must be null if new entity is to be created
         entity.setId(null);     // returned after conversion from DTO
+        
+        Entitty created = new Entitty();
+        created.setId(ENTITY_ID);
+        created.setUsername(entity.getUsername());
+        created.setDisplayName(entity.getDisplayName());
 
-        when(entityDaoMock.create(entity)).thenReturn(ENTITY_ID);
+        when(entityDaoMock.save(entity)).thenReturn(created);
         when(entityConvertMock.fromDtoToEntity(entityDto)).thenReturn(entity);
 
         Long returnedId = entityService.save(entityDto);
 
         ArgumentCaptor<Entitty> argument = ArgumentCaptor.forClass(Entitty.class);
-        verify(entityDaoMock).create(argument.capture());
+        verify(entityDaoMock).save(argument.capture());
         assertTrue("Service layer sent to DAO an entity with different Id than expected. Expected Id: null, "
                 + "sent Id: " + argument.getValue().getId() + ".", argument.getValue().getId() == null);
 

@@ -5,8 +5,6 @@
  */
 package com.ysoft.tools.antiintruder.web;
 
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;

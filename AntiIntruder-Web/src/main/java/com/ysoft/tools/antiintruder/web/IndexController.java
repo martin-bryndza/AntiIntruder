@@ -33,7 +33,7 @@ public class IndexController {
         prefillDto.setUsername("aaUsername");
         prefillDto.setDisplayName("aaDisplayName");
         model.addAttribute("entity", prefillDto); // object bindovany na formular - moze byt predvyplneny
-        model.addAttribute("entities", entityService.findAll(new PageRequest(1, 10)));
+        model.addAttribute("entities", entityService.findAll());
         return "index";
     }
     
@@ -44,8 +44,8 @@ public class IndexController {
     }
     
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
-    public String completeItem(@RequestParam Long index){
-        entityService.delete(index);
+    public String completeItem(@RequestParam Long entityId){
+        entityService.delete(entityId);
         return "redirect:";
     }
 }

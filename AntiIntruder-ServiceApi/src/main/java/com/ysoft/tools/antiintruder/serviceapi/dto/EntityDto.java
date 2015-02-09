@@ -69,7 +69,7 @@ public class EntityDto {
 
     @Override
     public String toString() {
-        return "EntityDto{" + "username=" + username + ", displayName=" + displayName + '}';
+        return "EntityDto{id=" + id + "username=" + username + ", displayName=" + displayName + '}';
     }
     
     

@@ -11,12 +11,16 @@ import com.ysoft.tools.antiintruder.backend.dto.convert.impl.EntityConvert;
 import com.ysoft.tools.antiintruder.backend.model.Entitty;
 import com.ysoft.tools.antiintruder.backend.model.State;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionNonVoidTemplate;
+import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionVoidTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +41,13 @@ public class EntityServiceImpl implements EntityService{
     @Override
     @Transactional(readOnly = false)
     public Long save(EntityDto dto) {
-//        if (dto.getActivityRecordId() != null) {
-//            IllegalArgumentException iaex = new IllegalArgumentException("Cannot create activity record that"
-//                    + " already exists. Use update instead.");
-//            log.error("ActivityRecordServiceImpl.create() called on existing entity", iaex);
-//            throw iaex;
-//        }
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
                 System.out.println(convert);
                 Entitty entity = convert.fromDtoToEntity((EntityDto) getU());
-                Long entityId = entityDao.create(entity);
-                return entityId;
+                Entitty savedEntity = entityDao.save(entity);
+                return savedEntity.getId();
             }
         }.tryMethod();
     }
@@ -64,20 +62,41 @@ public class EntityServiceImpl implements EntityService{
         return (EntityDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public EntityDto doMethod() {
-                Entitty entity = entityDao.get((Long) getU());
-                EntityDto dto = convert.fromEntityToDto(entity);
-                return dto;
+                Optional<Entitty> entity = entityDao.findOne((Long) getU());
+                if (entity.isPresent()){
+                    return convert.fromEntityToDto(entity.get());
+                } else {
+                    return null;
+                }
             }
         }.tryMethod();
     }
 
     @Override
     public void delete(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot remove entity that"
+                    + " doesn't exist.");
+            log.error("ID is null", iaex);
+            throw iaex;
+        } else {
+            new DataAccessExceptionVoidTemplate(id) {
+                @Override
+                public void doMethod() {
+                    entityDao.delete((Long) getU());
+                }
+            }.tryMethod();
+        }
     }    
 
+    //TODO: add paging
     @Override
-    public Page<EntityDto> findAll(Pageable pageable) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<EntityDto> findAll() {
+        List<Entitty> entities = entityDao.findAll();
+        List<EntityDto> result = new LinkedList<>();
+        for (Entitty entity : entities) {
+            result.add(EntityConvert.fromEntityToDto(entity));
+        }
+        return result;
     }
 }
