@@ -8,22 +8,18 @@ package com.ysoft.tools.antiintruder.backend.model;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 /**
  *
  * @author Bato
  */
-@Entity
-@Table(name = "entities")
-public class Entitty implements Serializable{
+@javax.persistence.Entity
+@Table(name = "Entities")
+public class Entity implements Serializable{
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -66,9 +62,6 @@ public class Entitty implements Serializable{
 //    public void setState(State state) {
 //        this.state = state;
 //    }
-    
-    @Version
-    private long version;
 
     @Override
     public int hashCode() {
@@ -85,7 +78,7 @@ public class Entitty implements Serializable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Entitty other = (Entitty) obj;
+        final Entity other = (Entity) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }

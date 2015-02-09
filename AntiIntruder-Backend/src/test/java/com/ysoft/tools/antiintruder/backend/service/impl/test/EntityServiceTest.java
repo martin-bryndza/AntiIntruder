@@ -7,7 +7,7 @@ package com.ysoft.tools.antiintruder.backend.service.impl.test;
 
 import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
 import com.ysoft.tools.antiintruder.backend.dto.convert.impl.EntityConvert;
-import com.ysoft.tools.antiintruder.backend.model.Entitty;
+import com.ysoft.tools.antiintruder.backend.model.Entity;
 import com.ysoft.tools.antiintruder.backend.service.impl.EntityServiceImpl;
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
 import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
@@ -32,12 +32,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EntityServiceTest {
 
     @InjectMocks
-    private EntityService entityService = new EntityServiceImpl();
+    private final EntityService entityService = new EntityServiceImpl();
     @Mock
     private EntityDao entityDaoMock;
     @Mock
     private EntityConvert entityConvertMock;
-    private Entitty entity;
+    private Entity entity;
     private EntityDto entityDto;
     
     private final Long ENTITY_ID = 42L;
@@ -46,7 +46,7 @@ public class EntityServiceTest {
     public void setUp() {
         Long time = new java.util.Date().getTime();
 
-        entity = new Entitty();
+        entity = new Entity();
         entity.setUsername("aa");
         entity.setDisplayName("aaa");
 
@@ -63,7 +63,7 @@ public class EntityServiceTest {
         entityDto.setId(null);    // must be null if new entity is to be created
         entity.setId(null);     // returned after conversion from DTO
         
-        Entitty created = new Entitty();
+        Entity created = new Entity();
         created.setId(ENTITY_ID);
         created.setUsername(entity.getUsername());
         created.setDisplayName(entity.getDisplayName());
@@ -73,7 +73,7 @@ public class EntityServiceTest {
 
         Long returnedId = entityService.save(entityDto);
 
-        ArgumentCaptor<Entitty> argument = ArgumentCaptor.forClass(Entitty.class);
+        ArgumentCaptor<Entity> argument = ArgumentCaptor.forClass(Entity.class);
         verify(entityDaoMock).save(argument.capture());
         assertTrue("Service layer sent to DAO an entity with different Id than expected. Expected Id: null, "
                 + "sent Id: " + argument.getValue().getId() + ".", argument.getValue().getId() == null);

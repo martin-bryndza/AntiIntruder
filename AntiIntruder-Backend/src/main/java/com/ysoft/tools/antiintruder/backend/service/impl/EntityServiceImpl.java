@@ -8,7 +8,7 @@ package com.ysoft.tools.antiintruder.backend.service.impl;
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
 import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
 import com.ysoft.tools.antiintruder.backend.dto.convert.impl.EntityConvert;
-import com.ysoft.tools.antiintruder.backend.model.Entitty;
+import com.ysoft.tools.antiintruder.backend.model.Entity;
 import com.ysoft.tools.antiintruder.backend.model.State;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionVoidTemplate;
@@ -45,8 +45,8 @@ public class EntityServiceImpl implements EntityService{
             @Override
             public Long doMethod() {
                 System.out.println(convert);
-                Entitty entity = convert.fromDtoToEntity((EntityDto) getU());
-                Entitty savedEntity = entityDao.save(entity);
+                Entity entity = convert.fromDtoToEntity((EntityDto) getU());
+                Entity savedEntity = entityDao.save(entity);
                 return savedEntity.getId();
             }
         }.tryMethod();
@@ -62,7 +62,7 @@ public class EntityServiceImpl implements EntityService{
         return (EntityDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public EntityDto doMethod() {
-                Optional<Entitty> entity = entityDao.findOne((Long) getU());
+                Optional<Entity> entity = entityDao.findOne((Long) getU());
                 if (entity.isPresent()){
                     return convert.fromEntityToDto(entity.get());
                 } else {
@@ -92,9 +92,9 @@ public class EntityServiceImpl implements EntityService{
     //TODO: add paging
     @Override
     public List<EntityDto> findAll() {
-        List<Entitty> entities = entityDao.findAll();
+        List<Entity> entities = entityDao.findAll();
         List<EntityDto> result = new LinkedList<>();
-        for (Entitty entity : entities) {
+        for (Entity entity : entities) {
             result.add(EntityConvert.fromEntityToDto(entity));
         }
         return result;
