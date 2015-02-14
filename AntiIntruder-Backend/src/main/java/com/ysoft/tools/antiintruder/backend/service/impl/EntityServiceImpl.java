@@ -21,8 +21,6 @@ import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  *
@@ -34,8 +32,6 @@ public class EntityServiceImpl implements EntityService{
     
     final static Logger log = LoggerFactory.getLogger(EntityServiceImpl.class);
     @Autowired
-    private EntityConvert convert;
-    @Autowired
     private EntityDao entityDao;
     
     @Override
@@ -44,8 +40,7 @@ public class EntityServiceImpl implements EntityService{
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
-                System.out.println(convert);
-                Entity entity = convert.fromDtoToEntity((EntityDto) getU());
+                Entity entity = EntityConvert.fromDtoToEntity((EntityDto) getU());
                 Entity savedEntity = entityDao.save(entity);
                 return savedEntity.getId();
             }
@@ -64,7 +59,7 @@ public class EntityServiceImpl implements EntityService{
             public EntityDto doMethod() {
                 Optional<Entity> entity = entityDao.findOne((Long) getU());
                 if (entity.isPresent()){
-                    return convert.fromEntityToDto(entity.get());
+                    return EntityConvert.fromEntityToDto(entity.get());
                 } else {
                     return null;
                 }

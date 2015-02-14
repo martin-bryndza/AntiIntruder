@@ -29,14 +29,14 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author Bato
  */
 @RunWith(MockitoJUnitRunner.class)
+//@RunWith(PowerMockRunner.class)
+//@PrepareForTest(EntityConvert.class)
 public class EntityServiceTest {
 
     @InjectMocks
     private final EntityService entityService = new EntityServiceImpl();
     @Mock
     private EntityDao entityDaoMock;
-    @Mock
-    private EntityConvert entityConvertMock;
     private Entity entity;
     private EntityDto entityDto;
     
@@ -69,7 +69,9 @@ public class EntityServiceTest {
         created.setDisplayName(entity.getDisplayName());
 
         when(entityDaoMock.save(entity)).thenReturn(created);
-        when(entityConvertMock.fromDtoToEntity(entityDto)).thenReturn(entity);
+//        mockStatic(EntityConvert.class);
+//        expect(EntityConvert.fromDtoToEntity(entityDto)).andReturn(entity);
+//        replay(EntityConvert.class);
 
         Long returnedId = entityService.save(entityDto);
 
