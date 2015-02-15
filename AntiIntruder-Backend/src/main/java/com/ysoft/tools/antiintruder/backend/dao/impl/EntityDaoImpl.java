@@ -1,18 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ysoft.tools.antiintruder.backend.dao.impl;
 
 import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
+import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.backend.model.Entity;
+import com.ysoft.tools.antiintruder.backend.model.State;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -23,7 +21,10 @@ import org.springframework.stereotype.Repository;
 public class EntityDaoImpl implements EntityDao{
     
     final static Logger log = LoggerFactory.getLogger(EntityDaoImpl.class);
-    // injected from Spring
+
+    @Autowired
+    private StateDao stateDao;
+    
     @PersistenceContext(name = "entityManagerFactory")
     private EntityManager em;
 
@@ -62,8 +63,23 @@ public class EntityDaoImpl implements EntityDao{
         log.info("Creating " + entity.toString());
         Entity modelEntity = em.merge(entity);
         Long id = modelEntity.getId();
-        log.debug("Created " + modelEntity.toString() + ". Assigned ID: " + id);
+        log.info("Created " + modelEntity.toString() + ". Assigned ID: " + id);
         return modelEntity;
+    }
+
+    @Override
+    public Entity updateState(Long id, Long stateId) {
+        Optional<Entity> e = findOne(id);
+        if (!e.isPresent()){
+            throw new IllegalArgumentException("Entity with id " + id + " does not exist.");
+        }
+        Optional<State> s = stateDao.findOne(stateId);
+        if (!s.isPresent()) {
+            throw new IllegalArgumentException("State with id " + stateId + " does not exist.");
+        }
+        Entity ent = e.get();
+        ent.setState(s.get());
+        return save(ent);
     }
     
 }

@@ -5,28 +5,33 @@
  */
 package com.ysoft.tools.antiintruder.backend.model;
 
+import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  *
  * @author Bato
  */
 @javax.persistence.Entity
-public class User implements Serializable{
+@Table(name = "Person")
+public class Person implements Serializable{
     
     @Id
-    @OneToOne
+    @OneToOne()
     private Entity entity;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
-    private String name;
+    @Column(columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
+    private String username;
     @Column(columnDefinition = "VARCHAR(50)", nullable = false)
     private String password;
+    @Enumerated(EnumType.STRING)
+    private PersonRole role;
 
     public Entity getEntity() {
         return entity;
@@ -35,13 +40,21 @@ public class User implements Serializable{
     public void setEntity(Entity entity) {
         this.entity = entity;
     }
-        
-    public String getName() {
-        return name;
+
+    public PersonRole getRole() {
+        return role;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRole(PersonRole role) {
+        this.role = role;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -55,7 +68,7 @@ public class User implements Serializable{
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 47 * hash + Objects.hashCode(this.name);
+        hash = 47 * hash + Objects.hashCode(this.username);
         hash = 47 * hash + Objects.hashCode(this.password);
         return hash;
     }
@@ -68,8 +81,8 @@ public class User implements Serializable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final User other = (User) obj;
-        if (!Objects.equals(this.name, other.name)) {
+        final Person other = (Person) obj;
+        if (!Objects.equals(this.username, other.username)) {
             return false;
         }
         if (!Objects.equals(this.password, other.password)) {
@@ -80,7 +93,7 @@ public class User implements Serializable{
 
     @Override
     public String toString() {
-        return "User{" + "name=" + name + ", password=" + password + '}';
+        return "Person{" + "entity=" + entity + ", username=" + username + ", password=" + password + ", role=" + role + '}';
     }
-    
+
 }

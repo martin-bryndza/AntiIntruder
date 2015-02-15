@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ysoft.tools.antiintruder.serviceapi.service;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import java.util.List;
 
 /**
  *
@@ -14,6 +8,11 @@ import java.util.List;
  */
 public interface EntityService extends Service<EntityDto>{
     
-    public List<EntityDto> findAll();
+    /**
+     * Sets State of the Entity identified by id to the State identified by stateId.
+     * @param id Id of the Entity
+     * @param stateId Id of the State
+     */
+    void updateState(Long id, Long stateId);
     
 }

@@ -96,4 +96,26 @@ public class EntityServiceImpl implements EntityService{
         return result;
     }
 
+    @Override
+    public void updateState(Long id, Long stateId) {
+        if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update entity that"
+                    + " doesn't exist.");
+            log.error("ID is null", iaex);
+            throw iaex;
+        } else if (stateId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update entity to state that"
+                    + " doesn't exist.");
+            log.error("stateId is null", iaex);
+            throw iaex;
+        } else {
+            new DataAccessExceptionVoidTemplate(id, stateId) {
+                @Override
+                public void doMethod() {
+                    entityDao.updateState((Long) getU(), (Long) getV());
+                }
+            }.tryMethod();
+        }
+    }
+
 }

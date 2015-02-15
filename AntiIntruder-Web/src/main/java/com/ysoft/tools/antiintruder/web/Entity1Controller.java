@@ -6,10 +6,7 @@
 package com.ysoft.tools.antiintruder.web;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.serviceapi.dto.PersonDto;
-import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
 import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
-import com.ysoft.tools.antiintruder.serviceapi.service.PersonService;
 import com.ysoft.tools.antiintruder.serviceapi.service.StateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,41 +21,40 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Bato
  */
 @Controller
-public class IndexController {
+public class Entity1Controller {
     
-    @Autowired
-    protected PersonService personService;
     @Autowired
     protected EntityService entityService;
     @Autowired
     protected StateService stateService;
         
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/entity1", method = RequestMethod.GET)
     public String loadItems(Model model){
-        model.addAttribute("personObject", new PersonDto());
-        model.addAttribute("password", new String());
-        model.addAttribute("persons", personService.findAll());
+        EntityDto prefillDto = new EntityDto();
+        prefillDto.setDescription("aaUsername");
+        prefillDto.setDisplayName("aaDisplayName");
+        model.addAttribute("prefillEntity", prefillDto); // object bindovany na formular - moze byt predvyplneny
+        model.addAttribute("entities", entityService.findAll());
         model.addAttribute("states", stateService.findAll());
-        return "index";
+        return "entity1";
     }
     
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String submitFormHandler(@ModelAttribute PersonDto person, String password){
-        person.setStateId(1L); //TODO: replace with default state for entity type
-        person.setRole(PersonRole.USER);
-        personService.register(person, password);
+    @RequestMapping(value = "/entity1/add", method = RequestMethod.POST)
+    public String submitFormHandler(@ModelAttribute EntityDto entity){
+        entity.setStateId(1L); //TODO: replace with default state for entity type
+        entityService.save(entity);
         return "redirect:";
     }
     
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/entity1/delete", method = RequestMethod.GET)
     public String completeItem(@RequestParam Long entityId){
-        personService.delete(entityId);
+        entityService.delete(entityId);
         return "redirect:";
     }
     
-    @RequestMapping(value = "/changeState", method = RequestMethod.GET)
-    public String changeState(@RequestParam Long entityId, Long stateId) {
-        entityService.updateState(entityId, stateId);
+    @RequestMapping(value = "/entity1/changeState", method = RequestMethod.POST)
+    public String changeState(@ModelAttribute EntityDto entity) {
+        entityService.save(entity);
         return "redirect:";
     }
 }

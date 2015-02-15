@@ -5,6 +5,8 @@
  */
 package com.ysoft.tools.antiintruder.serviceapi.service;
 
+import java.util.List;
+
 /**
  *
  * @author Bato
@@ -16,5 +18,7 @@ public interface Service<T> {
     public T findOne(Long id);
 
     public void delete(Long id);
+    
+    public List<T> findAll();
     
 }

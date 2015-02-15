@@ -87,11 +87,7 @@ public class Entity implements Serializable{
 
     @Override
     public String toString() {
-        return "Entitty{" + "id=" + id + ", username=" + description + ", displayName=" + displayName + ", state=" 
-//                + state 
-                + '}';
+        return "Entity{" + "id=" + id + ", displayName=" + displayName + ", description=" + description + ", state=" + state + '}';
     }
-    
-    
-    
+
 }
