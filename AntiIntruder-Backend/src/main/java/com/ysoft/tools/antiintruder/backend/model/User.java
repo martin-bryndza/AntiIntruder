@@ -5,37 +5,37 @@
  */
 package com.ysoft.tools.antiintruder.backend.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 /**
  *
  * @author Bato
  */
-@Entity
-public class State {
+@javax.persistence.Entity
+public class User implements Serializable{
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @OneToOne
+    private Entity entity;
     @Column(columnDefinition = "VARCHAR(50)", nullable = false)
     private String name;
-    
-    private long maxDuration;
-    private long minDuration;
+    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
+    private String password;
 
-    public Long getId() {
-        return id;
+    public Entity getEntity() {
+        return entity;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEntity(Entity entity) {
+        this.entity = entity;
     }
-
+        
     public String getName() {
         return name;
     }
@@ -44,25 +44,19 @@ public class State {
         this.name = name;
     }
 
-    public long getMaxDuration() {
-        return maxDuration;
+    public String getPassword() {
+        return password;
     }
 
-    public void setMaxDuration(long maxDuration) {
-        this.maxDuration = maxDuration;
-    }
-
-    public long getMinDuration() {
-        return minDuration;
-    }
-
-    public void setMinDuration(long minDuration) {
-        this.minDuration = minDuration;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = 5;
+        hash = 47 * hash + Objects.hashCode(this.name);
+        hash = 47 * hash + Objects.hashCode(this.password);
         return hash;
     }
 
@@ -74,8 +68,11 @@ public class State {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final State other = (State) obj;
-        if (!Objects.equals(this.id, other.id)) {
+        final User other = (User) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.password, other.password)) {
             return false;
         }
         return true;
@@ -83,7 +80,7 @@ public class State {
 
     @Override
     public String toString() {
-        return "State{" + "id=" + id + ", name=" + name + ", maxDuration=" + maxDuration + ", minDuration=" + minDuration + '}';
+        return "User{" + "name=" + name + ", password=" + password + '}';
     }
     
 }

@@ -6,20 +6,39 @@
         <meta charset="UTF-8"/>
         <link rel="stylesheet" type="text/css" media="all" 
           href="../../css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+        <script>
+            
+        </script>
     </head>
     <body>
         <h1>AntiIntruder</h1>
-        <form data-th-action="@{/add}" data-th-object="${entity}" method="post" class="form">
-            <input type="text" data-th-field="*{username}" class="form-control"/>
+        <form data-th-action="@{/add}" data-th-object="${prefillEntity}" method="post" class="form">
             <input type="text" data-th-field="*{displayName}" class="form-control"/>
+            <input type="text" data-th-field="*{description}" class="form-control"/>
             <button type="submit" class="btn btn-primary"> Add </button>
         </form>
         <ul>
-            <li data-th-each="ent: ${entities}">
-                <span data-th-text="${ent.username}">Entity username</span>
+            <li th:each="ent, stat: ${entities}">
                 <span data-th-text="${ent.displayName}">Entity displayName</span>
-                <a href="#" data-th-href="@{/delete(entityId=${ent.id})}">Delete</a>
+                <span data-th-text="${ent.description}">Entity description</span>
+                <span>
+                    <select name="selectState" th:onchange="'
+                        document.getElementById(\'id1\').value = \''+${ent.id}+'\';
+                        document.getElementById(\'displayName1\').value = \''+${ent.displayName}+'\';
+                        document.getElementById(\'description1\').value = \''+${ent.description}+'\';
+                        document.getElementById(\'stateId1\').value = this.value;
+                        document.getElementById(\'changeForm\').submit()'"> 
+                        <option th:each="sopt:${states}" th:value="${sopt.id}" th:text="${sopt.name}" th:selected="${ent.stateId}==${sopt.id}"/>
+                    </select>
+                </span>
+                <a href="#" data-th-href="@{/delete(entityId=${ent.id})}" th:text="#{delete}">Delete</a>
             </li>
         </ul>
+        <form id="changeForm" data-th-action="@{/changeState}" data-th-object="${prefillEntity}" method="post" class="form">
+            <input id="id1" type="hidden" data-th-field="*{id}" class="form-control"/>
+            <input id="displayName1" type="hidden" data-th-field="*{displayName}" class="form-control"/>
+            <input id="description1" type="hidden" data-th-field="*{description}" class="form-control"/>
+            <input id="stateId1" type="hidden" data-th-field="*{stateId}" class="form-control"/>
+        </form>
     </body>
 </html>

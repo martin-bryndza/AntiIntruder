@@ -5,18 +5,18 @@
  */
 package com.ysoft.tools.antiintruder.backend.service.impl;
 
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
-import com.ysoft.tools.antiintruder.backend.dto.convert.impl.EntityConvert;
-import com.ysoft.tools.antiintruder.backend.model.Entity;
+import com.ysoft.tools.antiintruder.backend.dao.StateDao;
+import com.ysoft.tools.antiintruder.backend.dto.convert.impl.StateConvert;
+import com.ysoft.tools.antiintruder.backend.model.State;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionVoidTemplate;
+import com.ysoft.tools.antiintruder.serviceapi.dto.StateDto;
+import com.ysoft.tools.antiintruder.serviceapi.service.StateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -27,40 +27,38 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class EntityServiceImpl implements EntityService{
+public class StateServiceImpl implements StateService{
     
-    final static Logger log = LoggerFactory.getLogger(EntityServiceImpl.class);
+    final static Logger log = LoggerFactory.getLogger(StateServiceImpl.class);
     @Autowired
-    private EntityDao entityDao;
-    @Autowired
-    private EntityConvert entityConvert;
+    private StateDao stateDao;
     
     @Override
     @Transactional(readOnly = false)
-    public Long save(EntityDto dto) {
+    public Long save(StateDto dto) {
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
-                Entity entity = entityConvert.fromDtoToEntity((EntityDto) getU());
-                Entity savedEntity = entityDao.save(entity);
+                State entity = StateConvert.fromDtoToEntity((StateDto) getU());
+                State savedEntity = stateDao.save(entity);
                 return savedEntity.getId();
             }
         }.tryMethod();
     }
 
     @Override
-    public EntityDto findOne(Long id) {
+    public StateDto findOne(Long id) {
         if (id == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
-            log.error("EntityServiceImpl.get() called on null parameter: Long id", iaex);
+            log.error("StateServiceImpl.get() called on null parameter: Long id", iaex);
             throw iaex;
         }
-        return (EntityDto) new DataAccessExceptionNonVoidTemplate(id) {
+        return (StateDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
-            public EntityDto doMethod() {
-                Optional<Entity> entity = entityDao.findOne((Long) getU());
+            public StateDto doMethod() {
+                Optional<State> entity = stateDao.findOne((Long) getU());
                 if (entity.isPresent()){
-                    return EntityConvert.fromEntityToDto(entity.get());
+                    return StateConvert.fromEntityToDto(entity.get());
                 } else {
                     return null;
                 }
@@ -79,21 +77,19 @@ public class EntityServiceImpl implements EntityService{
             new DataAccessExceptionVoidTemplate(id) {
                 @Override
                 public void doMethod() {
-                    entityDao.delete((Long) getU());
+                    stateDao.delete((Long) getU());
                 }
             }.tryMethod();
         }
     }    
 
-    //TODO: add paging
     @Override
-    public List<EntityDto> findAll() {
-        List<Entity> entities = entityDao.findAll();
-        List<EntityDto> result = new LinkedList<>();
-        for (Entity entity : entities) {
-            result.add(EntityConvert.fromEntityToDto(entity));
+    public List<StateDto> findAll() {
+        List<State> states = stateDao.findAll();
+        List<StateDto> result = new LinkedList<>();
+        for (State state : states) {
+            result.add(StateConvert.fromEntityToDto(state));
         }
         return result;
     }
-
 }

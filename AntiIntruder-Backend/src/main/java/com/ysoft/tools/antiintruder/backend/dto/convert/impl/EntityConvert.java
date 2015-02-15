@@ -5,8 +5,10 @@
  */
 package com.ysoft.tools.antiintruder.backend.dto.convert.impl;
 
+import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
 import com.ysoft.tools.antiintruder.backend.model.Entity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,13 +17,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class EntityConvert{
+    
+    @Autowired
+    private StateDao stateDao;
 
-    public static Entity fromDtoToEntity(EntityDto dto) {
+    public Entity fromDtoToEntity(EntityDto dto) {
      Entity e = new Entity();
         e.setId(dto.getId());
-        e.setUsername(dto.getUsername());
+        e.setDescription(dto.getDescription());
         e.setDisplayName(dto.getDisplayName());
-//        e.setState(State.AVAILABLE);
+        e.setState(stateDao.findOne(dto.getStateId()).get());
         return e;
     }
 
@@ -29,7 +34,8 @@ public class EntityConvert{
         EntityDto dto = new EntityDto();
         dto.setId(entity.getId());
         dto.setDisplayName(entity.getDisplayName());
-        dto.setUsername(entity.getUsername());
+        dto.setDescription(entity.getDescription());
+        dto.setStateId(entity.getState().getId());
         return dto;
     }
     

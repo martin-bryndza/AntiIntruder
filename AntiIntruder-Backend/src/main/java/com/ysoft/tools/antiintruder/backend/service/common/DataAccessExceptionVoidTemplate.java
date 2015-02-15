@@ -20,7 +20,7 @@ public abstract class DataAccessExceptionVoidTemplate<U> {
         try {
             doMethod();
         } catch (Exception ex) {
-            throw new RecoverableDataAccessException("Operation 'create' failed." + ex.getMessage(), ex);
+            throw new RecoverableDataAccessException("Operation failed." + ex.getMessage(), ex);
         }
     }
     

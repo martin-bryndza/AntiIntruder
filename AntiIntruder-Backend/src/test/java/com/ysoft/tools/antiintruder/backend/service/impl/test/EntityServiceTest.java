@@ -47,7 +47,7 @@ public class EntityServiceTest {
         Long time = new java.util.Date().getTime();
 
         entity = new Entity();
-        entity.setUsername("aa");
+        entity.setDescription("aa");
         entity.setDisplayName("aaa");
 
         entityDto = new EntityDto();
@@ -65,7 +65,7 @@ public class EntityServiceTest {
         
         Entity created = new Entity();
         created.setId(ENTITY_ID);
-        created.setUsername(entity.getUsername());
+        created.setDescription(entity.getDescription());
         created.setDisplayName(entity.getDisplayName());
 
         when(entityDaoMock.save(entity)).thenReturn(created);

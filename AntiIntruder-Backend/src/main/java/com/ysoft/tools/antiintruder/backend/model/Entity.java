@@ -11,57 +11,57 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.ManyToOne;
 
 /**
  *
  * @author Bato
  */
 @javax.persistence.Entity
-@Table(name = "Entities")
 public class Entity implements Serializable{
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(columnDefinition = "VARCHAR(50)", nullable = false)
-    private String username;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
     private String displayName;
-//    @Enumerated(EnumType.STRING)
-//    private State state;
+    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
+    private String description;
+    
+    @ManyToOne
+    private State state;
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
     
-    public String getUsername() {
-        return username;
+    public String getDescription() {
+        return description;
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-//    public State getState() {
-//        return state;
-//    }
+    public State getState() {
+        return state;
+    }
 
     public Long getId() {
         return id;
     }
 
-//    public void setState(State state) {
-//        this.state = state;
-//    }
+    public void setState(State state) {
+        this.state = state;
+    }
 
     @Override
     public int hashCode() {
@@ -87,7 +87,7 @@ public class Entity implements Serializable{
 
     @Override
     public String toString() {
-        return "Entitty{" + "id=" + id + ", username=" + username + ", displayName=" + displayName + ", state=" 
+        return "Entitty{" + "id=" + id + ", username=" + description + ", displayName=" + displayName + ", state=" 
 //                + state 
                 + '}';
     }

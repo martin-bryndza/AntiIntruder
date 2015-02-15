@@ -48,10 +48,10 @@ public class EntityDaoImpl implements EntityDao{
     public Optional<Entity> findOne(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
-        } else if (em.createQuery("SELECT e.id FROM Entities e WHERE e.id = :pk", Long.class).setParameter("pk", id).getResultList().size() < 1) {
+        } else if (em.createQuery("SELECT e.id FROM Entity e WHERE e.id = :pk", Long.class).setParameter("pk", id).getResultList().size() < 1) {
             throw new IllegalArgumentException("Invalid id: nonexistent");
         }
-        return Optional.ofNullable(em.createQuery("SELECT e FROM Entities e WHERE e.id = :pk", Entity.class).setParameter("pk", id).getSingleResult());
+        return Optional.ofNullable(em.createQuery("SELECT e FROM Entity e WHERE e.id = :pk", Entity.class).setParameter("pk", id).getSingleResult());
     }
 
     @Override

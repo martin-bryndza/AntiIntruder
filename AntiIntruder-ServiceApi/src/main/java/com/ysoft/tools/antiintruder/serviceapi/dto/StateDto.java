@@ -11,20 +11,12 @@ import java.util.Objects;
  *
  * @author Bato
  */
-public class EntityDto {
+public class StateDto {
     
-    private String description;
-    private String displayName;
-    private Long stateId;
     private Long id;
-
-    public Long getStateId() {
-        return stateId;
-    }
-
-    public void setStateId(Long stateId) {
-        this.stateId = stateId;
-    }
+    private String name;
+    private long maxDuration;
+    private long minDuration;
 
     public Long getId() {
         return id;
@@ -34,26 +26,34 @@ public class EntityDto {
         this.id = id;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public String getName() {
+        return name;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-  
-    public String getDescription() {
-        return description;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public long getMaxDuration() {
+        return maxDuration;
+    }
+
+    public void setMaxDuration(long maxDuration) {
+        this.maxDuration = maxDuration;
+    }
+
+    public long getMinDuration() {
+        return minDuration;
+    }
+
+    public void setMinDuration(long minDuration) {
+        this.minDuration = minDuration;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 13 * hash + Objects.hashCode(this.id);
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode(this.id);
         return hash;
     }
 
@@ -65,7 +65,7 @@ public class EntityDto {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final EntityDto other = (EntityDto) obj;
+        final StateDto other = (StateDto) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
@@ -74,7 +74,7 @@ public class EntityDto {
 
     @Override
     public String toString() {
-        return "EntityDto{" + "description=" + description + ", displayName=" + displayName + ", stateId=" + stateId + ", id=" + id + '}';
-    }    
+        return "StateDto{" + "id=" + id + ", name=" + name + ", maxDuration=" + maxDuration + ", minDuration=" + minDuration + '}';
+    }
     
 }

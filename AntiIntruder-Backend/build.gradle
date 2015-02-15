@@ -17,8 +17,8 @@ description = 'backend'
 
 buildscript {
     repositories {
-        mavenLocal()
         mavenCentral()
+        mavenLocal()
         //maven { name 'ysf-group-ysoft'; url "http://repo.ysoft.local/content/groups/ysoft/" }
     }
 dependencies {
