@@ -5,7 +5,6 @@
  */
 package com.ysoft.tools.antiintruder.web;
 
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
 import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;

@@ -6,12 +6,17 @@
         <meta charset="UTF-8"/>
         <link rel="stylesheet" type="text/css" media="all" 
           href="../../css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
-        <script>
-            
-        </script>
     </head>
     <body>
         <h1>AntiIntruder</h1>
+        <div th:if="${#httpServletRequest.remoteUser != null}">
+            <p th:text="${#httpServletRequest.remoteUser}">
+                sample_user
+            </p>
+            <form th:action="@{/logout}" method="post">
+                <input type="submit" value="Log out" />
+            </form>
+        </div>
         <form data-th-action="@{/add}" data-th-object="${personObject}" method="post" class="form">
             <input type="text" data-th-field="*{username}" class="form-control"/>
             <input type="text" data-th-field="${password}" class="form-control"/>
