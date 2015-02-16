@@ -35,7 +35,7 @@ public class PersonDaoImpl implements PersonDao{
         if (id == null) {
             throw new IllegalArgumentException("Invalid record: null or with no id.");
         }
-        Person person = em.find(Person.class, id);
+        Person person = em.find(Person.class, id.getId());
         if (person == null) {
             log.error("Person with corresponding entity with id " + id.getId() + " is not in DB");
         }
@@ -48,7 +48,7 @@ public class PersonDaoImpl implements PersonDao{
         if (entityId == null) {
             throw new IllegalArgumentException("Invalid record: null or with no id.");
         }
-        Person person = em.find(Person.class, entityDao.findOne(entityId));
+        Person person = em.find(Person.class, entityId);
         if (person == null) {
             log.error("Person with corresponding entity with id " + entityId + " is not in DB");
         }
@@ -117,9 +117,10 @@ public class PersonDaoImpl implements PersonDao{
         person.setEntity(modelReferencedEntity);
         log.info("Creating " + person.toString());
         Person modelPerson = em.merge(person);
-        Entity id = modelPerson.getEntity();
+        // modelPerson.entity is null again
+        modelPerson.setEntity(modelReferencedEntity); //TODO: Why do I have to do this?
         log.info("Created " + modelPerson.toString() + ".");
-        log.info(" Assigned entity id: " + id.getId());
+        log.info(" Assigned entity id: " + modelReferencedEntity.getId());
         return modelPerson;
     }
     

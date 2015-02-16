@@ -8,6 +8,7 @@ package com.ysoft.tools.antiintruder.backend.model;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -24,7 +25,7 @@ import javax.persistence.Table;
 public class Person implements Serializable{
     
     @Id
-    @OneToOne()
+    @OneToOne(cascade = {CascadeType.REMOVE})//TODO: Does not work
     private Entity entity;
     @Column(columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String username;
