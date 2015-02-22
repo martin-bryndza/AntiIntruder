@@ -48,6 +48,6 @@ public interface PersonDao extends Dao<Person, Entity>{
     @Override
     Person save(Person entity);
     
-    Person login(String username, String password);
+//    Person login(String username, String password);
     
 }

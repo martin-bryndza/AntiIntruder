@@ -1,14 +1,15 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
     <head>
-        <title>AntiIntruder</title>
+        <title th:text='#{Title}'>AntiIntruder</title>
         <meta charset="UTF-8"/>
         <link rel="stylesheet" type="text/css" media="all" 
-          href="../../css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+              href="../../css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
     </head>
     <body>
-        <h1>AntiIntruder</h1>
+        <h1 th:text='#{Title}'>AntiIntruder</h1>
         <div th:if="${#httpServletRequest.remoteUser != null}">
             <p th:text="${#httpServletRequest.remoteUser}">
                 sample_user
@@ -17,13 +18,15 @@
                 <input type="submit" value="Log out" />
             </form>
         </div>
-        <form data-th-action="@{/add}" data-th-object="${personObject}" method="post" class="form">
-            <input type="text" data-th-field="*{username}" class="form-control"/>
-            <input type="text" data-th-field="${password}" class="form-control"/>
-            <input type="text" data-th-field="*{displayName}" class="form-control"/>
-            <input type="text" data-th-field="*{description}" class="form-control"/>
-            <button type="submit" class="btn btn-primary"> Add </button>
-        </form>
+        <div th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
+            <form data-th-action="@{/add}" data-th-object="${personObject}" method="post" class="form">
+                <label for="username" th:text='#{Username}'>Username</label><input type="text" data-th-field="*{username}" class="form-control"/><br/>
+                <label for="password" th:text='#{Password}'>Password</label><input type="text" data-th-field="${password}" class="form-control"/><br/>
+                <label for="displayName" th:text='#{Display_Name}'>Display Name</label><input type="text" data-th-field="*{displayName}" class="form-control"/><br/>
+                <label for="description" th:text='#{Description}'>Description</label><input type="text" data-th-field="*{description}" class="form-control"/><br/>
+                <button type="submit" class="btn btn-primary" th:text='#{Add}'> Add </button>
+            </form>
+        </div>    
         <ul>
             <li th:each="ent, stat: ${persons}">
                 <span data-th-text="${ent.displayName}">Entity displayName</span>
@@ -33,7 +36,7 @@
                         <option th:each="sopt:${states}" th:value="${sopt.id}" th:text="${sopt.name}" th:selected="${ent.stateId}==${sopt.id}"/>
                     </select>
                 </span>
-                <a href="#" data-th-href="@{/delete(entityId=${ent.entityId})}" th:text="#{delete}">Delete</a>
+                <a href="#" data-th-href="@{/delete(entityId=${ent.entityId})}" th:text="#{Delete}">Delete</a>
             </li>
         </ul>
     </body>

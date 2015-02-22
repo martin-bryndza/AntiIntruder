@@ -23,9 +23,9 @@ public class Entity implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(150)", nullable = false)
     private String displayName;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(250)", nullable = false)
     private String description;
     
     @ManyToOne

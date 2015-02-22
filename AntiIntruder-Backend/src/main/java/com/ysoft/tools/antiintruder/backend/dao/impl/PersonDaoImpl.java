@@ -124,24 +124,24 @@ public class PersonDaoImpl implements PersonDao{
         return modelPerson;
     }
     
-    @Override
-    public Person login(String username, String password) {
-        if (username == null || password == null) {
-            throw new IllegalArgumentException("Invalid username or password: null");
-        }
-        TypedQuery<Person> query;
-        Person returnedUser;
-        query = em.createQuery("SELECT tbl FROM Person tbl "
-                + " WHERE tbl.username = :uname and tbl.password = :pword", Person.class);
-        query.setParameter("uname", username);
-        query.setParameter("pword", password);
-        try {
-            returnedUser = query.getSingleResult();
-        } catch (NoResultException ex) {
-            log.debug("Login failed for user " + username + ". Ivalid credentials or user does not exist.");
-            return null;
-        }
-        return returnedUser;
-    }
+//    @Override
+//    public Person login(String username, String password) {
+//        if (username == null || password == null) {
+//            throw new IllegalArgumentException("Invalid username or password: null");
+//        }
+//        TypedQuery<Person> query;
+//        Person returnedUser;
+//        query = em.createQuery("SELECT tbl FROM Person tbl "
+//                + " WHERE tbl.username = :uname and tbl.password = :pword", Person.class);
+//        query.setParameter("uname", username);
+//        query.setParameter("pword", password);
+//        try {
+//            returnedUser = query.getSingleResult();
+//        } catch (NoResultException ex) {
+//            log.debug("Login failed for user " + username + ". Ivalid credentials or user does not exist.");
+//            return null;
+//        }
+//        return returnedUser;
+//    }
     
 }

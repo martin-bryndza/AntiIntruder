@@ -5,11 +5,16 @@
  */
 package com.ysoft.tools.antiintruder.web;
 
+import java.util.Locale;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceResolvable;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -24,13 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class Application extends WebMvcConfigurerAdapter{
         
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
-//        EntityService repository = context.getBean(EntityService.class);
-//        EntityDto test = new EntityDto();
-//        test.setUsername("app");
-//        test.setDisplayName("App");
-//        repository.save(test);
-//        context.close();
+        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);        
     }
     
     @Override
@@ -39,4 +38,11 @@ public class Application extends WebMvcConfigurerAdapter{
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
+    @Bean
+    public MessageSource messageSource() {
+        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setBasename("classpath:lang/messages/messages");
+        return messageSource;
+    }
+    
 }

@@ -27,9 +27,9 @@ public class Person implements Serializable{
     @Id
     @OneToOne(cascade = {CascadeType.REMOVE})//TODO: Does not work
     private Entity entity;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
+    @Column(columnDefinition = "VARCHAR(100)", nullable = false, unique = true)
     private String username;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(250)", nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
     private PersonRole role;

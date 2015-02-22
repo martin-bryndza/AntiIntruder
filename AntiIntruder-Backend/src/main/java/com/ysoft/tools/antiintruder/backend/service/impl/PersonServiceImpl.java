@@ -5,24 +5,20 @@
  */
 package com.ysoft.tools.antiintruder.backend.service.impl;
 
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
 import com.ysoft.tools.antiintruder.backend.dao.PersonDao;
-import com.ysoft.tools.antiintruder.backend.dto.convert.impl.EntityConvert;
 import com.ysoft.tools.antiintruder.backend.dto.convert.impl.PersonConvert;
-import com.ysoft.tools.antiintruder.backend.model.Entity;
 import com.ysoft.tools.antiintruder.backend.model.Person;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionVoidTemplate;
+import com.ysoft.tools.antiintruder.serviceapi.dto.LoginDetailsDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonDto;
+import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ysoft.tools.antiintruder.serviceapi.service.PersonService;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -96,11 +92,6 @@ public class PersonServiceImpl implements PersonService{
     }
 
     @Override
-    public PersonDto login(String username, String password) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void setPassword(String username, String password) {
         if (username == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
@@ -111,7 +102,7 @@ public class PersonServiceImpl implements PersonService{
             log.info("Password stays unchanged.");
             return;
         }
-        new DataAccessExceptionNonVoidTemplate(username, hash(username, password)) {
+        new DataAccessExceptionNonVoidTemplate(username, password) {
             @Override
             public Object doMethod() {
                 Person person = personDao.findOneByUsername((String) getU()).get();
@@ -128,31 +119,31 @@ public class PersonServiceImpl implements PersonService{
             @Override
             public Long doMethod() {
                 PersonDto dto = (PersonDto) getU();
-                Person entity = personConvert.fromDtoToEntity(dto, hash(dto.getUsername(),(String) getV()));
+                Person entity = personConvert.fromDtoToEntity(dto, (String) getV());
                 Person savedEntity = personDao.save(entity);
                 return savedEntity.getEntity().getId();
             }
         }.tryMethod();
     }
     
-    private String hash(String username, String password) {
-        String string = password + "{" + username + "}";
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException ex) {
-            log.error(ex.getMessage());
-            return string;
+    @Override
+    public Optional<LoginDetailsDto> getLoginDetails(String username) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
+            log.error("PersonServiceImpl.getPassword() called on null parameter: String username", iaex);
+            throw iaex;
         }
-        md.update(string.getBytes());
-
-        byte byteData[] = md.digest();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < byteData.length; i++) {
-            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        log.debug("Produced hash: " + sb.toString());
-        return sb.toString();
+        return (Optional<LoginDetailsDto>) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public Optional<LoginDetailsDto> doMethod() {
+                Optional<Person> entity = personDao.findOneByUsername((String) getU());
+                if (entity.isPresent()) {
+                    return Optional.of(new LoginDetailsDto(entity.get().getPassword(), entity.get().getRole()));
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }.tryMethod();
     }
 
 }
