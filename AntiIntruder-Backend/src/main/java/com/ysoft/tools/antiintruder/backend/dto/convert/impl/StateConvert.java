@@ -5,8 +5,10 @@
  */
 package com.ysoft.tools.antiintruder.backend.dto.convert.impl;
 
+import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.backend.model.State;
 import com.ysoft.tools.antiintruder.serviceapi.dto.StateDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,8 +17,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class StateConvert{
+    
+    @Autowired
+    private StateDao stateDao;
 
-    public static State fromDtoToEntity(StateDto dto) {
+    public State fromDtoToEntity(StateDto dto) {
         if (dto == null){
             return null;
         }
@@ -25,6 +30,7 @@ public class StateConvert{
         s.setName(dto.getName());
         s.setMinDuration(dto.getMinDuration());
         s.setMaxDuration(dto.getMaxDuration());
+        s.setDefaultSuccessor(stateDao.findOne(dto.getDefaultSuccessorId()).get());
         return s;
     }
 
@@ -37,6 +43,7 @@ public class StateConvert{
         dto.setName(entity.getName());
         dto.setMinDuration(entity.getMinDuration());
         dto.setMaxDuration(entity.getMaxDuration());
+        dto.setDefaultSuccessorId(entity.getDefaultSuccessor().getId());
         return dto;
     }
     

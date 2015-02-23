@@ -6,7 +6,10 @@
 package com.ysoft.tools.antiintruder.backend.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,6 +33,13 @@ public class Entity implements Serializable{
     
     @ManyToOne
     private State state;
+    
+    @Column(nullable = false, name = "LAST_STATE_CHANGE")
+    private Date lastStateChange;
+    @Column(nullable = true, name = "NEXT_STATE_CHANGE")
+    private Date nextPossibleStateChange;
+    @Column(nullable = true, name = "STATE_EXPIRATION")
+    private Date stateExpiration;
 
     public void setId(Long id) {
         this.id = id;
@@ -59,10 +69,50 @@ public class Entity implements Serializable{
         return id;
     }
 
+    /**
+     * Sets new state. If the state is different than the previously set state, 
+     * fields lastStateChange, nextPossibleStateChange and stateExpiration will 
+     * automatically be updated.
+     * @param state 
+     */
     public void setState(State state) {
+        if (state!=null && !state.equals(this.state)){
+            final Long currentMillis = Calendar.getInstance().getTimeInMillis();
+            setLastStateChange(new Date(currentMillis));
+            setNextPossibleStateChange(new Date(currentMillis + state.getMinDuration()));
+            setStateExpiration((Optional<Date>) (state.getMaxDuration()==0?Optional.empty():Optional.of(new Date(currentMillis + state.getMaxDuration()))));
+        }
         this.state = state;
     }
 
+    public Date getLastStateChange() {
+        return lastStateChange;
+    }
+
+    private void setLastStateChange(Date lastStateChange) {
+        this.lastStateChange = lastStateChange;
+    }
+
+    public Date getNextPossibleStateChange() {
+        return nextPossibleStateChange;
+    }
+
+    private void setNextPossibleStateChange(Date nextPossibleStateChange) {
+        this.nextPossibleStateChange = nextPossibleStateChange;
+    }
+
+    /**
+     * 
+     * @return Time when the current state expires or null, if the state never expires
+     */
+    public Optional<Date> getStateExpiration() {
+        return Optional.ofNullable(stateExpiration);
+    }
+
+    private void setStateExpiration(Optional<Date> stateExpiration) {
+        this.stateExpiration = stateExpiration.orElse(null);
+    }
+    
     @Override
     public int hashCode() {
         int hash = 5;

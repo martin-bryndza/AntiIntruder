@@ -13,6 +13,12 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
-dependencies {    
+description = 'core'
+
+dependencies { 
+    compile project(':AntiIntruder-Backend')
+    compile project(':AntiIntruder-ServiceApi')
     
+    // Spring-boot
+    compile ('org.springframework.boot:spring-boot-starter-data-jpa:' + project.ext.springBootVersion)
 }

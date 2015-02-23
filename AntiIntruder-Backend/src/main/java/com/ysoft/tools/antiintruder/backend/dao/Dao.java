@@ -43,7 +43,7 @@ public interface Dao<T, U extends Serializable> extends Repository<T, U>{
     /**
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the entity instance completely.
      * @param entity - the entity to save
-     * @return the saved entity
+     * @return copy of the saved entity
      */
     T save(T entity);
     

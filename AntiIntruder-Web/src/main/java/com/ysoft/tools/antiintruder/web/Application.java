@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ysoft.tools.antiintruder.web;
 
-import java.util.Locale;
+import com.ysoft.tools.antiintruder.core.scheduler.SchedulerService;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
@@ -28,8 +24,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ImportResource("classpath:applicationContext.xml")
 public class Application extends WebMvcConfigurerAdapter{
         
+    @Autowired
+    SchedulerService scheduler;
+    
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);        
+        /*ConfigurableApplicationContext context =*/ SpringApplication.run(Application.class, args);
+    }
+    
+    @PostConstruct
+    protected void startScheduler(){
+        scheduler.start();
     }
     
     @Override

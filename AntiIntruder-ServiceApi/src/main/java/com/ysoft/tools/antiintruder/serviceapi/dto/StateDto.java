@@ -5,7 +5,9 @@
  */
 package com.ysoft.tools.antiintruder.serviceapi.dto;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  *
@@ -13,12 +15,14 @@ import java.util.Objects;
  */
 public class StateDto {
     
-    private Long id;
+    private long id;
     private String name;
     private long maxDuration;
     private long minDuration;
+    private long defaultSuccessorId;
+    private Set<Long> successorsIds;
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -48,6 +52,22 @@ public class StateDto {
 
     public void setMinDuration(long minDuration) {
         this.minDuration = minDuration;
+    }
+
+    public long getDefaultSuccessorId() {
+        return defaultSuccessorId;
+    }
+
+    public void setDefaultSuccessorId(Long defaultSuccessorId) {
+        this.defaultSuccessorId = defaultSuccessorId;
+    }
+
+    public Set<Long> getSuccessorsIds() {
+        return successorsIds;
+    }
+
+    public void setSuccessorsIds(Set<Long> successorsIds) {
+        this.successorsIds = successorsIds;
     }
 
     @Override

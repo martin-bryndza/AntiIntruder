@@ -4,6 +4,8 @@ import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
 import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.backend.model.Entity;
 import com.ysoft.tools.antiintruder.backend.model.State;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -60,10 +62,14 @@ public class EntityDaoImpl implements EntityDao{
         if (entity == null) {
             throw new IllegalArgumentException("Invalid entity (Entity): " + entity);
         }
-        log.info("Creating " + entity.toString());
+        if (entity.getState() == null){
+            throw new IllegalArgumentException("Entity state cannot be null. " + entity.toString());
+        }
+        //Save the entity
+        log.info("Saving " + entity.toString());
         Entity modelEntity = em.merge(entity);
         Long id = modelEntity.getId();
-        log.info("Created " + modelEntity.toString() + ". Assigned ID: " + id);
+        log.info("Saved " + modelEntity.toString() + ". Assigned ID: " + id);
         return modelEntity;
     }
 
@@ -77,9 +83,13 @@ public class EntityDaoImpl implements EntityDao{
         if (!s.isPresent()) {
             throw new IllegalArgumentException("State with id " + stateId + " does not exist.");
         }
+        if (e.get().getState().equals(s.get())){
+            log.info("Actual and wanted states are the same. State will not be changed.");
+            return e.get();
+        }        
         Entity ent = e.get();
         ent.setState(s.get());
-        return save(ent);
+        return ent;
     }
-    
+        
 }

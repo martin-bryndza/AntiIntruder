@@ -5,12 +5,16 @@
  */
 package com.ysoft.tools.antiintruder.backend.model;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -27,6 +31,9 @@ public class State {
     
     private long maxDuration;
     private long minDuration;
+    
+    @ManyToOne(optional = true)
+    private State defaultSuccessor;
 
     public Long getId() {
         return id;
@@ -44,22 +51,51 @@ public class State {
         this.name = name;
     }
 
+    /**
+     * 
+     * @return Maximum state duration in milliseconds or 0 for not specified
+     */
     public long getMaxDuration() {
         return maxDuration;
     }
 
+    /**
+     * 
+     * @param maxDuration Maximum state duration in milliseconds or 0 for not specified
+     */
     public void setMaxDuration(long maxDuration) {
         this.maxDuration = maxDuration;
     }
 
+    /**
+     * 
+     * @return Minimum state duration in milliseconds or 0 for not specified
+     */
     public long getMinDuration() {
         return minDuration;
     }
 
+    /**
+     * 
+     * @param minDuration Minimum state duration in milliseconds or 0 for not specified
+     */
     public void setMinDuration(long minDuration) {
         this.minDuration = minDuration;
     }
 
+    /**
+     * Gets the default successor of this state. If the given successor is null,
+     * this object will returned as its successor.
+     * @return Default successor state of this state.
+     */
+    public State getDefaultSuccessor() {
+        return defaultSuccessor==null?this:defaultSuccessor;
+    }
+
+    public void setDefaultSuccessor(State defaultSuccessor) {
+        this.defaultSuccessor = defaultSuccessor;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 7;
@@ -75,10 +111,7 @@ public class State {
             return false;
         }
         final State other = (State) obj;
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.id, other.id);
     }
 
     @Override

@@ -41,6 +41,10 @@ public class EntityServiceImpl implements EntityService{
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
+                EntityDto dto = (EntityDto) getU();
+                if (dto.getStateId() == null){
+                    dto.setStateId(1L); // TODO: Replace with default state for entity type
+                }
                 Entity entity = entityConvert.fromDtoToEntity((EntityDto) getU());
                 Entity savedEntity = entityDao.save(entity);
                 return savedEntity.getId();

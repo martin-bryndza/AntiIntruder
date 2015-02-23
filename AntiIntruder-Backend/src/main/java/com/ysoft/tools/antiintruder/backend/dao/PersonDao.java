@@ -39,7 +39,7 @@ public interface PersonDao extends Dao<Person, Entity>{
      * @return corresponding Person entity
      */
     Optional<Person> findOneByUsername(String username);
-    
+
     /**
      * Saves the Person entity and the referenced Entity entity into DB. If any of PKs is null, such entity is created and assigned a PK. 
      * @param entity the Person entity to save
@@ -47,7 +47,5 @@ public interface PersonDao extends Dao<Person, Entity>{
      */
     @Override
     Person save(Person entity);
-    
-//    Person login(String username, String password);
     
 }

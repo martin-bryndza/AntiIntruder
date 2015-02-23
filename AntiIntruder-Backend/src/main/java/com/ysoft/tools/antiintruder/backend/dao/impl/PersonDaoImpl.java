@@ -9,7 +9,6 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +101,12 @@ public class PersonDaoImpl implements PersonDao{
         if (person == null) {
             throw new IllegalArgumentException("Invalid entity (Person): " + person);
         }
+        //if the password is empty, use the password that is already stored
         if (person.getPassword() == null || person.getPassword().isEmpty()){
+            //if the person does not have stopred Entity, it is a new person
+            if (person.getEntity() == null || person.getEntity().getId() == null){
+                throw new IllegalArgumentException("Unable to create a new person with empty password.");
+            }
             String currentPass;
             try {
                 currentPass = em.createQuery("SELECT tbl.password FROM Person tbl WHERE tbl.entity_id = "
@@ -115,33 +119,13 @@ public class PersonDaoImpl implements PersonDao{
         Entity modelReferencedEntity = entityDao.save(person.getEntity());
         System.out.println(modelReferencedEntity);
         person.setEntity(modelReferencedEntity);
-        log.info("Creating " + person.toString());
+        log.info("Saving " + person.toString());
         Person modelPerson = em.merge(person);
         // modelPerson.entity is null again
         modelPerson.setEntity(modelReferencedEntity); //TODO: Why do I have to do this?
-        log.info("Created " + modelPerson.toString() + ".");
+        log.info("Saved " + modelPerson.toString() + ".");
         log.info(" Assigned entity id: " + modelReferencedEntity.getId());
         return modelPerson;
     }
-    
-//    @Override
-//    public Person login(String username, String password) {
-//        if (username == null || password == null) {
-//            throw new IllegalArgumentException("Invalid username or password: null");
-//        }
-//        TypedQuery<Person> query;
-//        Person returnedUser;
-//        query = em.createQuery("SELECT tbl FROM Person tbl "
-//                + " WHERE tbl.username = :uname and tbl.password = :pword", Person.class);
-//        query.setParameter("uname", username);
-//        query.setParameter("pword", password);
-//        try {
-//            returnedUser = query.getSingleResult();
-//        } catch (NoResultException ex) {
-//            log.debug("Login failed for user " + username + ". Ivalid credentials or user does not exist.");
-//            return null;
-//        }
-//        return returnedUser;
-//    }
     
 }

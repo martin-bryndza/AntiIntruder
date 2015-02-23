@@ -32,6 +32,8 @@ public class StateServiceImpl implements StateService{
     final static Logger log = LoggerFactory.getLogger(StateServiceImpl.class);
     @Autowired
     private StateDao stateDao;
+    @Autowired
+    private StateConvert stateConvert;
     
     @Override
     @Transactional(readOnly = false)
@@ -39,7 +41,7 @@ public class StateServiceImpl implements StateService{
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
-                State entity = StateConvert.fromDtoToEntity((StateDto) getU());
+                State entity = stateConvert.fromDtoToEntity((StateDto) getU());
                 State savedEntity = stateDao.save(entity);
                 return savedEntity.getId();
             }

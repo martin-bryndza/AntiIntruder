@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ysoft.tools.antiintruder.web.config;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.LoginDetailsDto;
@@ -27,6 +22,8 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
  */
 public class PersonDetailsService implements UserDetailsService{
     
+    private static final StandardPasswordEncoder encoder = new StandardPasswordEncoder();
+    
     @Autowired
     private PersonService personService;
     
@@ -38,8 +35,13 @@ public class PersonDetailsService implements UserDetailsService{
         admin.setDescription("The administrator");
         admin.setRole(PersonRole.ADMIN);
         admin.setStateId(1L);
-        StandardPasswordEncoder encoder = new StandardPasswordEncoder();
         personService.register(admin, encoder.encode("admin"));
+        admin.setUsername("bato");
+        admin.setDisplayName("User");
+        admin.setDescription("A user");
+        admin.setRole(PersonRole.USER);
+        admin.setStateId(1L);
+        personService.register(admin, encoder.encode("1111"));
     }
 
     @Override

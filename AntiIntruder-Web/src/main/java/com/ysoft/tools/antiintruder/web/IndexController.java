@@ -35,17 +35,17 @@ public class IndexController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String loadItems(Model model){
         model.addAttribute("personObject", new PersonDto());
-        model.addAttribute("password", new String());
+        model.addAttribute("password", new PasswordObject());
         model.addAttribute("persons", personService.findAll());
         model.addAttribute("states", stateService.findAll());
         return "index";
     }
     
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String submitFormHandler(@ModelAttribute PersonDto person, String password){
+    public String submitFormHandler(@ModelAttribute PersonDto person, @ModelAttribute PasswordObject password){
         person.setStateId(1L); //TODO: replace with default state for entity type
         person.setRole(PersonRole.USER);
-        personService.register(person, password);
+        personService.register(person, password.getValue());
         return "redirect:";
     }
     

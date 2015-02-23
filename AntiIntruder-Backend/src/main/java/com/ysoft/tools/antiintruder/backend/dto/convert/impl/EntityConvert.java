@@ -22,7 +22,10 @@ public class EntityConvert{
     private StateDao stateDao;
 
     public Entity fromDtoToEntity(EntityDto dto) {
-     Entity e = new Entity();
+        if (dto == null){
+            return null;
+        } 
+        Entity e = new Entity();
         e.setId(dto.getId());
         e.setDescription(dto.getDescription());
         e.setDisplayName(dto.getDisplayName());
@@ -31,11 +34,17 @@ public class EntityConvert{
     }
 
     public static EntityDto fromEntityToDto (Entity entity) {
+        if (entity == null){
+            return null;
+        }
         EntityDto dto = new EntityDto();
         dto.setId(entity.getId());
         dto.setDisplayName(entity.getDisplayName());
         dto.setDescription(entity.getDescription());
         dto.setStateId(entity.getState().getId());
+        dto.setLastStateChange(entity.getLastStateChange());
+        dto.setNextPossibleStateChange(entity.getNextPossibleStateChange());
+        dto.setStateExpiration(entity.getStateExpiration());
         return dto;
     }
     
