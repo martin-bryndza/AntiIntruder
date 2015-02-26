@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ysoft.tools.antiintruder.core.config;
+package eu.bato.anyoffice.trayapp.config;
 
 /**
  *
@@ -11,16 +11,12 @@ package com.ysoft.tools.antiintruder.core.config;
  */
 public enum Property {
     
-    DND_TIME(PropertyType.INTEGER, "45"), 
-    AVAILABLE_TIME(PropertyType.INTEGER, "15"),
-    STOP_TIME_AWAY_DND(PropertyType.BOOLEAN, "false"),
-    STOP_TIME_AWAY_AVAILABLE(PropertyType.BOOLEAN, "true"),
     /**
-     * Interval of checking state expiration.
+     * Interval of checking current state on server.
      * Unit: seconds
      * Default: 10
      */
-    STATE_CHECK_INTERVAL(PropertyType.INTEGER, "10");
+    CHECK_INTERVAL(PropertyType.INTEGER, "10");
     
     private final PropertyType type;
     private final String defaultValue;

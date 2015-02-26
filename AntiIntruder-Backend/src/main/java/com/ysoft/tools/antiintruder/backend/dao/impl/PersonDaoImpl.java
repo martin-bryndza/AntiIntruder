@@ -1,8 +1,6 @@
 package com.ysoft.tools.antiintruder.backend.dao.impl;
 
-import com.ysoft.tools.antiintruder.backend.dao.ResourceDao;
 import com.ysoft.tools.antiintruder.backend.dao.PersonDao;
-import com.ysoft.tools.antiintruder.backend.model.Entity;
 import com.ysoft.tools.antiintruder.backend.model.Person;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonState;
 import java.util.List;

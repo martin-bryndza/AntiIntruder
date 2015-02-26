@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ysoft.tools.antiintruder.core.config;
+package eu.bato.anyoffice.trayapp.config;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author Bato
  */
 public class Configuration {
-  
+        
     private static Properties props;
     final static Logger log = LoggerFactory.getLogger(Configuration.class);
     private static Configuration instance = null;
@@ -47,16 +47,16 @@ public class Configuration {
         }
         return instance;
     }
-    
-    public String getProperty(Property p){
-        if (props == null){
+
+    public String getProperty(Property p) {
+        if (props == null) {
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
-        }        
-        return props.getProperty(p.name(),p.getDefaultValue());
+        }
+        return props.getProperty(p.name(), p.getDefaultValue());
     }
-    
+
     public Integer getIntegerProperty(Property p) {
-        if (!p.getType().equals(PropertyType.INTEGER)){
+        if (!p.getType().equals(PropertyType.INTEGER)) {
             String msg = "Property " + p.name() + " is not of type Integer. Type is " + p.getType().toString();
             log.error(msg);
             throw new IllegalArgumentException(msg);
@@ -65,14 +65,14 @@ public class Configuration {
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
         }
         String result = props.getProperty(p.name(), p.getDefaultValue());
-        try{
+        try {
             return Integer.parseInt(result);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             log.warn("The value of the property " + p.name() + " is not of type Integer. Current value: " + result + ". Using default: " + p.getDefaultValue());
             return Integer.parseInt(p.getDefaultValue());
         }
     }
-    
+
     public Boolean getBooleanProperty(Property p) {
         if (!p.getType().equals(PropertyType.BOOLEAN)) {
             String msg = "Property " + p.name() + " is not of type Boolean. Type is " + p.getType().toString();
@@ -90,5 +90,5 @@ public class Configuration {
             return Boolean.getBoolean(p.getDefaultValue());
         }
     }
-
+    
 }

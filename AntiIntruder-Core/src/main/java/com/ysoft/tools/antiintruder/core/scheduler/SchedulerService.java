@@ -5,11 +5,12 @@
  */
 package com.ysoft.tools.antiintruder.core.scheduler;
 
+import com.ysoft.tools.antiintruder.core.config.Configuration;
+import com.ysoft.tools.antiintruder.core.config.Property;
 import java.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,14 +18,14 @@ import org.springframework.stereotype.Service;
  * @author Bato
  */
 @Service
-@Configuration
+@org.springframework.context.annotation.Configuration
 public class SchedulerService {
     
     final static Logger log = LoggerFactory.getLogger(SchedulerService.class);
         
     public void start(){
         Timer t = new Timer();
-        t.scheduleAtFixedRate(stateCheckTask(), 0, 10000); //TODO: make timer configurable
+        t.scheduleAtFixedRate(stateCheckTask(), 0, Configuration.getInstance().getIntegerProperty(Property.STATE_CHECK_INTERVAL)*1000);
         log.info("Scheduler service started.");
     }
     
