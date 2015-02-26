@@ -60,7 +60,7 @@ public class StateServiceImpl implements StateService{
             public StateDto doMethod() {
                 Optional<State> entity = stateDao.findOne((Long) getU());
                 if (entity.isPresent()){
-                    return StateConvert.fromEntityToDto(entity.get());
+                    return stateConvert.fromEntityToDto(entity.get());
                 } else {
                     return null;
                 }
@@ -90,7 +90,7 @@ public class StateServiceImpl implements StateService{
         List<State> states = stateDao.findAll();
         List<StateDto> result = new LinkedList<>();
         for (State state : states) {
-            result.add(StateConvert.fromEntityToDto(state));
+            result.add(stateConvert.fromEntityToDto(state));
         }
         return result;
     }

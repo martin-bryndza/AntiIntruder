@@ -6,7 +6,6 @@
 package com.ysoft.tools.antiintruder.backend.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,14 +13,14 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 
 /**
  *
  * @author Bato
  */
-@javax.persistence.Entity
-public class Entity implements Serializable{
+@MappedSuperclass
+public abstract class Entity implements Serializable{
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,17 +28,9 @@ public class Entity implements Serializable{
     @Column(columnDefinition = "VARCHAR(150)", nullable = false)
     private String displayName;
     @Column(columnDefinition = "VARCHAR(250)", nullable = false)
-    private String description;
-    
-    @ManyToOne
-    private State state;
-    
+    private String description;    
     @Column(nullable = false, name = "LAST_STATE_CHANGE")
     private Date lastStateChange;
-    @Column(nullable = true, name = "NEXT_STATE_CHANGE")
-    private Date nextPossibleStateChange;
-    @Column(nullable = true, name = "STATE_EXPIRATION")
-    private Date stateExpiration;
 
     public void setId(Long id) {
         this.id = id;
@@ -61,56 +52,16 @@ public class Entity implements Serializable{
         return displayName;
     }
 
-    public State getState() {
-        return state;
-    }
-
     public Long getId() {
         return id;
-    }
-
-    /**
-     * Sets new state. If the state is different than the previously set state, 
-     * fields lastStateChange, nextPossibleStateChange and stateExpiration will 
-     * automatically be updated.
-     * @param state 
-     */
-    public void setState(State state) {
-        if (state!=null && !state.equals(this.state)){
-            final Long currentMillis = Calendar.getInstance().getTimeInMillis();
-            setLastStateChange(new Date(currentMillis));
-            setNextPossibleStateChange(new Date(currentMillis + state.getMinDuration()));
-            setStateExpiration((Optional<Date>) (state.getMaxDuration()==0?Optional.empty():Optional.of(new Date(currentMillis + state.getMaxDuration()))));
-        }
-        this.state = state;
     }
 
     public Date getLastStateChange() {
         return lastStateChange;
     }
 
-    private void setLastStateChange(Date lastStateChange) {
+    protected void setLastStateChange(Date lastStateChange) {
         this.lastStateChange = lastStateChange;
-    }
-
-    public Date getNextPossibleStateChange() {
-        return nextPossibleStateChange;
-    }
-
-    private void setNextPossibleStateChange(Date nextPossibleStateChange) {
-        this.nextPossibleStateChange = nextPossibleStateChange;
-    }
-
-    /**
-     * 
-     * @return Time when the current state expires or null, if the state never expires
-     */
-    public Optional<Date> getStateExpiration() {
-        return Optional.ofNullable(stateExpiration);
-    }
-
-    private void setStateExpiration(Optional<Date> stateExpiration) {
-        this.stateExpiration = stateExpiration.orElse(null);
     }
     
     @Override
@@ -137,7 +88,7 @@ public class Entity implements Serializable{
 
     @Override
     public String toString() {
-        return "Entity{" + "id=" + id + ", displayName=" + displayName + ", description=" + description + ", state=" + state + '}';
+        return "Entity{" + "id=" + id + ", displayName=" + displayName + ", description=" + description + "}";
     }
 
 }

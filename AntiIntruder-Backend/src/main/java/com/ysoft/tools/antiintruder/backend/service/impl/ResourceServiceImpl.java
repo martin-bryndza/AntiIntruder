@@ -6,17 +6,19 @@
 package com.ysoft.tools.antiintruder.backend.service.impl;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
-import com.ysoft.tools.antiintruder.backend.dto.convert.impl.EntityConvert;
+import com.ysoft.tools.antiintruder.backend.dao.ResourceDao;
+import com.ysoft.tools.antiintruder.backend.dto.convert.impl.ResourceConvert;
 import com.ysoft.tools.antiintruder.backend.model.Entity;
+import com.ysoft.tools.antiintruder.backend.model.Resource;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionVoidTemplate;
+import com.ysoft.tools.antiintruder.serviceapi.dto.ResourceDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
+import com.ysoft.tools.antiintruder.serviceapi.service.ResourceService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -27,44 +29,44 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class EntityServiceImpl implements EntityService{
+public class ResourceServiceImpl implements ResourceService{
     
-    final static Logger log = LoggerFactory.getLogger(EntityServiceImpl.class);
+    final static Logger log = LoggerFactory.getLogger(ResourceServiceImpl.class);
     @Autowired
-    private EntityDao entityDao;
+    private ResourceDao resourceDao;
     @Autowired
-    private EntityConvert entityConvert;
+    private ResourceConvert resourceConvert;
     
     @Override
     @Transactional(readOnly = false)
-    public Long save(EntityDto dto) {
+    public Long save(ResourceDto dto) {
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
-                EntityDto dto = (EntityDto) getU();
+                ResourceDto dto = (ResourceDto) getU();
                 if (dto.getStateId() == null){
                     dto.setStateId(1L); // TODO: Replace with default state for entity type
                 }
-                Entity entity = entityConvert.fromDtoToEntity((EntityDto) getU());
-                Entity savedEntity = entityDao.save(entity);
+                Resource entity = resourceConvert.fromDtoToEntity((ResourceDto) getU());
+                Resource savedEntity = resourceDao.save(entity);
                 return savedEntity.getId();
             }
         }.tryMethod();
     }
 
     @Override
-    public EntityDto findOne(Long id) {
+    public ResourceDto findOne(Long id) {
         if (id == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
-            log.error("EntityServiceImpl.get() called on null parameter: Long id", iaex);
+            log.error("ResourceServiceImpl.get() called on null parameter: Long id", iaex);
             throw iaex;
         }
-        return (EntityDto) new DataAccessExceptionNonVoidTemplate(id) {
+        return (ResourceDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
-            public EntityDto doMethod() {
-                Optional<Entity> entity = entityDao.findOne((Long) getU());
+            public ResourceDto doMethod() {
+                Optional<Resource> entity = resourceDao.findOne((Long) getU());
                 if (entity.isPresent()){
-                    return EntityConvert.fromEntityToDto(entity.get());
+                    return resourceConvert.fromEntityToDto(entity.get());
                 } else {
                     return null;
                 }
@@ -83,7 +85,7 @@ public class EntityServiceImpl implements EntityService{
             new DataAccessExceptionVoidTemplate(id) {
                 @Override
                 public void doMethod() {
-                    entityDao.delete((Long) getU());
+                    resourceDao.delete((Long) getU());
                 }
             }.tryMethod();
         }
@@ -91,11 +93,11 @@ public class EntityServiceImpl implements EntityService{
 
     //TODO: add paging
     @Override
-    public List<EntityDto> findAll() {
-        List<Entity> entities = entityDao.findAll();
-        List<EntityDto> result = new LinkedList<>();
-        for (Entity entity : entities) {
-            result.add(EntityConvert.fromEntityToDto(entity));
+    public List<ResourceDto> findAll() {
+        List<Resource> entities = resourceDao.findAll();
+        List<ResourceDto> result = new LinkedList<>();
+        for (Resource entity : entities) {
+            result.add(resourceConvert.fromEntityToDto(entity));
         }
         return result;
     }
@@ -103,12 +105,12 @@ public class EntityServiceImpl implements EntityService{
     @Override
     public void updateState(Long id, Long stateId) {
         if (id == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update entity that"
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update Resource that"
                     + " doesn't exist.");
             log.error("ID is null", iaex);
             throw iaex;
         } else if (stateId == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update entity to state that"
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update Resource to state that"
                     + " doesn't exist.");
             log.error("stateId is null", iaex);
             throw iaex;
@@ -116,7 +118,7 @@ public class EntityServiceImpl implements EntityService{
             new DataAccessExceptionVoidTemplate(id, stateId) {
                 @Override
                 public void doMethod() {
-                    entityDao.updateState((Long) getU(), (Long) getV());
+                    resourceDao.updateState((Long) getU(), (Long) getV());
                 }
             }.tryMethod();
         }

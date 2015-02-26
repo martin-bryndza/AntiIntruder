@@ -2,6 +2,7 @@ package com.ysoft.tools.antiintruder.serviceapi.service;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.LoginDetailsDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonDto;
+import com.ysoft.tools.antiintruder.serviceapi.dto.PersonState;
 import java.util.Optional;
 
 /**
@@ -42,5 +43,7 @@ public interface PersonService extends Service<PersonDto> {
      * @return Person's id if registration was successful, null otherwise
      */
     Long register(PersonDto person, String password);
+    
+    void updateState(Long id, PersonState personState);
     
 }

@@ -12,6 +12,11 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'spring-boot'
 
+war {
+    baseName = 'Any Office'
+    version =  '0.0.1-SNAPSHOT'
+}
+
 buildscript {
     repositories {
         mavenLocal()
@@ -22,6 +27,10 @@ dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$project.ext.springBootVersion")
     }
 } 
+
+configurations {
+    providedRuntime
+}
 
 dependencies {
     compile project(':AntiIntruder-ServiceApi')

@@ -13,23 +13,14 @@ import java.util.Optional;
  *
  * @author Bato
  */
-public class EntityDto {
+public abstract class EntityDto {
     
     private String description;
     private String displayName;
-    private Long stateId;
     private Long id;
     private Date lastStateChange;
     private Date nextPossibleStateChange;
     private Optional<Date> stateExpiration;
-
-    public Long getStateId() {
-        return stateId;
-    }
-
-    public void setStateId(Long stateId) {
-        this.stateId = stateId;
-    }
 
     public Long getId() {
         return id;
@@ -108,7 +99,7 @@ public class EntityDto {
 
     @Override
     public String toString() {
-        return "EntityDto{" + "description=" + description + ", displayName=" + displayName + ", stateId=" + stateId + ", id=" + id + '}';
+        return "EntityDto{" + "description=" + description + ", displayName=" + displayName + ", id=" + id + '}';
     }    
     
 }

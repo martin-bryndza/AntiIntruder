@@ -3,6 +3,7 @@ package com.ysoft.tools.antiintruder.web.config;
 import com.ysoft.tools.antiintruder.serviceapi.dto.LoginDetailsDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
+import com.ysoft.tools.antiintruder.serviceapi.dto.PersonState;
 import com.ysoft.tools.antiintruder.serviceapi.service.PersonService;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,13 @@ public class PersonDetailsService implements UserDetailsService{
         admin.setDisplayName("Administrator");
         admin.setDescription("The administrator");
         admin.setRole(PersonRole.ADMIN);
-        admin.setStateId(1L);
+        admin.setState(PersonState.AWAY_DND);
         personService.register(admin, encoder.encode("admin"));
         admin.setUsername("bato");
         admin.setDisplayName("User");
         admin.setDescription("A user");
         admin.setRole(PersonRole.USER);
-        admin.setStateId(1L);
+        admin.setState(PersonState.AVAILABLE);
         personService.register(admin, encoder.encode("1111"));
     }
 

@@ -1,15 +1,15 @@
 package com.ysoft.tools.antiintruder.serviceapi.service;
 
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
+import com.ysoft.tools.antiintruder.serviceapi.dto.ResourceDto;
 
 /**
  *
  * @author Bato
  */
-public interface EntityService extends Service<EntityDto>{
+public interface ResourceService extends Service<ResourceDto>{
     
     /**
-     * Sets State of the Entity identified by id to the State identified by stateId.
+     * Sets State of the Resource identified by id to the State identified by stateId.
      * @param id Id of the Entity
      * @param stateId Id of the State
      */

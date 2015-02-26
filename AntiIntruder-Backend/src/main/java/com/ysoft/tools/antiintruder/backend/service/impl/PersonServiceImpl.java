@@ -13,6 +13,7 @@ import com.ysoft.tools.antiintruder.backend.service.common.DataAccessExceptionVo
 import com.ysoft.tools.antiintruder.serviceapi.dto.LoginDetailsDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
+import com.ysoft.tools.antiintruder.serviceapi.dto.PersonState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +30,14 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class PersonServiceImpl implements PersonService{
-    
+public class PersonServiceImpl implements PersonService {
+
     final static Logger log = LoggerFactory.getLogger(PersonServiceImpl.class);
     @Autowired
     private PersonDao personDao;
     @Autowired
     private PersonConvert personConvert;
-    
+
     @Override
     @Transactional(readOnly = false)
     public Long save(PersonDto dto) {
@@ -54,7 +55,7 @@ public class PersonServiceImpl implements PersonService{
             @Override
             public PersonDto doMethod() {
                 Optional<Person> entity = personDao.findOne((Long) getU());
-                if (entity.isPresent()){
+                if (entity.isPresent()) {
                     return PersonConvert.fromEntityToDto(entity.get());
                 } else {
                     return null;
@@ -78,7 +79,7 @@ public class PersonServiceImpl implements PersonService{
                 }
             }.tryMethod();
         }
-    }    
+    }
 
     //TODO: add paging
     @Override
@@ -121,11 +122,11 @@ public class PersonServiceImpl implements PersonService{
                 PersonDto dto = (PersonDto) getU();
                 Person entity = personConvert.fromDtoToEntity(dto, (String) getV());
                 Person savedEntity = personDao.save(entity);
-                return savedEntity.getEntity().getId();
+                return savedEntity.getId();
             }
         }.tryMethod();
     }
-    
+
     @Override
     public Optional<LoginDetailsDto> getLoginDetails(String username) {
         if (username == null) {
@@ -142,6 +143,26 @@ public class PersonServiceImpl implements PersonService{
                 } else {
                     return Optional.empty();
                 }
+            }
+        }.tryMethod();
+    }
+
+    @Override
+    public void updateState(Long id, PersonState personState) {
+        if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update person that"
+                    + " doesn't exist.");
+            log.error("ID is null", iaex);
+            throw iaex;
+        } else if (personState == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update person to null state.");
+            log.error("PersonState is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(id, personState) {
+            @Override
+            public void doMethod() {
+                personDao.updateState((Long) getU(), (PersonState) getV());
             }
         }.tryMethod();
     }

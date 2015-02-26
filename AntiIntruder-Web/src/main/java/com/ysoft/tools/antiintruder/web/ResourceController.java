@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Bato
  */
 @Controller
-public class IndexController {
+public class ResourceController {
     
     @Autowired
     protected PersonService personService;
@@ -33,16 +33,16 @@ public class IndexController {
     @Autowired
     protected StateService stateService;
         
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "resource/", method = RequestMethod.GET)
     public String loadItems(Model model){
         model.addAttribute("personObject", new PersonDto());
         model.addAttribute("password", new PasswordObject());
         model.addAttribute("persons", personService.findAll());
-        model.addAttribute("states", PersonState.values());
+        model.addAttribute("states", stateService.findAll());
         return "index";
     }
     
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "resource/add", method = RequestMethod.POST)
     public String submitFormHandler(@ModelAttribute PersonDto person, @ModelAttribute PasswordObject password){
         person.setState(PersonState.AVAILABLE); //TODO: replace with default state for entity type
         person.setRole(PersonRole.USER);
@@ -50,16 +50,15 @@ public class IndexController {
         return "redirect:";
     }
     
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
-    public String completeItem(@RequestParam Long id){
-        
-        personService.delete(id);
+    @RequestMapping(value = "resource/delete", method = RequestMethod.GET)
+    public String completeItem(@RequestParam Long entityId){
+        personService.delete(entityId);
         return "redirect:";
     }
     
-    @RequestMapping(value = "/changeState", method = RequestMethod.GET)
-    public String changeState(@RequestParam Long id, String state) {
-        personService.updateState(id, PersonState.valueOf(state));
+    @RequestMapping(value = "resource/changeState", method = RequestMethod.GET)
+    public String changeState(@RequestParam Long entityId, Long stateId) {
+        entityService.updateState(entityId, stateId);
         return "redirect:";
     }
 }

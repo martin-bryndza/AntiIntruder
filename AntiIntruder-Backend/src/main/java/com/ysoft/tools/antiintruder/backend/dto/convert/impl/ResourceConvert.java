@@ -8,6 +8,9 @@ package com.ysoft.tools.antiintruder.backend.dto.convert.impl;
 import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
 import com.ysoft.tools.antiintruder.backend.model.Entity;
+import com.ysoft.tools.antiintruder.backend.model.Resource;
+import com.ysoft.tools.antiintruder.serviceapi.dto.ResourceDto;
+import com.ysoft.tools.antiintruder.serviceapi.service.StateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,28 +19,31 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class EntityConvert{
+public class ResourceConvert{
     
     @Autowired
-    private StateDao stateDao;
+    private StateService stateService;
+    
+    @Autowired
+    private StateConvert stateConvert;
 
-    public Entity fromDtoToEntity(EntityDto dto) {
+    public Resource fromDtoToEntity(ResourceDto dto) {
         if (dto == null){
             return null;
         } 
-        Entity e = new Entity();
+        Resource e = new Resource();
         e.setId(dto.getId());
         e.setDescription(dto.getDescription());
         e.setDisplayName(dto.getDisplayName());
-        e.setState(stateDao.findOne(dto.getStateId()).get());
+        e.setState(stateConvert.fromDtoToEntity(stateService.findOne(dto.getStateId())));
         return e;
     }
 
-    public static EntityDto fromEntityToDto (Entity entity) {
+    public ResourceDto fromEntityToDto (Resource entity) {
         if (entity == null){
             return null;
         }
-        EntityDto dto = new EntityDto();
+        ResourceDto dto = new ResourceDto();
         dto.setId(entity.getId());
         dto.setDisplayName(entity.getDisplayName());
         dto.setDescription(entity.getDescription());

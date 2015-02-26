@@ -34,7 +34,7 @@ public class StateConvert{
         return s;
     }
 
-    public static StateDto fromEntityToDto (State entity) {
+    public StateDto fromEntityToDto (State entity) {
         if (entity == null){
             return null;
         }

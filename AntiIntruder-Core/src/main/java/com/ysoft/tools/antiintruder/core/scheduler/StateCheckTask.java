@@ -1,8 +1,8 @@
 package com.ysoft.tools.antiintruder.core.scheduler;
 
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
+import com.ysoft.tools.antiintruder.serviceapi.dto.ResourceDto;
 import com.ysoft.tools.antiintruder.serviceapi.dto.StateDto;
-import com.ysoft.tools.antiintruder.serviceapi.service.EntityService;
+import com.ysoft.tools.antiintruder.serviceapi.service.ResourceService;
 import com.ysoft.tools.antiintruder.serviceapi.service.StateService;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,7 +23,7 @@ public class StateCheckTask extends TimerTask{
     final static Logger log = LoggerFactory.getLogger(StateCheckTask.class);
     
     @Autowired
-    EntityService entityService;
+    ResourceService resourceService;
     
     @Autowired
     StateService stateService;
@@ -35,12 +35,12 @@ public class StateCheckTask extends TimerTask{
         for (StateDto state : stateService.findAll()){ //TODO: change to find all states of EntityType
             statesDefaultSuccessors.put(state.getId(), state.getDefaultSuccessorId());
         } 
-        List<EntityDto> entities = entityService.findAll(); //TODO: change to find all entities of EntityType
+        List<ResourceDto> entities = resourceService.findAll(); //TODO: change to find all entities of EntityType
         Date currentDate = new Date(Calendar.getInstance().getTimeInMillis());
-        for (EntityDto entity : entities){
+        for (ResourceDto entity : entities){
             if (entity.getStateExpiration()!=null && entity.getStateExpiration().compareTo(currentDate)<=0){
                 entity.setStateId(statesDefaultSuccessors.get(entity.getStateId()));
-                entityService.updateState(entity.getId(), entity.getStateId());
+                resourceService.updateState(entity.getId(), entity.getStateId());
                 log.info("State of entity " + entity.getId() + " expired. New state is " + entity.getStateId());
             }
         }

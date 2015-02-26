@@ -1,11 +1,10 @@
 package com.ysoft.tools.antiintruder.backend.dao.impl;
 
-import com.ysoft.tools.antiintruder.backend.dao.EntityDao;
+import com.ysoft.tools.antiintruder.backend.dao.ResourceDao;
 import com.ysoft.tools.antiintruder.backend.dao.StateDao;
 import com.ysoft.tools.antiintruder.backend.model.Entity;
+import com.ysoft.tools.antiintruder.backend.model.Resource;
 import com.ysoft.tools.antiintruder.backend.model.State;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -20,9 +19,9 @@ import org.springframework.stereotype.Repository;
  * @author Bato
  */
 @Repository
-public class EntityDaoImpl implements EntityDao{
+public class ResourceDaoImpl implements ResourceDao{
     
-    final static Logger log = LoggerFactory.getLogger(EntityDaoImpl.class);
+    final static Logger log = LoggerFactory.getLogger(ResourceDaoImpl.class);
 
     @Autowired
     private StateDao stateDao;
@@ -43,41 +42,41 @@ public class EntityDaoImpl implements EntityDao{
     }
 
     @Override
-    public List<Entity> findAll() {
-        return em.createQuery("SELECT tbl FROM Entity tbl", Entity.class).getResultList();
+    public List<Resource> findAll() {
+        return em.createQuery("SELECT tbl FROM Resource tbl", Resource.class).getResultList();
     }
 
     @Override
-    public Optional<Entity> findOne(Long id) {
+    public Optional<Resource> findOne(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
-        } else if (em.createQuery("SELECT e.id FROM Entity e WHERE e.id = :pk", Long.class).setParameter("pk", id).getResultList().size() < 1) {
+        } else if (em.createQuery("SELECT e.id FROM Resource e WHERE e.id = :pk", Long.class).setParameter("pk", id).getResultList().size() < 1) {
             throw new IllegalArgumentException("Invalid id: nonexistent");
         }
-        return Optional.ofNullable(em.createQuery("SELECT e FROM Entity e WHERE e.id = :pk", Entity.class).setParameter("pk", id).getSingleResult());
+        return Optional.ofNullable(em.createQuery("SELECT e FROM Resource e WHERE e.id = :pk", Resource.class).setParameter("pk", id).getSingleResult());
     }
 
     @Override
-    public Entity save(Entity entity) {
+    public Resource save(Resource entity) {
         if (entity == null) {
-            throw new IllegalArgumentException("Invalid entity (Entity): " + entity);
+            throw new IllegalArgumentException("Invalid entity (Resource): " + entity);
         }
         if (entity.getState() == null){
-            throw new IllegalArgumentException("Entity state cannot be null. " + entity.toString());
+            throw new IllegalArgumentException("Resource state cannot be null. " + entity.toString());
         }
         //Save the entity
         log.info("Saving " + entity.toString());
-        Entity modelEntity = em.merge(entity);
+        Resource modelEntity = em.merge(entity);
         Long id = modelEntity.getId();
         log.info("Saved " + modelEntity.toString() + ". Assigned ID: " + id);
         return modelEntity;
     }
 
     @Override
-    public Entity updateState(Long id, Long stateId) {
-        Optional<Entity> e = findOne(id);
+    public Resource updateState(Long id, Long stateId) {
+        Optional<Resource> e = findOne(id);
         if (!e.isPresent()){
-            throw new IllegalArgumentException("Entity with id " + id + " does not exist.");
+            throw new IllegalArgumentException("Resource with id " + id + " does not exist.");
         }
         Optional<State> s = stateDao.findOne(stateId);
         if (!s.isPresent()) {
@@ -87,7 +86,7 @@ public class EntityDaoImpl implements EntityDao{
             log.info("Actual and wanted states are the same. State will not be changed.");
             return e.get();
         }        
-        Entity ent = e.get();
+        Resource ent = e.get();
         ent.setState(s.get());
         return ent;
     }

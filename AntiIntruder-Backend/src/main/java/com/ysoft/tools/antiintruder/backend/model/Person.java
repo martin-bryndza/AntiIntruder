@@ -6,14 +6,13 @@
 package com.ysoft.tools.antiintruder.backend.model;
 
 import com.ysoft.tools.antiintruder.serviceapi.dto.PersonRole;
-import java.io.Serializable;
+import com.ysoft.tools.antiintruder.serviceapi.dto.PersonState;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -22,25 +21,17 @@ import javax.persistence.Table;
  */
 @javax.persistence.Entity
 @Table(name = "Person")
-public class Person implements Serializable{
+public class Person extends Entity{
     
-    @Id
-    @OneToOne(cascade = {CascadeType.REMOVE})//TODO: Does not work
-    private Entity entity;
     @Column(columnDefinition = "VARCHAR(100)", nullable = false, unique = true)
     private String username;
     @Column(columnDefinition = "VARCHAR(250)", nullable = false)
     private String password;
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    private PersonState state = PersonState.AVAILABLE;
     @Enumerated(EnumType.STRING)
     private PersonRole role;
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
-    }
 
     public PersonRole getRole() {
         return role;
@@ -64,6 +55,16 @@ public class Person implements Serializable{
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public PersonState getState() {
+        return state;
+    }
+
+    public void setState(PersonState state) {
+        final Long currentMillis = Calendar.getInstance().getTimeInMillis();
+        super.setLastStateChange(new Date(currentMillis));
+        this.state = state;
     }
 
     @Override
@@ -94,7 +95,7 @@ public class Person implements Serializable{
 
     @Override
     public String toString() {
-        return "Person{" + "entity=" + entity + ", username=" + username + ", password=" + password + ", role=" + role + '}';
+        return "Person{username=" + username + ", password=" + password + ", role=" + role + '}';
     }
 
 }
