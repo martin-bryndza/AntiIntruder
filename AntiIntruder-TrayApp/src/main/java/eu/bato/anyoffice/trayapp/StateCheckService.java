@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
@@ -16,19 +11,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Bato
  */
-class SchedulerService {
+class StateCheckService {
     
-    final static Logger log = LoggerFactory.getLogger(SchedulerService.class);
+    final static Logger log = LoggerFactory.getLogger(StateCheckService.class);
         
-    private static SchedulerService instance;
+    private static StateCheckService instance;
     
-    private SchedulerService(){
+    private StateCheckService(){
         
     }
     
-    static SchedulerService getInstance(){
+    static StateCheckService getInstance(){
         if (instance == null) {
-            instance = new SchedulerService();
+            instance = new StateCheckService();
         }
         return instance;
     }
@@ -43,10 +38,9 @@ class SchedulerService {
 
         @Override
         public void run() {
-            log.info("States check started...");
-            //TODO: ask server
-            PersonStateManager.getInstance().setState(PersonState.AVAILABLE);
-            log.info("States check finished.");
+            log.debug("States check started...");
+            TrayIconManager.getInstance().changeState(PersonStateManager.getInstance().getStateFromServer());
+            log.debug("States check finished.");
         }
     }
     

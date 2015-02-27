@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
     
-    final static Logger log = LoggerFactory.getLogger(Main.class);
+    private final static Logger log = LoggerFactory.getLogger(Main.class);
+    private static WorkstationLockListener workstationLockListener = null;
     
     public static void main(String[] args) {
         try {
@@ -25,12 +26,28 @@ public class Main {
         } catch (UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException ex) {
             log.error(ex.getMessage());
         }
-        SchedulerService.getInstance().start();
+        Thread t = new Thread(new WorkstationLockListenerRunner());
+        t.start();
         SwingUtilities.invokeLater(() -> {
+            StateCheckService.getInstance().start();
             TrayIconManager.getInstance().initialize();
         });
     }
     
+    static void programFinish() {
+        if (workstationLockListener != null) {
+            workstationLockListener.destroy();
+        }
+        System.exit(0);
+    }
     
+    private static class WorkstationLockListenerRunner implements Runnable{
+
+        @Override
+        public void run() {
+            workstationLockListener = new WorkstationLockListener();
+        }
+        
+    }
     
 }

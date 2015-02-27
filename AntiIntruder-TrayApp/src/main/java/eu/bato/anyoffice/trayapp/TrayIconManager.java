@@ -6,21 +6,18 @@
 package eu.bato.anyoffice.trayapp;
 
 import java.awt.AWTException;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
-import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import javax.swing.UIManager;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -36,6 +33,7 @@ class TrayIconManager {
     private TrayIcon trayIcon;
     private PopupMenu popup;
     private Map<PersonState, MenuItem> stateItems;
+    private PersonState currentState;
     
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
 
@@ -50,10 +48,13 @@ class TrayIconManager {
         return instance;
     }
     
-    void initialize(){
+    synchronized void initialize(){
         popup = new PopupMenu("Any Office");
         stateItems = new HashMap<>();
-        PersonState state = PersonStateManager.getInstance().getState();
+        if (currentState == null){
+            currentState = PersonStateManager.getInstance().getStateFromServer();
+        }
+        PersonState state = currentState;
         if (!SystemTray.isSupported()) {
             log.error("SystemTray is not supported on this system.");
             return;
@@ -90,6 +91,7 @@ class TrayIconManager {
                 item.setEnabled(false);
             } else {               
                 item.addActionListener((ActionEvent) -> {
+                    log.info("State change by user -> " + state);
                     changeState(state);
                 });
             }
@@ -101,7 +103,7 @@ class TrayIconManager {
         
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.addActionListener((ActionEvent) -> {
-            System.exit(0);
+            Main.programFinish();
         });
         popup.add(exitItem);
 
@@ -129,24 +131,22 @@ class TrayIconManager {
         
         return icon;
     }
-    
+        
     /**
-     * Refresh the tray icon and menu (e.g. after change of state)
-     */
-    void refresh(){
-        SystemTray.getSystemTray().remove(trayIcon);
-        initialize();
-    }
-    
-    /**
-     * Change of state by user from tray.
+     * Change of state and refresh of tray icon.
      * @param state 
      */
-    private void changeState(PersonState state){
+    synchronized void changeState(PersonState state){
+        if (state == null || state.equals(currentState)){
+            return;
+        }
+        log.info("Changing state to " + state);
         if (!PersonStateManager.getInstance().isStateChangePossible(state)){
             trayIcon.displayMessage("Unable to switch to " + state.getName(), "Remaining time: ", TrayIcon.MessageType.ERROR);
         }
         PersonStateManager.getInstance().setState(state);
-        refresh();
+        currentState = state;
+        SystemTray.getSystemTray().remove(trayIcon);
+        initialize();
     }
 }

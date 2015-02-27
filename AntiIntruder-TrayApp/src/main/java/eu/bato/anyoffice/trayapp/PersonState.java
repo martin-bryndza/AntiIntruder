@@ -11,7 +11,7 @@ package eu.bato.anyoffice.trayapp;
  */
 public enum PersonState {
         
-    DO_NOT_DISTURB("Do not disturb", "dnd.png"), AVAILABLE("Available", "available.png"), AWAY("Away", "away.png"), UNKNOWN("Unknown", "unknown.png");
+    DO_NOT_DISTURB("Do not disturb", "dnd.png"), AVAILABLE("Available", "available.png"), UNKNOWN("Unknown", "unknown.png");
     
     private static final String PREPOSITION = "Any Office - ";
     private static final String IMAGE_FOLDER = "images/";
