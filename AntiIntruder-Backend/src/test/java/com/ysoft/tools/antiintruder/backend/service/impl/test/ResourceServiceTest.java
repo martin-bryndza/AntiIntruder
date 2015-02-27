@@ -5,13 +5,13 @@
  */
 package com.ysoft.tools.antiintruder.backend.service.impl.test;
 
-import com.ysoft.tools.antiintruder.backend.dao.ResourceDao;
-import com.ysoft.tools.antiintruder.backend.model.Entity;
-import com.ysoft.tools.antiintruder.backend.model.Resource;
-import com.ysoft.tools.antiintruder.backend.service.impl.ResourceServiceImpl;
-import com.ysoft.tools.antiintruder.serviceapi.dto.EntityDto;
-import com.ysoft.tools.antiintruder.serviceapi.dto.ResourceDto;
-import com.ysoft.tools.antiintruder.serviceapi.service.ResourceService;
+import eu.bato.anyoffice.backend.dao.ResourceDao;
+import eu.bato.anyoffice.backend.model.Entity;
+import eu.bato.anyoffice.backend.model.Resource;
+import eu.bato.anyoffice.backend.service.impl.ResourceServiceImpl;
+import eu.bato.anyoffice.serviceapi.dto.EntityDto;
+import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
+import eu.bato.anyoffice.serviceapi.service.ResourceService;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
