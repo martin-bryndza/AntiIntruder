@@ -11,17 +11,19 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Bato
  */
 @Repository
+@Transactional
 public class PersonDaoImpl implements PersonDao{
 
     final static Logger log = LoggerFactory.getLogger(PersonDaoImpl.class);
 
-    @PersistenceContext(name = "entityManagerFactory")
+    @PersistenceContext
     private EntityManager em;
       
     @Override

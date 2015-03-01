@@ -46,4 +46,6 @@ public interface PersonService extends Service<PersonDto> {
     
     void updateState(Long id, PersonState personState);
     
+    Optional<PersonDto> findOneByUsername(String username);
+    
 }

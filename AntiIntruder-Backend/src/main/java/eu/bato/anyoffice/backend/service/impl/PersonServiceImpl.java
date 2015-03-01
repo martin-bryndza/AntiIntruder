@@ -45,13 +45,13 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public PersonDto findOne(Long entityId) {
-        if (entityId == null) {
+    public PersonDto findOne(Long id) {
+        if (id == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
             log.error("PersonServiceImpl.get() called on null parameter: Long id", iaex);
             throw iaex;
         }
-        return (PersonDto) new DataAccessExceptionNonVoidTemplate(entityId) {
+        return (PersonDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public PersonDto doMethod() {
                 Optional<Person> entity = personDao.findOne((Long) getU());
@@ -166,5 +166,27 @@ public class PersonServiceImpl implements PersonService {
             }
         }.tryMethod();
     }
+
+    @Override
+    public Optional<PersonDto> findOneByUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: " + username);
+            log.error("PersonServiceImpl.findOneByUsername() called on null or empty parameter: String username", iaex);
+            throw iaex;
+        }
+        return (Optional<PersonDto>) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public Optional<PersonDto> doMethod() {
+                Optional<Person> entity = personDao.findOneByUsername((String) getU());
+                if (entity.isPresent()) {
+                    return Optional.of(PersonConvert.fromEntityToDto(entity.get()));
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }.tryMethod();
+    }
+    
+    
 
 }

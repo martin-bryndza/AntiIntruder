@@ -5,6 +5,7 @@
  */
 package eu.bato.anyoffice.trayapp;
 
+import java.awt.SystemTray;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;

@@ -6,36 +6,5 @@
                                 http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
   <persistence-unit name="PU1" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
-    <properties>
-      <property name="hibernate.connection.driver_class" value="org.apache.derby.jdbc.ClientDriver"/>
-      <property name="hibernate.connection.url" value="jdbc:derby://localhost:1527/antiintruder_derby"/>
-      <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-      <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect"/>
-      <property name="hibernate.hbm2ddl.auto" value="create"/>
-      <!-- DDL (t.j. create/alter/drop table atd.) tento property sa pouziva obvykle iba v development phase, 
-            v production phase su obvykle ine nastroje na manazovanie DB -->
-      <!-- vid http://blog.eyallupu.com/2007/05/hibernates-hbm2ddl-tool.html -->
-      <property name="hibernate.hbm2ddl.import_files" value="import.sql"/>
-      <!-- DML (t.j. insert, update, delete, select a pod.)-->
-      <!-- sem sql script v classpath, ak viac, tak podla poradia - pouziju sa len ak create
-            alebo create-drop, t.j. ak sa predtym vytvara schema, do ktorej mozno aplikovat DML -->
-      <property name="hibernate.show_sql" value="true"/>
-      <property name="hibernate.format_sql" value="true"/>
-      <!-- pretty print the sql-->
-      <property name="hibernate.connection.username" value="A"/>
-      <property name="hibernate.connection.password" value="a"/>
-    </properties>
   </persistence-unit>
-  <!--<persistence-unit name="TestPU" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
-        <properties>
-            <property name="hibernate.connection.username" value="app"/>
-            <property name="hibernate.connection.driver_class" value="org.apache.derby.jdbc.EmbeddedDriver"/>
-            <property name="hibernate.connection.password" value="app"/>
-            <property name="hibernate.connection.url" value="jdbc:derby:memory:unit-testing-jpa;create=true"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect"/>
-        </properties>
-    </persistence-unit>-->
 </persistence>

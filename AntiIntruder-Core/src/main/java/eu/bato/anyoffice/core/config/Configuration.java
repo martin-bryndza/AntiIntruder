@@ -9,8 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  *
@@ -23,7 +25,7 @@ public class Configuration {
     private static Configuration instance = null;
 
     private Configuration() {
-        File f = new File("config/configuration.properties");
+        File f = new File("classpath:application.properties");
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(f);
@@ -51,6 +53,7 @@ public class Configuration {
     public String getProperty(Property p){
         if (props == null){
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
+            return p.getDefaultValue();
         }        
         return props.getProperty(p.name(),p.getDefaultValue());
     }
@@ -63,6 +66,7 @@ public class Configuration {
         }
         if (props == null) {
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
+            return Integer.parseInt(p.getDefaultValue());
         }
         String result = props.getProperty(p.name(), p.getDefaultValue());
         try{
@@ -81,6 +85,7 @@ public class Configuration {
         }
         if (props == null) {
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
+            return Boolean.getBoolean(p.getDefaultValue());
         }
         String result = props.getProperty(p.name(), p.getDefaultValue());
         try {

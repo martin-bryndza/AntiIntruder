@@ -5,7 +5,10 @@
  */
 package eu.bato.anyoffice.trayapp;
 
+import eu.bato.anyoffice.trayapp.config.Configuration;
+import eu.bato.anyoffice.trayapp.config.Property;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 
 /**
  *
@@ -18,9 +21,12 @@ class PersonStateManager {
     private static PersonStateManager instance;
 
     private PersonState state;
+    private final RestClient client;
 
     private PersonStateManager() {
-        state = PersonState.UNKNOWN; //TODO:ask server
+        client = new RestClient();
+        client.login();
+        getStateFromServer();
     }
 
     static PersonStateManager getInstance() {
@@ -31,10 +37,10 @@ class PersonStateManager {
     }
 
     PersonState getStateFromServer() {
-        //TODO: ask server
-        if (!this.state.equals(state)){
-            log.info("New state from server: " + state);
-            this.state = state;
+        PersonState newState = client.getState();
+        if (!this.state.equals(newState)){
+            log.info("New state from server: " + newState);
+            this.state = newState;
         }
         return this.state;
     }
@@ -53,7 +59,7 @@ class PersonStateManager {
     }
     
     PersonState workstationUnlock(){
-        //TODO: tell server about unlock and get current state
+        //TODO: tell server about unlock and get current newState
         return PersonState.AVAILABLE;
     }
 

@@ -10,6 +10,7 @@ import java.util.List;
 /**
  *
  * @author Bato
+ * @param <T>
  */
 public interface Service<T> {
 

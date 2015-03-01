@@ -16,7 +16,8 @@ public enum Property {
      * Unit: seconds
      * Default: 10
      */
-    CHECK_INTERVAL(PropertyType.INTEGER, "10");
+    CHECK_INTERVAL(PropertyType.INTEGER, "10"),
+    REST_SERVER_ADDRESS(PropertyType.STRING, "http://localhost:8080");
     
     private final PropertyType type;
     private final String defaultValue;

@@ -19,7 +19,6 @@ buildscript {
     repositories {
         mavenCentral()
         mavenLocal()
-        //maven { name 'ysf-group-ysoft'; url "http://repo.ysoft.local/content/groups/ysoft/" }
     }
 dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$project.ext.springBootVersion")

@@ -1,14 +1,15 @@
 package eu.bato.anyoffice.backend.dao;
 
-import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Bato
  */
+@Transactional
 public interface PersonDao extends Dao<Person, Long>{
     
         
@@ -18,6 +19,7 @@ public interface PersonDao extends Dao<Person, Long>{
      * @throws IllegalArgumentException if any of the objects is not an entity
      * or is a detached entity
      */
+    @Override
     void delete(Long id);
     
     /**
@@ -25,6 +27,7 @@ public interface PersonDao extends Dao<Person, Long>{
      * @param id the id of the referenced Entity entity
      * @return corresponding Person entity
      */
+    @Override
     Optional<Person> findOne(Long id);
     
     /**
