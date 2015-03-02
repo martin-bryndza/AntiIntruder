@@ -22,19 +22,19 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
  *
  * @author Bato
  */
-public class PersonDetailsService implements UserDetailsService{
-    
+public class PersonDetailsService implements UserDetailsService {
+
     private static final StandardPasswordEncoder encoder = new StandardPasswordEncoder();
-    
+
     @Autowired
     private PersonService personService;
-    
+
     @Autowired
     private Environment environment;
-    
+
     @PostConstruct
     protected void initialize() {
-        if (personService.findOneByUsername("bato").isPresent()){
+        if (personService.findOneByUsername("bato").isPresent()) {
             return;
         }
         PersonDto sampleUser = new PersonDto();
@@ -48,16 +48,18 @@ public class PersonDetailsService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if ("admin".equals(username)){
+        if ("admin".equals(username)) {
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(PersonRole.ADMIN.name()));
             return new User(username, encoder.encode(environment.getProperty("auth.admin.password", "1234")), authorities);
         }
         Optional<LoginDetailsDto> optDetails = personService.getLoginDetails(username);
-        if (!optDetails.isPresent()) throw new UsernameNotFoundException("User with username " + username + " was not found.");      
+        if (!optDetails.isPresent()) {
+            throw new UsernameNotFoundException("User with username " + username + " was not found.");
+        }
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(optDetails.get().getRole().name()));        
+        authorities.add(new SimpleGrantedAuthority(optDetails.get().getRole().name()));
         return new User(username, optDetails.get().getPassword(), authorities);
     }
-    
+
 }

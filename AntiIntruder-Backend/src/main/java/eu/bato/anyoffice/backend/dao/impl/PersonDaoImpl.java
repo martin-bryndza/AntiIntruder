@@ -51,7 +51,7 @@ public class PersonDaoImpl implements PersonDao{
         try{
             return Optional.ofNullable(em.createQuery("SELECT e FROM Person e WHERE e.id = :pk", Person.class).setParameter("pk", id).getSingleResult());
         } catch (NoResultException e){
-            throw new IllegalArgumentException("Invalid id: nonexistent", e);
+            return Optional.empty();
         }
     }
       
@@ -63,7 +63,7 @@ public class PersonDaoImpl implements PersonDao{
         try {
             return Optional.ofNullable(em.createQuery("SELECT e FROM Person e WHERE e.username = :username", Person.class).setParameter("username", username).getSingleResult());
         } catch (NoResultException e) {
-            throw new IllegalArgumentException("Invalid username: nonexistent", e);
+            return Optional.empty();
         }
     }
 

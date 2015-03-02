@@ -10,6 +10,7 @@ import eu.bato.anyoffice.trayapp.config.Property;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -54,6 +55,8 @@ public class RestClient {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("username", "admin");
         map.add("password", "admin");
+        HttpHeaders headForHeaders = rest.headForHeaders(Configuration.getInstance().getProperty(Property.REST_SERVER_ADDRESS) + "/rest/login", map);
+        System.out.println("HEADERS: " + headForHeaders.toString());
         String result = rest.postForObject(Configuration.getInstance().getProperty(Property.REST_SERVER_ADDRESS) + "/rest/login", map, String.class);
         System.out.println("RESULT: " + result);
     }
