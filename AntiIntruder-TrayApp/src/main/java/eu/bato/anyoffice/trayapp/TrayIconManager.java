@@ -5,8 +5,11 @@
  */
 package eu.bato.anyoffice.trayapp;
 
+import eu.bato.anyoffice.trayapp.config.Configuration;
+import eu.bato.anyoffice.trayapp.config.Property;
 import java.awt.AWTException;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -18,6 +21,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -148,5 +155,26 @@ class TrayIconManager {
         currentState = state;
         SystemTray.getSystemTray().remove(trayIcon);
         initialize();
+    }
+    
+    Credentials requestCredentials(){
+        JTextField field1 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_USER));
+        JTextField field2 = new JTextField("");
+        JPanel panel = new JPanel(new GridLayout(0, 2));
+        panel.add(new JLabel("Username:"));
+        panel.add(field1);
+        panel.add(new JLabel("Password:"));
+        panel.add(field2);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Please log in",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            //TODO: validate credentials
+            Configuration.getInstance().setProperty(Property.CURRENT_USER, field1.getText());
+            return new Credentials(field1.getText(), field2.getText().toCharArray());
+        } else {
+            JOptionPane.showMessageDialog(null, "No credentials were provided. Application will exit now.", "Cancelled", JOptionPane.WARNING_MESSAGE);
+            Main.programFinish();
+            return null;
+        }
     }
 }

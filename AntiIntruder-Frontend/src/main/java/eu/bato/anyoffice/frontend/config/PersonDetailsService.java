@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +25,8 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
  * @author Bato
  */
 public class PersonDetailsService implements UserDetailsService {
+    
+    private static final Logger log = LoggerFactory.getLogger(PersonDetailsService.class);
 
     private static final StandardPasswordEncoder encoder = new StandardPasswordEncoder();
 
@@ -48,6 +52,7 @@ public class PersonDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("Authenticating: " + username);
         if ("admin".equals(username)) {
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(PersonRole.ADMIN.name()));

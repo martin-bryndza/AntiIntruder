@@ -91,4 +91,8 @@ public class Configuration {
         }
     }
     
+    public void setProperty(Property p, String value){
+        
+    }
+    
 }
