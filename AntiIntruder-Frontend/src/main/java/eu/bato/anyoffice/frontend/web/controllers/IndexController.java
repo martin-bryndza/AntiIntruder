@@ -60,7 +60,7 @@ public class IndexController {
     
     @RequestMapping(value = "/changeState", method = RequestMethod.GET)
     public String changeState(@RequestParam Long id, String state) {
-        personService.updateState(id, PersonState.valueOf(state));
+        personService.setState(id, PersonState.valueOf(state));
         return "redirect:";
     }
 }

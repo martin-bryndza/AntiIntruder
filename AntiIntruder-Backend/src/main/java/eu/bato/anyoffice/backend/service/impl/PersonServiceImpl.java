@@ -148,7 +148,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public void updateState(Long id, PersonState personState) {
+    public void setState(Long id, PersonState personState) {
         if (id == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Cannot update person that"
                     + " doesn't exist.");
@@ -185,6 +185,11 @@ public class PersonServiceImpl implements PersonService {
                 }
             }
         }.tryMethod();
+    }
+
+    @Override
+    public PersonState getState(Long id) {
+        return findOne(id).getState();
     }
     
     

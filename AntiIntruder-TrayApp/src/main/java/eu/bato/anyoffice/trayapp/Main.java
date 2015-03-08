@@ -5,7 +5,6 @@
  */
 package eu.bato.anyoffice.trayapp;
 
-import java.awt.SystemTray;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -28,10 +27,10 @@ public class Main {
             log.error(ex.getMessage());
         }
         Thread t = new Thread(new WorkstationLockListenerRunner());
-        t.start();
+        t.start();  
+        TrayIconManager.getInstance().initialize();
+        StateCheckService.getInstance().start();
         SwingUtilities.invokeLater(() -> {
-            StateCheckService.getInstance().start();
-            TrayIconManager.getInstance().initialize();
         });
     }
     

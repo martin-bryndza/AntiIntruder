@@ -5,30 +5,39 @@
  */
 package eu.bato.anyoffice.trayapp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  *
  * @author Bato
  */
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum PersonState {
         
     DO_NOT_DISTURB("Do not disturb", "dnd.png"), AVAILABLE("Available", "available.png"), UNKNOWN("Unknown", "unknown.png");
     
     private static final String PREPOSITION = "Any Office - ";
     private static final String IMAGE_FOLDER = "images/";
-    private final String name;
+    private final String displayName;
     private final String icon;
 
     private PersonState(String name, String icon) {
-        this.name = name;
+        this.displayName = name;
         this.icon = icon;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
+    }
+    
+    @JsonValue
+    public String getName(){
+        return name();
     }
     
     public String getDescription() {
-        return PREPOSITION + name;
+        return PREPOSITION + displayName;
     }
 
     public String getIconPath() {

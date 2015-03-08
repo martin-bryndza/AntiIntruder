@@ -3,17 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.bato.anyoffice.frontend.rest;
+package eu.bato.anyoffice.frontend.rest.v1_0.data;
+
 
 /**
  *
  * @author Bato
  */
-public class Versions {
+public enum PersonStateJson {
     
-    private Versions() {
-    }
-
-    public static final String V1_0 = "application/json";
+    AVAILABLE, DO_NOT_DISTURB;
     
 }

@@ -5,10 +5,7 @@
  */
 package eu.bato.anyoffice.trayapp;
 
-import eu.bato.anyoffice.trayapp.config.Configuration;
-import eu.bato.anyoffice.trayapp.config.Property;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
 
 /**
  *
@@ -16,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
  */
 class PersonStateManager {
     
-    final static org.slf4j.Logger log = LoggerFactory.getLogger(PersonStateManager.class);
+    private final static org.slf4j.Logger log = LoggerFactory.getLogger(PersonStateManager.class);
 
     private static PersonStateManager instance;
 
@@ -25,8 +22,7 @@ class PersonStateManager {
 
     private PersonStateManager() {
         client = new RestClient();
-        client.login();
-        getStateFromServer();
+        state = PersonState.UNKNOWN;
     }
 
     static PersonStateManager getInstance() {
@@ -51,7 +47,7 @@ class PersonStateManager {
         }
         this.state = state;
         log.info("State " + state + " sent to server.");
-        // TODO: tell server
+        client.setState(state);
     }
     
     void workstationLock(){

@@ -44,7 +44,19 @@ public interface PersonService extends Service<PersonDto> {
      */
     Long register(PersonDto person, String password);
     
-    void updateState(Long id, PersonState personState);
+    /**
+     * Sets state of Person with id to personState, if possible. Otherwise throws IllegalArgumentException
+     * @param id
+     * @param personState 
+     */
+    void setState(Long id, PersonState personState);
+    
+    /**
+     * Gets the current state of Person with id.
+     * @param id
+     * @return 
+     */
+    PersonState getState(Long id);
     
     Optional<PersonDto> findOneByUsername(String username);
     

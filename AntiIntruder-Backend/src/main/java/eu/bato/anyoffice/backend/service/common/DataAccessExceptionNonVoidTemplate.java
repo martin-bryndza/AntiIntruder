@@ -28,7 +28,7 @@ public abstract class DataAccessExceptionNonVoidTemplate<T,U,V> {
         try {
             returnedObject = doMethod();
         } catch (Exception ex) {
-            throw new RecoverableDataAccessException("Operation 'create' failed. " + ex.getMessage(), ex);
+            throw new RecoverableDataAccessException("Operation failed. " + ex.getMessage(), ex);
         }
         return returnedObject;
     }

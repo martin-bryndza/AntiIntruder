@@ -83,7 +83,7 @@ class TrayIconManager {
             if (state.equals(PersonState.UNKNOWN)){
                 continue;
             }
-            MenuItem item = new MenuItem(state.getName());
+            MenuItem item = new MenuItem(state.getDisplayName());
             if (state.equals(currentState)){
                 item.setFont(BOLD_FONT);
                 item.setLabel("-" + item.getLabel() + "-");
@@ -142,7 +142,7 @@ class TrayIconManager {
         }
         log.info("Changing state to " + state);
         if (!PersonStateManager.getInstance().isStateChangePossible(state)){
-            trayIcon.displayMessage("Unable to switch to " + state.getName(), "Remaining time: ", TrayIcon.MessageType.ERROR);
+            trayIcon.displayMessage("Unable to switch to " + state.getDisplayName(), "Remaining time: ", TrayIcon.MessageType.ERROR);
         }
         PersonStateManager.getInstance().setState(state);
         currentState = state;

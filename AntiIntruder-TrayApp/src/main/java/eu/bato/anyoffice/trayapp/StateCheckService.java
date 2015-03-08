@@ -29,8 +29,9 @@ class StateCheckService {
     }
     
     void start(){
+        TrayIconManager.getInstance().changeState(PersonStateManager.getInstance().workstationUnlock());
         Timer t = new Timer();
-        t.scheduleAtFixedRate(new StateCheckTask(), 0, Configuration.getInstance().getIntegerProperty(Property.CHECK_INTERVAL)* 1000);
+        t.scheduleAtFixedRate(new StateCheckTask(), 2000, Configuration.getInstance().getIntegerProperty(Property.CHECK_INTERVAL)* 1000);
         log.info("Scheduler service started.");
     }  
     
