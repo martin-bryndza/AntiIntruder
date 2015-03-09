@@ -1,5 +1,10 @@
 package eu.bato.anyoffice.trayapp;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Base64;
+
 /**
  *
  * @author Bato
@@ -7,19 +12,27 @@ package eu.bato.anyoffice.trayapp;
 public class Credentials {
     
     private final String username;
-    private final char[] password;
+    private final String encodedAuthString;
 
-    public Credentials(String username, char[] password) {
+    public Credentials(String username, char[] password) throws IOException {
         this.username = username;
-        this.password = password;
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outputStream.write(username.getBytes(Charset.forName("US-ASCII")));
+        outputStream.write(':');
+        for (int i = 0; i < password.length; i++) {
+            outputStream.write(password[i]);
+        }
+        byte c[] = outputStream.toByteArray();
+        this.encodedAuthString = Base64.getEncoder().encodeToString(c);
     }
 
     public String getUsername() {
         return username;
     }
-
-    public char[] getPassword() {
-        return password;
+    
+    public String getEncodedAuthenticationString(){
+        return encodedAuthString;
     }
     
 }

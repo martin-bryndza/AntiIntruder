@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Transactional
 @RestController("PersonStateResourceV1")
-//@PreAuthorize("hasAuthority('USER')") // For @PreAuthorize annotation to have effect there is a need to have @EnableGlobalMethodSecurity annotation on @Configuration bean somewhere
 @RequestMapping(value = "/api/v1", 
 produces = Versions.V1_0, 
 consumes = Versions.V1_0)
@@ -35,25 +34,30 @@ public class PersonStateController{
     @Autowired
     PersonService personService;
     
+    @RequestMapping(value = "login", method = GET)
+    @ResponseStatus(HttpStatus.OK)
+    public void validateCredentials(Authentication authentication) {
+        log.info("User " + authentication.getName() + " connected.");
+    }
+    
     @RequestMapping(value="state", method = GET)
     @ResponseBody
-    public String getCurrentState() {
-        return personService.getState(1L).toString();
+    public String getCurrentState(Authentication authentication) {
+        return personService.getState(authentication.getName()).toString();
     }
     
     @RequestMapping(value = "state", method = PUT)
     @ResponseStatus(HttpStatus.OK)
-    public void setCurrentState(@RequestBody PersonStateJson newState) {
+    public void setCurrentState(@RequestBody PersonStateJson newState, Authentication authentication) {
         log.info("Setting new state: " + newState);
-        personService.setState(1L, PersonState.valueOf(newState.name()));
+        personService.setState(authentication.getName(), PersonState.valueOf(newState.name()));
     }
     
-//    @RequestMapping(value = "state", method = PUT)
-//    @ResponseStatus(HttpStatus.OK)
-//    public void setSessionLocked() {
-//        log.info("User locked session");
-//        personService.
-//        personService.setState(1L, PersonState.valueOf(newState.name()));
-//    }
+    @RequestMapping(value = "locked", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void setSessionLocked() {
+        log.info("User locked session");
+        
+    }
     
 }

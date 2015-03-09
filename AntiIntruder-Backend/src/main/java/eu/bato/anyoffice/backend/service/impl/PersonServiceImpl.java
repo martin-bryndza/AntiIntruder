@@ -12,7 +12,6 @@ import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTempla
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
-import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,6 +189,30 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonState getState(Long id) {
         return findOne(id).getState();
+    }
+
+    @Override
+    public void setState(String username, PersonState personState) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        } else if (personState == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update person to null state.");
+            log.error("PersonState is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(username, personState) {
+            @Override
+            public void doMethod() {
+                personDao.updateState((String) getU(), (PersonState) getV());
+            }
+        }.tryMethod();
+    }
+
+    @Override
+    public PersonState getState(String username) {
+        return findOneByUsername(username).get().getState();
     }
     
     

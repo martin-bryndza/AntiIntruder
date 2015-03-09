@@ -47,4 +47,6 @@ public interface PersonDao extends Dao<Person, Long>{
     
     Person updateState(Long id, PersonState personState);
     
+    Person updateState(String username, PersonState personState);
+    
 }

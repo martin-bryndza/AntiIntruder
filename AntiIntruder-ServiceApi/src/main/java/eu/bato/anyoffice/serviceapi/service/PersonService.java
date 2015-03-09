@@ -58,6 +58,23 @@ public interface PersonService extends Service<PersonDto> {
      */
     PersonState getState(Long id);
     
+    /**
+     * Sets state of Person with username to personState, if possible. Otherwise
+     * throws IllegalArgumentException
+     *
+     * @param username
+     * @param personState
+     */
+    void setState(String username, PersonState personState);
+
+    /**
+     * Gets the current state of Person with username.
+     *
+     * @param username
+     * @return
+     */
+    PersonState getState(String username);
+    
     Optional<PersonDto> findOneByUsername(String username);
     
 }

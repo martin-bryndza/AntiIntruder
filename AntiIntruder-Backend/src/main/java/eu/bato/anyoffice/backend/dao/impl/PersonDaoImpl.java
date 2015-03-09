@@ -100,6 +100,19 @@ public class PersonDaoImpl implements PersonDao{
         if (!e.isPresent()) {
             throw new IllegalArgumentException("Person with id " + id + " does not exist.");
         }
+        return updateState(e, personState);
+    }
+
+    @Override
+    public Person updateState(String username, PersonState personState) {
+        Optional<Person> e = findOneByUsername(username);
+        if (!e.isPresent()) {
+            throw new IllegalArgumentException("Person with username " + username + " does not exist.");
+        }
+        return updateState(e, personState);
+    }
+    
+    private Person updateState(Optional<Person> e, PersonState personState){
         if (e.get().getState().equals(personState)) {
             log.info("Actual and wanted states are the same. State of person " + e.get().getUsername() + " will not be changed.");
             return e.get();

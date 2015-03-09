@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -168,9 +170,21 @@ class TrayIconManager {
         int result = JOptionPane.showConfirmDialog(null, panel, "Please log in",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
-            //TODO: validate credentials
-            Configuration.getInstance().setProperty(Property.CURRENT_USER, field1.getText());
-            return new Credentials(field1.getText(), field2.getText().toCharArray());
+            Credentials c;
+            try {
+                c = new Credentials(field1.getText(), field2.getText().toCharArray());
+            } catch (IOException ex) {
+                log.error(ex.getMessage(), ex);
+                JOptionPane.showMessageDialog(null, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
+                return requestCredentials();
+            }
+            if (new RestClient().isCorrectCredentials(c)){
+                Configuration.getInstance().setProperty(Property.CURRENT_USER, field1.getText());
+                return c;
+            } else {
+                JOptionPane.showMessageDialog(null, "Incorrect password or unknown user.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
+                return requestCredentials();
+            }
         } else {
             JOptionPane.showMessageDialog(null, "No credentials were provided. Application will exit now.", "Cancelled", JOptionPane.WARNING_MESSAGE);
             Main.programFinish();
