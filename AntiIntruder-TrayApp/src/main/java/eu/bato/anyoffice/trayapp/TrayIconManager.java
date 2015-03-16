@@ -177,8 +177,8 @@ class TrayIconManager {
     }
     
     Credentials requestCredentials(){
-        JTextField field1 = new JTextField("bato");//Configuration.getInstance().getProperty(Property.CURRENT_USER));
-        JTextField field2 = new JTextField("1111");
+        JTextField field1 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_USER));
+        JTextField field2 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_PASSWORD));
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Username:"));
         panel.add(field1);

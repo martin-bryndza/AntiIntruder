@@ -33,3 +33,55 @@ dependencies {
         
     testCompile group: 'junit', name: 'junit', version: '4.10'
 }
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes (
+                "Manifest-Version": "0.1-SNAPSHOT",
+                "Implementation-Vendor": "Martin Bryndza",
+                "Implementation-Title": "Any Office - Client ${version}",
+                "Implementation-Version": '${version}',
+                "Build-Date": new Date(),
+                'Main-Class': 'eu.bato.anyoffice.trayapp.Main'
+        )
+    }
+    archiveName = "anyoffice-client-all.jar"
+    destinationDir = file("dist")
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+jar {
+    manifest {
+        attributes (
+                "Manifest-Version": "0.1-SNAPSHOT",
+                "Implementation-Vendor": "Martin Bryndza",
+                "Implementation-Title": "Any Office - Client ${version}",
+                "Implementation-Version": '${version}',
+                "Build-Date": new Date(),
+                'Main-Class': 'eu.bato.anyoffice.trayapp.Main'
+        )
+    }
+    archiveName = "anyoffice-client-all.jar"
+    destinationDir = file("deploy")
+}
+
+task preparePropertiesFiles(type: Copy){
+    description "Copies files needed to pack into zip, that will be deployed"
+    from fileTree("${rootDir}/AntiIntruder-TrayApp")
+    includes = ["config/configuration.properties", "images/**"]
+    into("dist")
+}
+
+task pack(type: Zip, dependsOn:["preparePropertiesFiles", "fatJar"]) {
+    description = "Creates .zip file ready to be deployed"
+    archiveName = "anyoffice-client-runnable.zip"
+    from("dist")
+    exclude("*.log")
+    destinationDir = file("deploy")
+}
+
+clean {
+    delete("dist")
+    delete("deploy")
+}

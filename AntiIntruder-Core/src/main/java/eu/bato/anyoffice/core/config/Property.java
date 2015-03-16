@@ -14,15 +14,15 @@ public enum Property {
     /**
      * Maximum time in which a person can be DND 
      * Unit: miliseconds 
-     * Default: 45000
+     * Default: 2700000 (45 minutes)
      */
-    MAX_DND_TIME(PropertyType.LONG, "45000"), 
+    MAX_DND_TIME(PropertyType.LONG, "2700000"), 
     /**
      * Minimum time in which a person has to be AVAILABLE
      * Unit: miliseconds
-     * Default: 15000
+     * Default: 900000 (15 minutes)
      */
-    MIN_AVAILABLE_TIME(PropertyType.LONG, "15000"),
+    MIN_AVAILABLE_TIME(PropertyType.LONG, "900000"),
     /**
      * Interval of checking state expiration.
      * Unit: miliseconds

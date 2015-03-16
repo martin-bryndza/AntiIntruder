@@ -75,13 +75,11 @@
                 <tr th:each="ent, stat: ${persons}">
                     <td data-th-text="${ent.displayName}">Entity display name</td>
                     <td data-th-text="${ent.description}">Entity description</td>
-                    <td th:switch="${#httpServletRequest.remoteUser == ent.username or #httpServletRequest.isUserInRole('ADMIN')}">
+                    <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}">
                         <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
                             <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}"/>
                         </select>
-                        <select th:case="false" disabled="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'">
-                            <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}"/>
-                        </select>
+                        <p th:text="${sopt.name}" >Unknown</p>
                     </td>
                     <td data-th-text="${#dates.format(ent.lastStateChange, 'dd/MMM/yyyy HH:mm')}">Last change</td>
                     <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
