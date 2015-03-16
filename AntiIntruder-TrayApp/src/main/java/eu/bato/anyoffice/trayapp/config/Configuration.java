@@ -23,7 +23,7 @@ public class Configuration {
     private static Configuration instance = null;
 
     private Configuration() {
-        File f = new File("config/configuration.properties");
+        File f = new File("config/client.properties");
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(f);

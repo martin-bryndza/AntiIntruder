@@ -135,6 +135,6 @@ public class WorkstationLockListener implements WindowProc {
      */
     private void onMachineUnlocked(int sessionId) {
         log.info("Machine unlocked right now!");
-        TrayIconManager.getInstance().updateIcon(PersonStateManager.getInstance().workstationUnlock());
+        TrayIconManager.getInstance().updateState(PersonStateManager.getInstance().workstationUnlock());
     }
 }

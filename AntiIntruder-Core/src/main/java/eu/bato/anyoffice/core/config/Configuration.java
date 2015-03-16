@@ -8,6 +8,7 @@ package eu.bato.anyoffice.core.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,21 +24,20 @@ public class Configuration {
     private static Configuration instance = null;
 
     private Configuration() {
-        File f = new File("classpath:application.properties");
-        FileInputStream fis = null;
+        InputStream is = null;
         try {
-            fis = new FileInputStream(f);
+            is = this.getClass().getClassLoader().getResourceAsStream("core.properties");
             props = new Properties();
-            props.load(fis);
+            props.load(is);
         } catch (IOException e) {
             log.error("Unable to load configuration. Default values will be used.", e);
         }
         try {
-            if (fis != null) {
-                fis.close();
+            if (is != null) {
+                is.close();
             }
         } catch (IOException ex) {
-            log.warn("Unable to close FileInputStream.", ex);
+            log.warn("Unable to close InputStream.", ex);
         }
     }
 

@@ -46,11 +46,12 @@ class TrayIconManager {
     private PopupMenu popup;
     private Map<PersonState, MenuItem> stateItems;
     private PersonState currentState;
+    private final UpdateIconMouseListener updateIconMouseListener;
     
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
 
     private TrayIconManager() {
-        
+        updateIconMouseListener = new UpdateIconMouseListener();
     }
     
     static TrayIconManager getInstance(){
@@ -66,20 +67,24 @@ class TrayIconManager {
         if (currentState == null){
             currentState = PersonStateManager.getInstance().getStateFromServer();
         }
-        PersonState state = currentState;
+        PersonState state = currentState; // create a local copy
         if (!SystemTray.isSupported()) {
             log.error("SystemTray is not supported on this system.");
             return;
         }
         SystemTray tray = SystemTray.getSystemTray();
-        trayIcon = createIcon(state.getIconPath(), state.getDescription());
-        trayIcon.setPopupMenu(createMenu(state));
-        trayIcon.addMouseListener(new UpdateIconMouseListener());
-        try {
-            tray.add(trayIcon);
-        } catch (AWTException ex) {
-            log.error("Desktop system tray is missing", ex);
+        if (trayIcon == null){
+            trayIcon = createIcon(state.getIconPath(), state.getDescription());
+            try {
+                tray.add(trayIcon);
+            } catch (AWTException ex) {
+                log.error("Desktop system tray is missing", ex);
+            }
+        } else {
+            trayIcon.setImage(getTrayIconImage(state.getIconPath()));
         }
+        trayIcon.setPopupMenu(createMenu(state));
+        trayIcon.addMouseListener(updateIconMouseListener);
     }
     
     private PopupMenu createMenu(PersonState currentState){
@@ -93,7 +98,7 @@ class TrayIconManager {
 //        MenuItem noneItem = new MenuItem("None");
         
         for (PersonState state: PersonState.values()){
-            if (state.equals(PersonState.UNKNOWN) || state.equals(PersonState.AWAY)){
+            if (state.isAwayState()){
                 continue;
             }
             MenuItem item = new MenuItem(state.getDisplayName());
@@ -124,19 +129,7 @@ class TrayIconManager {
     }
 
     private TrayIcon createIcon(String path, String description) {
-        BufferedImage trayIconImage;
-        try {
-            trayIconImage = ImageIO.read(new File(path));
-        } catch (IOException ex) {
-            log.error("Icon " + path + " not found.", ex);
-            return new TrayIcon(new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB), description);
-        }
-        if (trayIconImage == null) {
-            log.error("Unable to create tray icon");
-            return new TrayIcon(new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB), description);
-        }
-        int trayIconWidth = new TrayIcon(trayIconImage).getSize().width;
-        TrayIcon icon = new TrayIcon(trayIconImage.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH), description);
+        TrayIcon icon = new TrayIcon(getTrayIconImage(path), description);
         
         icon.addActionListener((ActionEvent) -> {
             icon.displayMessage(icon.getToolTip(), "Remaining time: ", TrayIcon.MessageType.NONE);
@@ -144,37 +137,55 @@ class TrayIconManager {
         
         return icon;
     }
+    
+    private Image getTrayIconImage(String path){
+        BufferedImage trayIconImage;
+        try {
+            trayIconImage = ImageIO.read(new File(path));
+        } catch (IOException ex) {
+            log.error("Icon " + path + " not found.", ex);
+            return new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+        }
+        if (trayIconImage == null) {
+            log.error("Unable to create tray icon");
+            return new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+        }
+        int trayIconWidth = new TrayIcon(trayIconImage).getSize().width;
+        return trayIconImage.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH);
+    }
         
     /**
-     * Change of state and refresh of tray icon.
+     * Change of state and/or refresh of tray icon. If the current and requested states are the same and state availability hasn't changed either, nothing will be changed. Do not use this to update menu before displaying it, use updateIcon instead.
      * @param state 
      */
-    synchronized void updateIcon(PersonState state){
+    synchronized void updateState(PersonState state){
+        boolean wasDndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
+        if (!wasDndAvailable && PersonStateManager.getInstance().isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+            stateItems.get(PersonState.DO_NOT_DISTURB).setEnabled(true);
+            int result = JOptionPane.showConfirmDialog(null, "Go to Do not disturb state now?", "Do not disturb state is possible", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (result == JOptionPane.YES_OPTION) {
+                changeState(PersonState.DO_NOT_DISTURB);
+                return;
+            }
+        }
         if (state == null || state.equals(currentState)){
             return;
         }
         log.info("Updating icon to " + state);
-        boolean availableBubble = false;
-        if (state.equals(PersonState.AVAILABLE) && !(currentState.equals(PersonState.AWAY) || currentState.equals(PersonState.UNKNOWN))){
-            availableBubble = true;
-        }
-        updateMenu(state);
-        if (availableBubble){
+        boolean showAvailableBubble = state.equals(PersonState.AVAILABLE) && !currentState.isAwayState();
+        updateIcon(state);
+        if (showAvailableBubble){
             showBubble("You have gone Available");
         }
     }
     
-    synchronized void updateMenu(PersonState state){
-        boolean dndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
+    /**
+     * Update of visual components to correspond to the given state.
+     * @param state 
+     */
+    synchronized void updateIcon(PersonState state){
         currentState = state;
-        SystemTray.getSystemTray().remove(trayIcon);
         initialize();
-        if (!dndAvailable && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()){
-            int result = JOptionPane.showConfirmDialog(null, "Do not disturb state is possible", "Go to Do not disturb state now?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (result==JOptionPane.YES_OPTION){
-                changeState(PersonState.DO_NOT_DISTURB);
-            }
-        }
     }
     
     private void showBubble(String text){
@@ -191,7 +202,7 @@ class TrayIconManager {
         }
         PersonState newStateByServer = PersonStateManager.getInstance().setState(state);
         log.debug("Server returned state " + newStateByServer + " after state change to " + state);
-        updateIcon(newStateByServer);
+        updateState(newStateByServer);
     }
     
     Credentials requestCredentials(){
@@ -234,11 +245,23 @@ class TrayIconManager {
     }
     
     private class UpdateIconMouseListener extends MouseAdapter {
-      
+        
+        private boolean released = true;
+            
         @Override
         public void mousePressed(MouseEvent e) {
-            updateMenu(PersonStateManager.getInstance().getStateFromServer());
+            if (released){
+                updateIcon(PersonStateManager.getInstance().getStateFromServer());
+                released = false;
+            }
         }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            released = true;
+        }
+        
+        
 
     }
 }

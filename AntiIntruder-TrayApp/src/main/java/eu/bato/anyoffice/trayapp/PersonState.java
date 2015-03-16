@@ -15,16 +15,18 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum PersonState {
         
-    DO_NOT_DISTURB("Do not disturb", "dnd.png"), AVAILABLE("Available", "available.png"), UNKNOWN("Unknown", "unknown.png"), AWAY("Away", "unknown.png");
+    DO_NOT_DISTURB("Do not disturb", "dnd.png", false), AVAILABLE("Available", "available.png", false), UNKNOWN("Unknown", "unknown.png", true), AWAY("Away", "unknown.png", true);
     
     private static final String PREPOSITION = "Any Office - ";
     private static final String IMAGE_FOLDER = "images/";
     private final String displayName;
     private final String icon;
+    private final boolean awayState;
 
-    private PersonState(String name, String icon) {
+    private PersonState(String name, String icon, boolean awayState) {
         this.displayName = name;
         this.icon = icon;
+        this.awayState = awayState;
     }
 
     public String getDisplayName() {
@@ -42,6 +44,10 @@ public enum PersonState {
 
     public String getIconPath() {
         return IMAGE_FOLDER + icon;
+    }
+    
+    public boolean isAwayState(){
+        return awayState;
     }
     
 }
