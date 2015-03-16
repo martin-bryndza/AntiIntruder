@@ -12,10 +12,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *
  * @author Bato
  */
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+@JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum PersonState {
         
-    DO_NOT_DISTURB("Do not disturb", "dnd.png"), AVAILABLE("Available", "available.png"), UNKNOWN("Unknown", "unknown.png");
+    DO_NOT_DISTURB("Do not disturb", "dnd.png"), AVAILABLE("Available", "available.png"), UNKNOWN("Unknown", "unknown.png"), AWAY("Away", "unknown.png");
     
     private static final String PREPOSITION = "Any Office - ";
     private static final String IMAGE_FOLDER = "images/";

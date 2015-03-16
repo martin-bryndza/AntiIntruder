@@ -1,6 +1,7 @@
 package eu.bato.anyoffice.serviceapi.dto;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -11,6 +12,9 @@ public class PersonDto extends EntityDto{
     private PersonState state;
     private String username;
     private PersonRole role;
+    private Long dndStart;
+    private Long dndEnd;
+    private Optional<Long> awayStart = Optional.empty();
 
     public PersonState getState() {
         return state;
@@ -34,6 +38,30 @@ public class PersonDto extends EntityDto{
 
     public void setRole(PersonRole role) {
         this.role = role;
+    }
+
+    public Long getDndStart() {
+        return dndStart;
+    }
+
+    public void setDndStart(Long dndStart) {
+        this.dndStart = dndStart;
+    }
+
+    public Long getDndEnd() {
+        return dndEnd;
+    }
+
+    public void setDndEnd(Long dndEnd) {
+        this.dndEnd = dndEnd;
+    }
+
+    public Optional<Long> getAwayStart() {
+        return awayStart;
+    }
+
+    public void setAwayStart(Optional<Long> awayStart) {
+        this.awayStart = awayStart;
     }
 
     @Override

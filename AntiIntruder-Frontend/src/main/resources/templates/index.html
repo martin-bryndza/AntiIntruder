@@ -68,8 +68,6 @@
                     <th>Description</th>
                     <th>State</th>
                     <th>Last change</th>
-<!--                    <th>Next possible change</th>
-                    <th>Expiration</th>-->
                     <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
                 </tr>
             </thead>
@@ -86,12 +84,13 @@
                         </select>
                     </td>
                     <td data-th-text="${#dates.format(ent.lastStateChange, 'dd/MMM/yyyy HH:mm')}">Last change</td>
-<!--                    <td data-th-text="${#dates.format(ent.nextPossibleStateChange, 'HH:mm')}">Next possible change</td>
-                    <td th:switch="${ent.stateExpiration != null}">
-                        <div th:case="true" data-th-text="${#dates.format(ent.stateExpiration, 'HH:mm')}">Expiration</div>
-                        <div th:case="false">-</div>
-                    </td>-->
-                    <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}"><a href="#" data-th-href="@{/delete(id=${ent.id})}" th:text="#{Delete}">Delete</a></td>
+                    <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
+<!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">
+                            <input type="hidden" th:field="${ent.id}"/>
+                            <button type="submit" class="btn btn-primary" th:text='#{Deletee}'>Deletee</button>-->
+                            <a href="#" data-th-href="@{/delete(id=${ent.id})}" th:text="#{Delete}">Delete</a>
+                        <!--</form>-->
+                    </td>
                 </tr>
             </tbody>
         </table>

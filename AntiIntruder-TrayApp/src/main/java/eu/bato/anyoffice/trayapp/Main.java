@@ -30,6 +30,7 @@ public class Main {
         t.start();  
         TrayIconManager.getInstance().initialize();
         StateCheckService.getInstance().start();
+        TrayIconManager.getInstance().updateIcon(PersonStateManager.getInstance().workstationUnlock());
         SwingUtilities.invokeLater(() -> {
         });
     }

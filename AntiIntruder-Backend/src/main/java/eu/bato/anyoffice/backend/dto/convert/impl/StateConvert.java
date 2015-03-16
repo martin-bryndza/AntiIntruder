@@ -30,7 +30,7 @@ public class StateConvert{
         s.setName(dto.getName());
         s.setMinDuration(dto.getMinDuration());
         s.setMaxDuration(dto.getMaxDuration());
-        s.setDefaultSuccessor(stateDao.findOne(dto.getDefaultSuccessorId()).get());
+        s.setDefaultSuccessor(stateDao.findOne(dto.getDefaultSuccessorId()));
         return s;
     }
 

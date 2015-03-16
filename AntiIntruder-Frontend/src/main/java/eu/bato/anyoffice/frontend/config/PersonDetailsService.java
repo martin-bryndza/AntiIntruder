@@ -38,7 +38,7 @@ public class PersonDetailsService implements UserDetailsService {
 
     @PostConstruct
     protected void initialize() {
-        if (personService.findOneByUsername("bato").isPresent()) {
+        if (personService.isPresent("bato")) {
             return;
         }
         PersonDto sampleUser = new PersonDto();

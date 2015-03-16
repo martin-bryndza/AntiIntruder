@@ -3,6 +3,7 @@ package eu.bato.anyoffice.backend.dao.impl;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -19,13 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class PersonDaoImpl implements PersonDao{
+public class PersonDaoImpl implements PersonDao {
 
     final static Logger log = LoggerFactory.getLogger(PersonDaoImpl.class);
 
     @PersistenceContext
     private EntityManager em;
-      
+
     @Override
     public void delete(Long id) {
         if (id == null) {
@@ -39,32 +40,25 @@ public class PersonDaoImpl implements PersonDao{
     }
 
     @Override
-    public List<Person> findAll() {    
+    public List<Person> findAll() {
         return em.createQuery("SELECT tbl FROM Person tbl", Person.class).getResultList();
     }
 
     @Override
-    public Optional<Person> findOne(Long id) {
+    public Person findOne(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
         }
-        try{
-            return Optional.ofNullable(em.createQuery("SELECT e FROM Person e WHERE e.id = :pk", Person.class).setParameter("pk", id).getSingleResult());
-        } catch (NoResultException e){
-            return Optional.empty();
-        }
+            return em.createQuery("SELECT e FROM Person e WHERE e.id = :pk", Person.class).setParameter("pk", id).getSingleResult();
+        
     }
-      
+
     @Override
-    public Optional<Person> findOneByUsername(String username) {
+    public Person findOneByUsername(String username) {
         if (username == null) {
             throw new IllegalArgumentException("Invalid username: " + username);
         }
-        try {
-            return Optional.ofNullable(em.createQuery("SELECT e FROM Person e WHERE e.username = :username", Person.class).setParameter("username", username).getSingleResult());
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
+            return em.createQuery("SELECT e FROM Person e WHERE e.username = :username", Person.class).setParameter("username", username).getSingleResult();
     }
 
     @Override
@@ -73,9 +67,9 @@ public class PersonDaoImpl implements PersonDao{
             throw new IllegalArgumentException("Invalid entity (Person): " + person);
         }
         //if the password is empty, use the password that is already stored
-        if (person.getPassword() == null || person.getPassword().isEmpty()){
+        if (person.getPassword() == null || person.getPassword().isEmpty()) {
             //if the person does not have stopred Entity, it is a new person
-            if (person.getId() == null){
+            if (person.getId() == null) {
                 throw new IllegalArgumentException("Unable to create a new person with empty password.");
             }
             String currentPass;
@@ -93,33 +87,60 @@ public class PersonDaoImpl implements PersonDao{
         log.info(" Assigned entity id: " + modelPerson.getId());
         return modelPerson;
     }
-    
+
     @Override
     public Person updateState(Long id, PersonState personState) {
-        Optional<Person> e = findOne(id);
-        if (!e.isPresent()) {
-            throw new IllegalArgumentException("Person with id " + id + " does not exist.");
-        }
+        Person e = findOne(id);
         return updateState(e, personState);
     }
 
     @Override
     public Person updateState(String username, PersonState personState) {
-        Optional<Person> e = findOneByUsername(username);
-        if (!e.isPresent()) {
-            throw new IllegalArgumentException("Person with username " + username + " does not exist.");
-        }
+        Person e = findOneByUsername(username);
         return updateState(e, personState);
     }
-    
-    private Person updateState(Optional<Person> e, PersonState personState){
-        if (e.get().getState().equals(personState)) {
-            log.info("Actual and wanted states are the same. State of person " + e.get().getUsername() + " will not be changed.");
-            return e.get();
-        } else {
-        }
-        Person ent = e.get();
-        ent.setState(personState);
-        return ent;
+
+    private Person updateState(Person e, PersonState personState) {
+        if (e.getState().equals(personState)) {
+            log.info("Actual and wanted states are the same. State of person " + e.getUsername() + " will not be changed.");
+            return e;
+        } 
+        e.setState(personState);
+        return e;
     }
+
+    @Override
+    public void updateTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart) {
+        if (dndStart == null || dndEnd == null || awayStart == null) {
+            throw new IllegalArgumentException("Some of properties is null: dndStart=" + dndStart + ", dndEnd=" + dndEnd + ", awayStart = " + awayStart + ". Use Optional.empty instead.");
+        }
+        Person e = findOneByUsername(username);
+        e.setAwayStart(awayStart);
+        e.setDndEnd(dndEnd.orElse(e.getDndEnd()));
+        e.setDndStart(dndStart.orElse(e.getDndStart()));
+    }
+
+    @Override
+    public void addInteractionPerson(Long id, Long interactionPersonId) {
+        Person p1 = findOne(id);
+        Person p2 = findOne(interactionPersonId);
+        p1.addInteractionEntity(p2);
+        }
+
+    @Override
+    public void removeInteractionPerson(Long id, Long interactionPersonId) {
+        Person p1 = findOne(id);
+        Person p2 = findOne(interactionPersonId);
+        p1.removeInteractionEntity(p2);
+    }
+
+    @Override
+    public boolean isTaken(String username) {
+        if (username==null){
+            throw new IllegalArgumentException("Username is null.");
+        }
+        return em.createQuery("SELECT tbl.id FROM Person tbl WHERE tbl.username = "
+                + ":givenUsername", Long.class).setParameter("givenUsername", username).getResultList().size()>0;
+    }
+    
 }

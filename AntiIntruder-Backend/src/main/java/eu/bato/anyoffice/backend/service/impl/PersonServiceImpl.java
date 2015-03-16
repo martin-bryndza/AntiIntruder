@@ -19,9 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.persistence.NoResultException;
 
 /**
  *
@@ -53,12 +56,8 @@ public class PersonServiceImpl implements PersonService {
         return (PersonDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public PersonDto doMethod() {
-                Optional<Person> entity = personDao.findOne((Long) getU());
-                if (entity.isPresent()) {
-                    return PersonConvert.fromEntityToDto(entity.get());
-                } else {
-                    return null;
-                }
+                Person entity = personDao.findOne((Long) getU());
+                return PersonConvert.fromEntityToDto(entity);
             }
         }.tryMethod();
     }
@@ -105,7 +104,7 @@ public class PersonServiceImpl implements PersonService {
         new DataAccessExceptionNonVoidTemplate(username, password) {
             @Override
             public Object doMethod() {
-                Person person = personDao.findOneByUsername((String) getU()).get();
+                Person person = personDao.findOneByUsername((String) getU());
                 person.setPassword((String) getV());
                 Person savedEntity = personDao.save(person);
                 return savedEntity;
@@ -120,28 +119,14 @@ public class PersonServiceImpl implements PersonService {
             public Long doMethod() {
                 PersonDto dto = (PersonDto) getU();
                 Person entity = personConvert.fromDtoToEntity(dto, (String) getV());
+                if (entity.getState()==null){
+                    entity.setState(PersonState.UNKNOWN);
+                }
+                if (entity.getState().equals(PersonState.UNKNOWN) || entity.getState().equals(PersonState.AWAY)){
+                    entity.setAwayStart(Optional.of(new Date()));
+                }
                 Person savedEntity = personDao.save(entity);
                 return savedEntity.getId();
-            }
-        }.tryMethod();
-    }
-
-    @Override
-    public Optional<LoginDetailsDto> getLoginDetails(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
-            log.error("PersonServiceImpl.getPassword() called on null parameter: String username", iaex);
-            throw iaex;
-        }
-        return (Optional<LoginDetailsDto>) new DataAccessExceptionNonVoidTemplate(username) {
-            @Override
-            public Optional<LoginDetailsDto> doMethod() {
-                Optional<Person> entity = personDao.findOneByUsername((String) getU());
-                if (entity.isPresent()) {
-                    return Optional.of(new LoginDetailsDto(entity.get().getPassword(), entity.get().getRole()));
-                } else {
-                    return Optional.empty();
-                }
             }
         }.tryMethod();
     }
@@ -167,21 +152,17 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Optional<PersonDto> findOneByUsername(String username) {
+    public PersonDto findOneByUsername(String username) {
         if (username == null || username.isEmpty()) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: " + username);
             log.error("PersonServiceImpl.findOneByUsername() called on null or empty parameter: String username", iaex);
             throw iaex;
         }
-        return (Optional<PersonDto>) new DataAccessExceptionNonVoidTemplate(username) {
+        return (PersonDto) new DataAccessExceptionNonVoidTemplate(username) {
             @Override
-            public Optional<PersonDto> doMethod() {
-                Optional<Person> entity = personDao.findOneByUsername((String) getU());
-                if (entity.isPresent()) {
-                    return Optional.of(PersonConvert.fromEntityToDto(entity.get()));
-                } else {
-                    return Optional.empty();
-                }
+            public PersonDto doMethod() {
+                Person entity = personDao.findOneByUsername((String) getU());
+                return PersonConvert.fromEntityToDto(entity);
             }
         }.tryMethod();
     }
@@ -212,9 +193,48 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonState getState(String username) {
-        return findOneByUsername(username).get().getState();
+        return findOneByUsername(username).getState();
+    }
+
+    @Override
+    public void setTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart) {
+        personDao.updateTimers(username, dndStart, dndEnd, awayStart);
+    }
+
+    @Override
+    public String getUsername(Long id) {
+        return findOne(id).getUsername();
+    }
+
+    @Override
+    public List<String> findAllUsernames() {
+        return findAll().stream().map(p -> p.getUsername()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<LoginDetailsDto> getLoginDetails(String username) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
+            log.error("PersonServiceImpl.getPassword() called on null parameter: String username", iaex);
+            throw iaex;
+        }
+        return (Optional<LoginDetailsDto>) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public Optional<LoginDetailsDto> doMethod() {
+                Person entity;
+                try{
+                    entity = personDao.findOneByUsername((String) getU());
+                } catch (IllegalArgumentException | NoResultException e){
+                    return Optional.empty();
+                }
+                return Optional.of(new LoginDetailsDto(entity.getPassword(), entity.getRole()));
+            }
+        }.tryMethod();
+    }
+
+    @Override
+    public boolean isPresent(String username) {
+        return personDao.isTaken(username);
     }
     
-    
-
 }

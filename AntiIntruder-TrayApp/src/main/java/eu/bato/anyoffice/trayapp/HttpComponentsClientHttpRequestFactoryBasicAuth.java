@@ -29,6 +29,7 @@ public class HttpComponentsClientHttpRequestFactoryBasicAuth extends HttpCompone
         this.host = host;
     }
 
+    @Override
     protected HttpContext createHttpContext(HttpMethod httpMethod, URI uri) {
         return createHttpContext();
     }

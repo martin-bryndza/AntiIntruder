@@ -6,8 +6,8 @@
 package eu.bato.anyoffice.serviceapi.dto;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  *
@@ -18,9 +18,9 @@ public abstract class EntityDto {
     private String description;
     private String displayName;
     private Long id;
-    private Date lastStateChange;
-    private Date nextPossibleStateChange;
-    private Optional<Date> stateExpiration;
+    private Long lastStateChange;
+    private List<Long> interactionEntitiesIds;
+    private String location;
 
     public Long getId() {
         return id;
@@ -28,6 +28,14 @@ public abstract class EntityDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public void setDescription(String description) {
@@ -46,35 +54,22 @@ public abstract class EntityDto {
         return displayName;
     }
 
-    public Date getLastStateChange() {
+    public Long getLastStateChange() {
         return lastStateChange;
     }
 
-    public void setLastStateChange(Date lastStateChange) {
+    public void setLastStateChange(Long lastStateChange) {
         this.lastStateChange = lastStateChange;
     }
 
-    public Date getNextPossibleStateChange() {
-        return nextPossibleStateChange;
+    public List<Long> getInteractionEntitiesIds() {
+        return interactionEntitiesIds;
     }
 
-    public void setNextPossibleStateChange(Date nextPossibleStateChange) {
-        this.nextPossibleStateChange = nextPossibleStateChange;
+    public void setInteractionEntitiesIds(List<Long> interactionEntitiesIds) {
+        this.interactionEntitiesIds = interactionEntitiesIds;
     }
-
-    /**
-     * 
-     * @return Time when the current state expires or null, if the state never
-     * expires
-     */
-    public Date getStateExpiration() {
-        return stateExpiration.orElse(null);
-    }
-
-    public void setStateExpiration(Optional<Date> stateExpiration) {
-        this.stateExpiration = stateExpiration;
-    }
-
+    
     @Override
     public int hashCode() {
         int hash = 3;

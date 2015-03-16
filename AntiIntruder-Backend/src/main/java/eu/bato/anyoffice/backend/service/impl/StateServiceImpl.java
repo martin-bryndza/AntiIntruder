@@ -58,12 +58,8 @@ public class StateServiceImpl implements StateService{
         return (StateDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public StateDto doMethod() {
-                Optional<State> entity = stateDao.findOne((Long) getU());
-                if (entity.isPresent()){
-                    return stateConvert.fromEntityToDto(entity.get());
-                } else {
-                    return null;
-                }
+                State entity = stateDao.findOne((Long) getU());
+                return stateConvert.fromEntityToDto(entity);
             }
         }.tryMethod();
     }

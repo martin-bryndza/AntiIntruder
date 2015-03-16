@@ -1,11 +1,15 @@
 package eu.bato.anyoffice.serviceapi.dto;
 
+import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 
 public class ResourceDto extends EntityDto {
     
     private Long stateId;
+    private Date nextPossibleStateChange;
+    private Optional<Date> stateExpiration;
 
     public Long getStateId() {
         return stateId;
@@ -13,6 +17,27 @@ public class ResourceDto extends EntityDto {
 
     public void setStateId(Long stateId) {
         this.stateId = stateId;
+    }
+    
+    public Date getNextPossibleStateChange() {
+        return nextPossibleStateChange;
+    }
+
+    public void setNextPossibleStateChange(Date nextPossibleStateChange) {
+        this.nextPossibleStateChange = nextPossibleStateChange;
+    }
+
+    /**
+     *
+     * @return Time when the current state expires or null, if the state never
+     * expires
+     */
+    public Date getStateExpiration() {
+        return stateExpiration.orElse(null);
+    }
+
+    public void setStateExpiration(Optional<Date> stateExpiration) {
+        this.stateExpiration = stateExpiration;
     }
 
     @Override

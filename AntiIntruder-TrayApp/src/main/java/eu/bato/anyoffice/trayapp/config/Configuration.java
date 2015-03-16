@@ -72,6 +72,24 @@ public class Configuration {
             return Integer.parseInt(p.getDefaultValue());
         }
     }
+    
+    public Long getLongProperty(Property p) {
+        if (!p.getType().equals(PropertyType.LONG)) {
+            String msg = "Property " + p.name() + " is not of type Long. Type is " + p.getType().toString();
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (props == null) {
+            log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
+        }
+        String result = props.getProperty(p.name(), p.getDefaultValue());
+        try {
+            return Long.parseLong(result);
+        } catch (NumberFormatException e) {
+            log.warn("The value of the property " + p.name() + " is not of type Long. Current value: " + result + ". Using default: " + p.getDefaultValue());
+            return Long.parseLong(p.getDefaultValue());
+        }
+    }
 
     public Boolean getBooleanProperty(Property p) {
         if (!p.getType().equals(PropertyType.BOOLEAN)) {

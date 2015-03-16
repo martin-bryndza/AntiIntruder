@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,9 +26,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebMvcSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-//    private static final String ACCESS_DENIED_JSON = "{\"message\":\"You are not privileged to request this resource.\", \"access-denied\":true,\"cause\":\"AUTHORIZATION_FAILURE\"}";
-//    private static final String UNAUTHORIZED_JSON = "{\"message\":\"Full authentication is required to access this resource.\", \"access-denied\":true,\"cause\":\"NOT AUTHENTICATED\"}";
-
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Autowired
@@ -36,18 +33,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(personDetailsService()).passwordEncoder(new StandardPasswordEncoder());
     }
 
-//    @Autowired
-//    private HeaderUtil headerUtil;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .addFilterBefore(authenticationFilter(), LogoutFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/resources/**").permitAll()
-                .antMatchers("/api/**").hasAuthority("USER")
                 //.antMatchers("/**").permitAll()
+                .antMatchers("/resources/**").permitAll()
+                .antMatchers("/api/**").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers(HttpMethod.GET, "/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers("/logout").authenticated()
+                .antMatchers(HttpMethod.GET, "/**").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers(HttpMethod.POST, "/**").hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/**").hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -58,33 +59,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .permitAll();
-//        CustomAuthenticationSuccessHandler successHandler = new CustomAuthenticationSuccessHandler();
-//        successHandler.headerUtil(headerUtil);
-//
-//        http.
-//                addFilterBefore(authenticationFilter(), LogoutFilter.class).
-//                csrf().disable().
-//                formLogin().successHandler(successHandler).
-//                loginProcessingUrl("/login").
-//                and().
-//                logout().
-//                logoutSuccessUrl("/login?logout").
-//                and().
-//                sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).
-//                and().
-//                exceptionHandling().
-//                accessDeniedHandler(new CustomAccessDeniedHandler()).
-//                authenticationEntryPoint(new CustomAuthenticationEntryPoint()).
-//                and().
-//                authorizeRequests().
-//                antMatchers("/resources/**").permitAll().
-//                antMatchers(HttpMethod.GET, "/login").permitAll().
-//                antMatchers(HttpMethod.POST, "/login").permitAll().
-//                antMatchers(HttpMethod.POST, "/logout").authenticated().
-//                antMatchers(HttpMethod.GET, "/rest/**").hasAnyAuthority("USER", "ADMIN").
-//                antMatchers(HttpMethod.POST, "/rest/**").hasAnyAuthority("USER", "ADMIN").
-//                antMatchers(HttpMethod.DELETE, "/rest/**").hasAuthority("ADMIN").
-//                anyRequest().authenticated();
     }
 
     @Bean
@@ -115,81 +89,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //TODO: add salt
         return provider;
     }
-
-//    private Filter authenticationFilter() {
-//        HeaderAuthenticationFilter headerAuthenticationFilter = new HeaderAuthenticationFilter();
-//        headerAuthenticationFilter.userDetailsService(personDetailsService());
-//        headerAuthenticationFilter.headerUtil(headerUtil);
-//        return headerAuthenticationFilter;
-//    }
-//
-//    private static class CustomAccessDeniedHandler implements AccessDeniedHandler {
-//
-//        @Override
-//        public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-//            if (request.getRequestURI().startsWith("/rest/")) {
-//                response.setContentType(Versions.V1_0);
-//                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//                try (PrintWriter out = response.getWriter()) {
-//                    out.print(ACCESS_DENIED_JSON);
-//                    out.flush();
-//                }
-//            } else {
-//                response.sendRedirect("/login?failure");
-//            }
-//
-//        }
-//    }
-//
-//    private static class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-//
-//        @Override
-//        public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-//            if (request.getRequestURI().startsWith("/rest/")) {
-//                response.setContentType(Versions.V1_0);
-//                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                try (PrintWriter out = response.getWriter()) {
-//                    out.print(UNAUTHORIZED_JSON);
-//                    out.flush();
-//                }
-//            } else {
-//                response.sendRedirect("/login");
-//            }
-//        }
-//    }
-//
-//    private static class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-//
-//        private HeaderUtil headerUtil;
-//
-//        @Override
-//        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-//                Authentication authentication) throws ServletException, IOException {
-//            
-//            String token;
-//            try {
-//                token = headerUtil.createAuthToken(((User) authentication.getPrincipal()).getUsername());
-//            } catch (GeneralSecurityException e) {
-//                throw new ServletException("Unable to create the auth token", e);
-//            }
-//            
-//            if (request.getRequestURI().startsWith("/rest/")) {
-//                ObjectMapper mapper = new ObjectMapper();
-//                ObjectNode node = mapper.createObjectNode().put("token", token);
-//                try (PrintWriter out = response.getWriter()) {
-//                    out.print(node.toString());
-//                    out.flush();
-//                }
-//                clearAuthenticationAttributes(request);
-//            } else {
-//                super.onAuthenticationSuccess(request, response, authentication);
-//            }
-//            
-//        }
-//
-//        private void headerUtil(HeaderUtil headerUtil) {
-//            this.headerUtil = headerUtil;
-//        }
-//    }
 
 }

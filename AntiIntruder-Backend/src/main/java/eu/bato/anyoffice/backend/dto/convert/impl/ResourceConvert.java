@@ -5,12 +5,10 @@
  */
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
-import eu.bato.anyoffice.backend.dao.StateDao;
-import eu.bato.anyoffice.serviceapi.dto.EntityDto;
-import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
 import eu.bato.anyoffice.serviceapi.service.StateService;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +34,9 @@ public class ResourceConvert{
         e.setDescription(dto.getDescription());
         e.setDisplayName(dto.getDisplayName());
         e.setState(stateConvert.fromDtoToEntity(stateService.findOne(dto.getStateId())));
+        e.setLocation(dto.getLocation());
+        //interaction entities are added one after another
+        //it is not possible to change lastStateChange from outside Backend module
         return e;
     }
 
@@ -48,9 +49,11 @@ public class ResourceConvert{
         dto.setDisplayName(entity.getDisplayName());
         dto.setDescription(entity.getDescription());
         dto.setStateId(entity.getState().getId());
-        dto.setLastStateChange(entity.getLastStateChange());
+        dto.setLastStateChange(entity.getLastStateChange().getTime());
         dto.setNextPossibleStateChange(entity.getNextPossibleStateChange());
         dto.setStateExpiration(entity.getStateExpiration());
+        dto.setLocation(entity.getLocation());
+        dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
         return dto;
     }
     

@@ -15,18 +15,21 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 class TrayIconManager {
 
-    final static org.slf4j.Logger log = LoggerFactory.getLogger(TrayIconManager.class);
+    final static Logger log = LoggerFactory.getLogger(TrayIconManager.class);
     
     private static TrayIconManager instance;
     
@@ -71,6 +74,7 @@ class TrayIconManager {
         SystemTray tray = SystemTray.getSystemTray();
         trayIcon = createIcon(state.getIconPath(), state.getDescription());
         trayIcon.setPopupMenu(createMenu(state));
+        trayIcon.addMouseListener(new UpdateIconMouseListener());
         try {
             tray.add(trayIcon);
         } catch (AWTException ex) {
@@ -89,7 +93,7 @@ class TrayIconManager {
 //        MenuItem noneItem = new MenuItem("None");
         
         for (PersonState state: PersonState.values()){
-            if (state.equals(PersonState.UNKNOWN)){
+            if (state.equals(PersonState.UNKNOWN) || state.equals(PersonState.AWAY)){
                 continue;
             }
             MenuItem item = new MenuItem(state.getDisplayName());
@@ -145,28 +149,47 @@ class TrayIconManager {
      * Change of state and refresh of tray icon.
      * @param state 
      */
-    synchronized void changeState(PersonState state){
+    synchronized void updateIcon(PersonState state){
         if (state == null || state.equals(currentState)){
             return;
         }
-        log.info("Changing state to " + state);
-        if (!PersonStateManager.getInstance().isStateChangePossible(state)){
-            trayIcon.displayMessage("Unable to switch to " + state.getDisplayName(), "Remaining time: ", TrayIcon.MessageType.ERROR);
-        }
-        PersonStateManager.getInstance().setState(state);
+        log.info("Updating icon to " + state);
+        updateMenu(state);
+    }
+    
+    synchronized void updateMenu(PersonState state){
         currentState = state;
         SystemTray.getSystemTray().remove(trayIcon);
         initialize();
     }
     
+    private void changeState(PersonState state){
+        if (state == null || state.equals(currentState)) {
+            return;
+        }
+        log.info("Changing state to " + state);
+        if (!PersonStateManager.getInstance().isStateChangePossible(state)) {
+            trayIcon.displayMessage("Unable to switch to " + state.getDisplayName(), "", TrayIcon.MessageType.ERROR);
+        }
+        PersonState newStateByServer = PersonStateManager.getInstance().setState(state);
+        log.debug("Server returned state " + newStateByServer + " after state change to " + state);
+        updateIcon(newStateByServer);
+    }
+    
     Credentials requestCredentials(){
-        JTextField field1 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_USER));
-        JTextField field2 = new JTextField("");
+        JTextField field1 = new JTextField("bato");//Configuration.getInstance().getProperty(Property.CURRENT_USER));
+        JTextField field2 = new JTextField("1111");
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Username:"));
         panel.add(field1);
         panel.add(new JLabel("Password:"));
         panel.add(field2);
+        field1.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent ce) {
+                field1.requestFocusInWindow();
+            }
+        });
         int result = JOptionPane.showConfirmDialog(null, panel, "Please log in",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
@@ -190,5 +213,14 @@ class TrayIconManager {
             Main.programFinish();
             return null;
         }
+    }
+    
+    private class UpdateIconMouseListener extends MouseAdapter {
+      
+        @Override
+        public void mousePressed(MouseEvent e) {
+            updateMenu(PersonStateManager.getInstance().getStateFromServer());
+        }
+
     }
 }

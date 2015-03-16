@@ -22,7 +22,7 @@ class PersonStateManager {
 
     private PersonStateManager() {
         client = new RestClient();
-        state = PersonState.UNKNOWN;
+        state = PersonState.AVAILABLE;
     }
 
     static PersonStateManager getInstance() {
@@ -41,26 +41,27 @@ class PersonStateManager {
         return this.state;
     }
 
-    void setState(PersonState state) {
+    PersonState setState(PersonState state) {
         if (this.state.equals(state)){
-            return;
+            return state;
         }
-        this.state = state;
         log.info("State " + state + " sent to server.");
-        client.setState(state);
+        this.state = client.setState(state);
+        return this.state;
     }
     
-    void workstationLock(){
-        //TODO: tell server about lock
+    PersonState workstationLock(){
+        this.state = client.goAway();
+        return state;
     }
     
     PersonState workstationUnlock(){
-        //TODO: tell server about unlock and get current newState
-        return PersonState.AVAILABLE;
+        this.state = client.returnFromAway();
+        return state;
     }
 
     boolean isStateChangePossible(PersonState newState) {
-        return true; //TODO: ask server
+        return client.isStateChangePossible(newState);
     }
 
 }

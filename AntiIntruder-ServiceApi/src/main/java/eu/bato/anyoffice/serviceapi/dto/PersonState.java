@@ -11,33 +11,13 @@ package eu.bato.anyoffice.serviceapi.dto;
  */
 public enum PersonState {
     
-    DO_NOT_DISTURB("Do not disturb", false, true), AVAILABLE("Available", false, false), AWAY_DND("Away", true, true), AWAY_AVAILABLE("Away", true, false),
+    DO_NOT_DISTURB, AVAILABLE, AWAY,
     /**
      * If the TrayApp has not contacted the server for some time.
      */
-    //UNKNOWN("Unknown", false, false)
-    ;
+    UNKNOWN;
     
-    private final String name;
-    private final Boolean awayState;
-    private final Boolean dndState;
-
-    private PersonState(String name, Boolean isAwayState, Boolean dndState) {
-        this.name = name;
-        this.awayState = isAwayState;
-        this.dndState = dndState;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Boolean isAwayState() {
-        return awayState;
-    }
-
-    public Boolean isDndState() {
-        return dndState;
-    }
-    
+    public String getName(){
+        return name();
+    }    
 }

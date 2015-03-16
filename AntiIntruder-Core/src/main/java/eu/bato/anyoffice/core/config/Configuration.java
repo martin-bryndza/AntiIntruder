@@ -9,10 +9,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  *
@@ -21,7 +19,7 @@ import org.springframework.context.annotation.PropertySource;
 public class Configuration {
   
     private static Properties props;
-    final static Logger log = LoggerFactory.getLogger(Configuration.class);
+    private final static Logger log = LoggerFactory.getLogger(Configuration.class);
     private static Configuration instance = null;
 
     private Configuration() {
@@ -74,6 +72,25 @@ public class Configuration {
         } catch (NumberFormatException e){
             log.warn("The value of the property " + p.name() + " is not of type Integer. Current value: " + result + ". Using default: " + p.getDefaultValue());
             return Integer.parseInt(p.getDefaultValue());
+        }
+    }
+    
+    public Long getLongProperty(Property p){
+        if (!p.getType().equals(PropertyType.LONG)) {
+            String msg = "Property " + p.name() + " is not of type Long. Type is " + p.getType().toString();
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (props == null) {
+            log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
+            return Long.parseLong(p.getDefaultValue());
+        }
+        String result = props.getProperty(p.name(), p.getDefaultValue());
+        try {
+            return Long.parseLong(result);
+        } catch (NumberFormatException e) {
+            log.warn("The value of the property " + p.name() + " is not of type Long. Current value: " + result + ". Using default: " + p.getDefaultValue());
+            return Long.parseLong(p.getDefaultValue());
         }
     }
     

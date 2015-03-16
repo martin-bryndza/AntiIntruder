@@ -11,16 +11,30 @@ package eu.bato.anyoffice.core.config;
  */
 public enum Property {
     
-    DND_TIME(PropertyType.INTEGER, "45"), 
-    AVAILABLE_TIME(PropertyType.INTEGER, "15"),
-    STOP_TIME_AWAY_DND(PropertyType.BOOLEAN, "false"),
-    STOP_TIME_AWAY_AVAILABLE(PropertyType.BOOLEAN, "true"),
+    /**
+     * Maximum time in which a person can be DND 
+     * Unit: miliseconds 
+     * Default: 45000
+     */
+    MAX_DND_TIME(PropertyType.LONG, "45000"), 
+    /**
+     * Minimum time in which a person has to be AVAILABLE
+     * Unit: miliseconds
+     * Default: 15000
+     */
+    MIN_AVAILABLE_TIME(PropertyType.LONG, "15000"),
     /**
      * Interval of checking state expiration.
-     * Unit: seconds
-     * Default: 10
+     * Unit: miliseconds
+     * Default: 10000
      */
-    STATE_CHECK_INTERVAL(PropertyType.INTEGER, "10");
+    STATE_CHECK_INTERVAL(PropertyType.LONG, "10000"),
+    /**
+     * Interval of checking people's states expiration. 
+     * Unit: miliseconds 
+     * Default: 10000
+     */
+    PERSON_STATE_CHECK_INTERVAL(PropertyType.LONG, "10000");
     
     private final PropertyType type;
     private final String defaultValue;

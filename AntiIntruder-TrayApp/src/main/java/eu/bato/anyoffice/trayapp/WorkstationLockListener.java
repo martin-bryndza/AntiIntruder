@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.trayapp;
 
 import com.sun.jna.WString;
@@ -20,10 +15,6 @@ import com.sun.jna.platform.win32.WinUser.WindowProc;
 import com.sun.jna.platform.win32.Wtsapi32;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author Bato
- */
 public class WorkstationLockListener implements WindowProc {
     
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(WorkstationLockListener.class);
@@ -144,6 +135,6 @@ public class WorkstationLockListener implements WindowProc {
      */
     private void onMachineUnlocked(int sessionId) {
         log.info("Machine unlocked right now!");
-        TrayIconManager.getInstance().changeState(PersonStateManager.getInstance().workstationUnlock());
+        TrayIconManager.getInstance().updateIcon(PersonStateManager.getInstance().workstationUnlock());
     }
 }

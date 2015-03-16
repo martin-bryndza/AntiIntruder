@@ -48,7 +48,7 @@ public class Resource extends Entity{
         this.state = state;
     }
     
-        public Date getNextPossibleStateChange() {
+    public Date getNextPossibleStateChange() {
         return nextPossibleStateChange;
     }
 

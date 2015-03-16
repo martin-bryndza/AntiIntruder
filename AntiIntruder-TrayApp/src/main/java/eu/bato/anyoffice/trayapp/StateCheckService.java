@@ -29,10 +29,14 @@ class StateCheckService {
     }
     
     void start(){
-        TrayIconManager.getInstance().changeState(PersonStateManager.getInstance().workstationUnlock());
         Timer t = new Timer();
-        t.scheduleAtFixedRate(new StateCheckTask(), 2000, Configuration.getInstance().getIntegerProperty(Property.CHECK_INTERVAL)* 1000);
-        log.info("Scheduler service started.");
+        Long period = Configuration.getInstance().getLongProperty(Property.CHECK_INTERVAL);
+        if (period <= 0){
+            log.info("Scheduler is disabled.");
+        } else {
+            t.scheduleAtFixedRate(new StateCheckTask(), 2000, period);
+            log.info("Scheduler service started.");
+        }
     }  
     
     private class StateCheckTask extends TimerTask {
@@ -40,7 +44,7 @@ class StateCheckService {
         @Override
         public void run() {
             log.debug("States check started...");
-            TrayIconManager.getInstance().changeState(PersonStateManager.getInstance().getStateFromServer());
+            TrayIconManager.getInstance().updateIcon(PersonStateManager.getInstance().getStateFromServer());
             log.debug("States check finished.");
         }
     }

@@ -1,7 +1,6 @@
 package eu.bato.anyoffice.backend.config;
 
 import java.util.Properties;
-import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -70,7 +69,7 @@ public class DataConfig {
     Properties additionalProperties() {
         return new Properties() {
             {  // Hibernate Specific:
-                setProperty("hibernate.hbm2ddl.auto", env.getProperty("database.hibernate.hbm2ddl.auto", "update"));
+                setProperty("hibernate.hbm2ddl.auto", env.getProperty("database.hibernate.hbm2ddl.auto", "create"));
                 setProperty("hibernate.dialect", env.getProperty("database.hibernate.dialect", "org.hibernate.dialect.DerbyDialect"));
                 setProperty("hibernate.show_sql", env.getProperty("database.hibernate.show_sql", "false"));
                 setProperty("hibernate.format_sql", env.getProperty("database.hibernate.format_sql", "false"));

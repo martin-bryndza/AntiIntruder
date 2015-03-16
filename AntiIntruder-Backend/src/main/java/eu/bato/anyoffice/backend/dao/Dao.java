@@ -7,7 +7,6 @@ package eu.bato.anyoffice.backend.dao;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
@@ -38,7 +37,7 @@ public interface Dao<T, U extends Serializable> extends Repository<T, U>{
      * @return the entity with the given id or null if none found
      * @throws IllegalArgumentException - if id is null 
      */
-    Optional<T> findOne(U id);
+    T findOne(U id);
  
     /**
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the entity instance completely.

@@ -11,6 +11,6 @@ package eu.bato.anyoffice.trayapp.config;
  */
 enum PropertyType {
     
-    STRING,INTEGER,BOOLEAN;
+    STRING,INTEGER, LONG,BOOLEAN;
     
 }

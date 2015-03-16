@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class StateDaoImpl implements StateDao{
 
-    final static Logger log = LoggerFactory.getLogger(StateDaoImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(StateDaoImpl.class);
     
     @PersistenceContext
     private EntityManager em;
@@ -49,15 +49,11 @@ public class StateDaoImpl implements StateDao{
     }
 
     @Override
-    public Optional<State> findOne(Long id) {
+    public State findOne(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
         }
-        try{
-            return Optional.ofNullable(em.createQuery("SELECT e FROM State e WHERE e.id = :pk", State.class).setParameter("pk", id).getSingleResult());
-        } catch (NoResultException e){
-            throw new IllegalArgumentException("Invalid id: nonexistent");
-        }
+            return em.createQuery("SELECT e FROM State e WHERE e.id = :pk", State.class).setParameter("pk", id).getSingleResult();
     }
 
     @Override

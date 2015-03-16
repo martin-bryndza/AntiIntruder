@@ -5,13 +5,13 @@
  */
 package eu.bato.anyoffice.frontend.web.controllers;
 
+import eu.bato.anyoffice.core.state.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.web.data.PasswordObject;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
-import eu.bato.anyoffice.serviceapi.service.StateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +32,7 @@ public class IndexController {
     @Autowired
     protected ResourceService entityService;
     @Autowired
-    protected StateService stateService;
+    protected PersonStateManager personStateManager;
         
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String loadItems(Model model){
@@ -40,27 +40,27 @@ public class IndexController {
         model.addAttribute("password", new PasswordObject());
         model.addAttribute("persons", personService.findAll());
         model.addAttribute("states", PersonState.values());
+        model.addAttribute("id");
         return "index";
     }
     
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public String submitFormHandler(@ModelAttribute PersonDto person, @ModelAttribute PasswordObject password){
-        person.setState(PersonState.AVAILABLE); //TODO: replace with default state for entity type
         person.setRole(PersonRole.USER);
+        person.setState(PersonState.UNKNOWN);
         personService.register(person, password.getValue());
         return "redirect:";
     }
     
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
-    public String completeItem(@RequestParam Long id){
-        
+    public String completeItem(@RequestParam Long id){       
         personService.delete(id);
         return "redirect:";
     }
     
     @RequestMapping(value = "/changeState", method = RequestMethod.GET)
     public String changeState(@RequestParam Long id, String state) {
-        personService.setState(id, PersonState.valueOf(state));
+        personStateManager.setState(id, PersonState.valueOf(state), true);
         return "redirect:";
     }
 }

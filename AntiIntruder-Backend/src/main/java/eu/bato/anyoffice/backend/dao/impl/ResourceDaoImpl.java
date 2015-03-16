@@ -49,13 +49,13 @@ public class ResourceDaoImpl implements ResourceDao{
     }
 
     @Override
-    public Optional<Resource> findOne(Long id) {
+    public Resource findOne(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
         } else if (em.createQuery("SELECT e.id FROM Resource e WHERE e.id = :pk", Long.class).setParameter("pk", id).getResultList().size() < 1) {
             throw new IllegalArgumentException("Invalid id: nonexistent");
         }
-        return Optional.ofNullable(em.createQuery("SELECT e FROM Resource e WHERE e.id = :pk", Resource.class).setParameter("pk", id).getSingleResult());
+        return em.createQuery("SELECT e FROM Resource e WHERE e.id = :pk", Resource.class).setParameter("pk", id).getSingleResult();
     }
 
     @Override
@@ -76,21 +76,14 @@ public class ResourceDaoImpl implements ResourceDao{
 
     @Override
     public Resource updateState(Long id, Long stateId) {
-        Optional<Resource> e = findOne(id);
-        if (!e.isPresent()){
-            throw new IllegalArgumentException("Resource with id " + id + " does not exist.");
-        }
-        Optional<State> s = stateDao.findOne(stateId);
-        if (!s.isPresent()) {
-            throw new IllegalArgumentException("State with id " + stateId + " does not exist.");
-        }
-        if (e.get().getState().equals(s.get())){
+        Resource e = findOne(id);
+        State s = stateDao.findOne(stateId);
+        if (e.getState().equals(s)){
             log.info("Actual and wanted states are the same. State will not be changed.");
-            return e.get();
+            return e;
         }        
-        Resource ent = e.get();
-        ent.setState(s.get());
-        return ent;
+        e.setState(s);
+        return e;
     }
         
 }

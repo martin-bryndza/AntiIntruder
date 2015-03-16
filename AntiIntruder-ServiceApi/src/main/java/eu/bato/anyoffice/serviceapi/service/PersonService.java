@@ -3,6 +3,8 @@ package eu.bato.anyoffice.serviceapi.service;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,6 +46,10 @@ public interface PersonService extends Service<PersonDto> {
      */
     Long register(PersonDto person, String password);
     
+    String getUsername(Long id);
+    
+    List<String> findAllUsernames();
+    
     /**
      * Sets state of Person with id to personState, if possible. Otherwise throws IllegalArgumentException
      * @param id
@@ -75,6 +81,17 @@ public interface PersonService extends Service<PersonDto> {
      */
     PersonState getState(String username);
     
-    Optional<PersonDto> findOneByUsername(String username);
+    PersonDto findOneByUsername(String username);
+    
+    /**
+     * 
+     * @param username
+     * @param dndStart the start of DND or empty to keep unchanged
+     * @param dndEnd the end of DND or empty to keep unchanged
+     * @param awayStart the start of AWAY or empty to delete the value
+     */
+    void setTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart);
+    
+    boolean isPresent(String username);
     
 }

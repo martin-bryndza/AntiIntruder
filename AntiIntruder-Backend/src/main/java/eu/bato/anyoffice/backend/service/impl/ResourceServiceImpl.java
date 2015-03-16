@@ -5,10 +5,8 @@
  */
 package eu.bato.anyoffice.backend.service.impl;
 
-import eu.bato.anyoffice.serviceapi.dto.EntityDto;
 import eu.bato.anyoffice.backend.dao.ResourceDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.ResourceConvert;
-import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
@@ -64,12 +62,8 @@ public class ResourceServiceImpl implements ResourceService{
         return (ResourceDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public ResourceDto doMethod() {
-                Optional<Resource> entity = resourceDao.findOne((Long) getU());
-                if (entity.isPresent()){
-                    return resourceConvert.fromEntityToDto(entity.get());
-                } else {
-                    return null;
-                }
+                Resource entity = resourceDao.findOne((Long) getU());
+                return resourceConvert.fromEntityToDto(entity);
             }
         }.tryMethod();
     }
@@ -96,9 +90,9 @@ public class ResourceServiceImpl implements ResourceService{
     public List<ResourceDto> findAll() {
         List<Resource> entities = resourceDao.findAll();
         List<ResourceDto> result = new LinkedList<>();
-        for (Resource entity : entities) {
+        entities.stream().forEach((entity) -> {
             result.add(resourceConvert.fromEntityToDto(entity));
-        }
+        });
         return result;
     }
 
