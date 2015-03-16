@@ -154,13 +154,31 @@ class TrayIconManager {
             return;
         }
         log.info("Updating icon to " + state);
+        boolean availableBubble = false;
+        if (state.equals(PersonState.AVAILABLE) && !(currentState.equals(PersonState.AWAY) || currentState.equals(PersonState.UNKNOWN))){
+            availableBubble = true;
+        }
         updateMenu(state);
+        if (availableBubble){
+            showBubble("You have gone Available");
+        }
     }
     
     synchronized void updateMenu(PersonState state){
+        boolean dndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
         currentState = state;
         SystemTray.getSystemTray().remove(trayIcon);
         initialize();
+        if (!dndAvailable && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()){
+            int result = JOptionPane.showConfirmDialog(null, "Do not disturb state is possible", "Go to Do not disturb state now?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (result==JOptionPane.YES_OPTION){
+                changeState(PersonState.DO_NOT_DISTURB);
+            }
+        }
+    }
+    
+    private void showBubble(String text){
+        trayIcon.displayMessage("", text, TrayIcon.MessageType.INFO);
     }
     
     private void changeState(PersonState state){
