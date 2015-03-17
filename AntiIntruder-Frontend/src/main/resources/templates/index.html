@@ -26,35 +26,43 @@
     <body>
         <h1 th:text='#{Title}'>AntiIntruder</h1>
         <div th:if="${#httpServletRequest.remoteUser != null}">
-            <p th:text="${#httpServletRequest.remoteUser}">
-                sample_user
+            <p th:if="${#httpServletRequest.isUserInRole('ADMIN')}" th:text="ADMIN">
+                ADMIN
             </p>
+            <div th:if="${#httpServletRequest.isUserInRole('USER')}">
+                <p th:text="${currentPerson.displayName}">Display name</p>
+                <p th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</p>
+                <p th:text="#{Description}+ ': ' + ${currentPerson.description}">Current state: UNKNOWN</p>
+                <p th:text="#{Location}+ ': ' + ${currentPerson.location}">Current state: UNKNOWN</p>
+                <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
+            </div>
             <form th:action="@{/logout}" method="post">
                 <input type="submit" value="Log out" />
             </form>
         </div>
         <div th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
-            <form data-th-action="@{/add}" data-th-object="${personObject}" method="post" class="form">
+            <form data-th-action="@{/add}" data-th-object="${personObject}" method="post">
                 <table>
                     <tbody>
                         <tr>
                             <td><label for="username" th:text='#{Username}'>Username</label></td>
-                            <td><input type="text" data-th-field="*{username}" class="form-control"/></td>
+                            <td><input id="username" type="text" data-th-field="*{username}"/></td>
                         </tr>
                         <tr>
                             <td><label for="password" th:text='#{Password}'>Password</label></td>
-                            <td><input type="text" data-th-field="${password.value}" class="form-control"/></td>
+                            <td><input id="password" type="text" data-th-field="${password.value}"/></td>
                         </tr>
                         <tr>
                             <td><label for="displayName" th:text='#{Display_Name}'>Display Name</label></td>
-                            <td><input type="text" data-th-field="*{displayName}" class="form-control"/></td>
+                            <td><input id="displayName" type="text" data-th-field="*{displayName}"/></td>
                         </tr>
                         <tr>
                             <td><label for="description" th:text='#{Description}'>Description</label></td>
-                            <td><input type="text" data-th-field="*{description}" class="form-control"/></td>
+                            <td><input id="description" type="text" data-th-field="*{description}"/></td>
                         </tr>
                         <tr>
-                            <td><button type="submit" class="btn btn-primary" th:text='#{Add}'> Add </button></td>
+                            <td><button type="submit" th:text='#{Add}'> Add </button></td>
+                            <td />
                         </tr>
                     </tbody>
                 </table>

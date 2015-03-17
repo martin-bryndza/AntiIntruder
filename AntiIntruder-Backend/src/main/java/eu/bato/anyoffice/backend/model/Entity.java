@@ -15,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.AnyMetaDef;
@@ -41,16 +42,16 @@ public abstract class Entity implements Serializable{
     private String location;    
     @Column(nullable = false, name = "LAST_STATE_CHANGE")
     private Date lastStateChange;
-//    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
-//    @AnyMetaDef(
-//        idType = "integer",
-//        metaType = "string",
-//        metaValues = {
-//            @MetaValue(value = "P", targetEntity = Person.class),
-//            @MetaValue(value = "R", targetEntity = Resource.class)})
-//    @Cascade(CascadeType.ALL)
-//    @JoinTable(name = "INTERACTIONS")
-//    private List<Entity> interactionEntities;
+    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
+    @AnyMetaDef(
+        idType = "long",
+        metaType = "string",
+        metaValues = {
+            @MetaValue(value = "P", targetEntity = Person.class),
+            @MetaValue(value = "R", targetEntity = Resource.class)})
+    @Cascade(CascadeType.ALL)
+    @JoinTable(name = "INTERACTIONS", joinColumns = @JoinColumn(name="entity_id"), inverseJoinColumns = @JoinColumn(name="interactor_id"))
+    private List<Entity> interactionEntities;
 
     public void setId(Long id) {
         this.id = id;
@@ -93,25 +94,24 @@ public abstract class Entity implements Serializable{
     }
 
     public List<Entity> getInteractionEntities() {
-//        return interactionEntities;
-        return new LinkedList<>();
+        return interactionEntities;
     }
 
     public void setInteractionEntities(List<Entity> interactionEntities) {
-//        this.interactionEntities = interactionEntities;
+        this.interactionEntities = interactionEntities;
     }
     
     public void addInteractionEntity(Entity interactionEntity){
-//        if (this.interactionEntities == null){
-//            this.interactionEntities = new LinkedList<>();
-//        }
-//        this.interactionEntities.add(interactionEntity);
+        if (this.interactionEntities == null){
+            this.interactionEntities = new LinkedList<>();
+        }
+        this.interactionEntities.add(interactionEntity);
     }
     
     public void removeInteractionEntity(Entity interactionEntity) {
-//        if (this.interactionEntities != null){
-//            this.interactionEntities.remove(interactionEntity);
-//        }
+        if (this.interactionEntities != null){
+            this.interactionEntities.remove(interactionEntity);
+        }
     }
         
     @Override

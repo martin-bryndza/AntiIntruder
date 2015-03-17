@@ -43,11 +43,22 @@ public class PersonDetailsService implements UserDetailsService {
         }
         PersonDto sampleUser = new PersonDto();
         sampleUser.setUsername("bato");
-        sampleUser.setDisplayName("User");
-        sampleUser.setDescription("A user");
+        sampleUser.setDisplayName("Martin Bryndza");
+        sampleUser.setDescription("QA Engineer in ETNA");
+        sampleUser.setLocation("R&D Open Space");
         sampleUser.setRole(PersonRole.USER);
-        sampleUser.setState(PersonState.AVAILABLE);
         personService.register(sampleUser, encoder.encode("1111"));
+        
+        if (personService.isPresent("olda")) {
+            return;
+        }
+        sampleUser = new PersonDto();
+        sampleUser.setUsername("olda");
+        sampleUser.setDisplayName("Michal Ordelt");
+        sampleUser.setDescription("Developer in ETNA (KM)");
+        sampleUser.setLocation("R&D Open Space");
+        sampleUser.setRole(PersonRole.USER);
+        personService.register(sampleUser, encoder.encode("olda"));
     }
 
     @Override

@@ -84,9 +84,9 @@ public class PersonServiceImpl implements PersonService {
     public List<PersonDto> findAll() {
         List<Person> entities = personDao.findAll();
         List<PersonDto> result = new LinkedList<>();
-        for (Person entity : entities) {
+        entities.stream().forEach((entity) -> {
             result.add(PersonConvert.fromEntityToDto(entity));
-        }
+        });
         return result;
     }
 

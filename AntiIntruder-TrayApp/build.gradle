@@ -69,7 +69,7 @@ jar {
 task preparePropertiesFiles(type: Copy){
     description "Copies files needed to pack into zip, that will be deployed"
     from fileTree("${rootDir}/AntiIntruder-TrayApp")
-    includes = ["config/configuration.properties", "images/**"]
+    includes = ["config/client.properties", "images/**"]
     into("dist")
 }
 

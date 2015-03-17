@@ -12,7 +12,12 @@ import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -35,12 +40,18 @@ public class IndexController {
     protected PersonStateManager personStateManager;
         
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String loadItems(Model model){
+    public String loadItems(Model model, Authentication authentication){
         model.addAttribute("personObject", new PersonDto());
         model.addAttribute("password", new PasswordObject());
-        model.addAttribute("persons", personService.findAll());
         model.addAttribute("states", PersonState.values());
-        model.addAttribute("id");
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<PersonDto> otherPersons = personService.findAll();
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))){
+            PersonDto currentPerson = personService.findOneByUsername(currentUser.getUsername());
+            model.addAttribute("currentPerson", currentPerson);
+            otherPersons.remove(currentPerson);
+        }
+        model.addAttribute("persons", otherPersons);
         return "index";
     }
     

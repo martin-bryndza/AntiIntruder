@@ -11,6 +11,7 @@ import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +104,10 @@ public class PersonStateManager {
     }
 
     public void checkCurrentStatesValidity() {
-        personService.findAllUsernames().forEach(p -> checkCurrentStateValidity(p));
+        List<String> allUsernames = personService.findAllUsernames();
+        if (allUsernames != null){
+            allUsernames.forEach(p -> checkCurrentStateValidity(p));
+        }
     }
 
     public void checkCurrentStateValidity(String username) {
