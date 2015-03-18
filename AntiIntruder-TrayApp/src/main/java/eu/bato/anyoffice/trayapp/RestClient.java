@@ -10,7 +10,6 @@ import eu.bato.anyoffice.trayapp.config.Property;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import org.apache.http.HttpHost;
-import org.apache.http.conn.HttpHostConnectException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -33,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
 public class RestClient {
 
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(RestClient.class);
-    private final static String URI = Configuration.getInstance().getProperty(Property.REST_SERVER_ADDRESS) + "/api/v1/";
+    private final static String URI = Configuration.getInstance().getProperty(Property.SERVER_ADDRESS) + "/api/v1/";
 
     private final RestTemplate rest;
 

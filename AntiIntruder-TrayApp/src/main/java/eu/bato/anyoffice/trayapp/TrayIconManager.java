@@ -12,9 +12,13 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.MenuItem;
+import java.awt.Panel;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -25,10 +29,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +53,13 @@ class TrayIconManager {
     private Map<PersonState, MenuItem> stateItems;
     private PersonState currentState;
     private final UpdateIconMouseListener updateIconMouseListener;
+    private final SwitchToDndFrame switchToDndFrame;
     
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
 
     private TrayIconManager() {
         updateIconMouseListener = new UpdateIconMouseListener();
+        switchToDndFrame = new SwitchToDndFrame();
     }
     
     static TrayIconManager getInstance(){
@@ -80,11 +88,18 @@ class TrayIconManager {
             } catch (AWTException ex) {
                 log.error("Desktop system tray is missing", ex);
             }
+            showInfoBubble("Welcome!\nRight-click this icon to change your current state.");
         } else {
             trayIcon.setImage(getTrayIconImage(state.getIconPath()));
+            trayIcon.setToolTip(state.getDescription());
         }
         trayIcon.setPopupMenu(createMenu(state));
         trayIcon.addMouseListener(updateIconMouseListener);
+        trayIcon.addActionListener((ActionEvent e) -> {
+            if (!currentState.equals(PersonState.DO_NOT_DISTURB) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()){
+                switchToDndFrame.display();
+            }
+        });
     }
     
     private PopupMenu createMenu(PersonState currentState){
@@ -130,11 +145,6 @@ class TrayIconManager {
 
     private TrayIcon createIcon(String path, String description) {
         TrayIcon icon = new TrayIcon(getTrayIconImage(path), description);
-        
-        icon.addActionListener((ActionEvent) -> {
-            icon.displayMessage(icon.getToolTip(), "Remaining time: ", TrayIcon.MessageType.NONE);
-        });
-        
         return icon;
     }
     
@@ -162,11 +172,7 @@ class TrayIconManager {
         boolean wasDndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
         if (!wasDndAvailable && PersonStateManager.getInstance().isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
             stateItems.get(PersonState.DO_NOT_DISTURB).setEnabled(true);
-            int result = JOptionPane.showConfirmDialog(null, "Go to Do not disturb state now?", "Do not disturb state is possible", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (result == JOptionPane.YES_OPTION) {
-                changeState(PersonState.DO_NOT_DISTURB);
-                return;
-            }
+            showInfoBubble("Do not disturb state is possible. Click this bubble for further actions.");
         }
         if (state == null || state.equals(currentState)){
             return;
@@ -175,7 +181,7 @@ class TrayIconManager {
         boolean showAvailableBubble = state.equals(PersonState.AVAILABLE) && !currentState.isAwayState();
         updateIcon(state);
         if (showAvailableBubble){
-            showBubble("You have gone Available");
+            showInfoBubble("You have gone Available");
         }
     }
     
@@ -188,8 +194,8 @@ class TrayIconManager {
         initialize();
     }
     
-    private void showBubble(String text){
-        trayIcon.displayMessage("", text, TrayIcon.MessageType.INFO);
+    private void showInfoBubble(String text){
+        trayIcon.displayMessage("Any Office", text, TrayIcon.MessageType.INFO);
     }
     
     private void changeState(PersonState state){
@@ -219,7 +225,10 @@ class TrayIconManager {
                 field1.requestFocusInWindow();
             }
         });
-        int result = JOptionPane.showConfirmDialog(null, panel, "Please log in",
+        JFrame frame = new JFrame();
+        frame.setAlwaysOnTop(true);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        int result = JOptionPane.showConfirmDialog(frame, panel, "Please log in",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             Credentials c;
@@ -227,23 +236,24 @@ class TrayIconManager {
                 c = new Credentials(field1.getText(), field2.getText().toCharArray());
             } catch (IOException ex) {
                 log.error(ex.getMessage(), ex);
-                JOptionPane.showMessageDialog(null, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
                 return requestCredentials();
             }
             if (new RestClient().isCorrectCredentials(c)){
                 Configuration.getInstance().setProperty(Property.CURRENT_USER, field1.getText());
                 return c;
             } else {
-                JOptionPane.showMessageDialog(null, "Incorrect password or unknown user.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Incorrect password or unknown user.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
                 return requestCredentials();
             }
         } else {
+            frame.dispose();
             JOptionPane.showMessageDialog(null, "No credentials were provided. Application will exit now.", "Cancelled", JOptionPane.WARNING_MESSAGE);
             Main.programFinish();
             return null;
         }
     }
-    
+        
     private class UpdateIconMouseListener extends MouseAdapter {
         
         private boolean released = true;
@@ -259,9 +269,7 @@ class TrayIconManager {
         @Override
         public void mouseReleased(MouseEvent e) {
             released = true;
-        }
-        
-        
+        }    
 
     }
 }

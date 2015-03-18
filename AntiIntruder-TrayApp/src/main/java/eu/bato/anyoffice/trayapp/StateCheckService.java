@@ -34,8 +34,8 @@ class StateCheckService {
         if (period <= 0){
             log.info("Scheduler is disabled.");
         } else {
-            t.scheduleAtFixedRate(new StateCheckTask(), 2000, period);
-            log.info("Scheduler service started.");
+            t.scheduleAtFixedRate(new StateCheckTask(), period, period);
+            log.info("Scheduler service started with period " + period);
         }
     }  
     

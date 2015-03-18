@@ -30,14 +30,40 @@
                 ADMIN
             </p>
             <div th:if="${#httpServletRequest.isUserInRole('USER')}">
-                <p th:text="${currentPerson.displayName}">Display name</p>
-                <p th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</p>
-                <p th:text="#{Description}+ ': ' + ${currentPerson.description}">Current state: UNKNOWN</p>
-                <p th:text="#{Location}+ ': ' + ${currentPerson.location}">Current state: UNKNOWN</p>
+                <div th:text="${currentPerson.displayName}">Display name</div>
+                <div th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</div>
+                <div th:text="#{Description}+ ': ' + ${currentPerson.description}">Description: UNKNOWN</div>
+                <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
                 <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
             </div>
             <form th:action="@{/logout}" method="post">
                 <input type="submit" value="Log out" />
+            </form>
+        </div>
+        <div th:if="${#httpServletRequest.remoteUser == null}">
+            <form name="f" th:action="@{/login}" method="post">               
+                <fieldset>
+                    <legend th:text='#{Please_Log_In}'>Please Log In</legend>
+                    <div th:if="${param.error}" class="alert alert-error" th:text='#{msg.invalid_credentials}'>    
+                        Invalid username and password.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success" th:text='#{msg.logged_out}'> 
+                        You have been logged out.
+                    </div>
+                    <table>
+                        <tr>
+                            <td> <label for="username" th:text='#{Username}'>Username</label> </td>
+                            <td> <input type="text" id="username" name="username"/> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="password" th:text='#{Password}'>Password</label> </td>
+                            <td> <input type="password" id="password" name="password"/> </td>
+                        </tr>    
+                    </table> 
+                    <div class="form-actions">   
+                        <button type="submit" class="btn" th:text='#{Log_In}'>Log In</button>
+                    </div>
+                </fieldset>
             </form>
         </div>
         <div th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
@@ -73,16 +99,15 @@
             <thead>
                 <tr>
                     <th>Display Name</th>
-                    <th>Description</th>
                     <th>State</th>
                     <th>Last change</th>
+                    <th>Description</th>
                     <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="ent, stat: ${persons}">
                     <td data-th-text="${ent.displayName}">Entity display name</td>
-                    <td data-th-text="${ent.description}">Entity description</td>
                     <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}">
                         <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
                             <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}"/>
@@ -90,6 +115,7 @@
                         <div th:case="false" th:text="${ent.state.name}" >Unknown</div>
                     </td>
                     <td data-th-text="${#dates.format(ent.lastStateChange, 'dd/MMM/yyyy HH:mm')}">Last change</td>
+                    <td data-th-text="${ent.description}">Entity description</td>
                     <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
 <!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">
                             <input type="hidden" th:field="${ent.id}"/>

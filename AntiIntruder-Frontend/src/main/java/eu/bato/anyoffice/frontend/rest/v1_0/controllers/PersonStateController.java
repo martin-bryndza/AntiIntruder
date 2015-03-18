@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -31,7 +30,6 @@ consumes = Versions.V1_0)
 public class PersonStateController{
     
     private static final Logger log = LoggerFactory.getLogger(PersonStateController.class);
-    
     
     @Autowired
     PersonStateManager personStateManager;
@@ -57,7 +55,7 @@ public class PersonStateController{
     @RequestMapping(value = "locked", method = PUT)
     @ResponseBody
     public PersonState setSessionLocked(@RequestBody Boolean locked, Authentication authentication) {
-        log.info("User " + authentication.getName() + (locked?" ":" un") + "locked session");
+        log.info("User " + authentication.getName() + (locked?" ":"started client or un") + "locked session");
         if (locked){
             return personStateManager.setState(authentication.getName(), PersonState.AWAY, false);
         } else {

@@ -71,6 +71,10 @@ public class WorkstationLockListener implements WindowProc {
     @Override
     public LRESULT callback(HWND hwnd, int uMsg, WPARAM wParam, LPARAM lParam) {
         switch (uMsg) {
+            case WinUser.WM_QUIT: {
+                PersonStateManager.getInstance().setState(PersonState.UNKNOWN);
+                return new LRESULT(0);
+            }
             case WinUser.WM_DESTROY: {
                 User32.INSTANCE.PostQuitMessage(0);
                 return new LRESULT(0);
@@ -107,14 +111,14 @@ public class WorkstationLockListener implements WindowProc {
      */
     private void onSessionChange(WPARAM wParam, LPARAM lParam) {
         switch (wParam.intValue()) {
-            case Wtsapi32.WTS_SESSION_LOCK: {
+            case Wtsapi32.WTS_SESSION_LOCK: 
+            case Wtsapi32.WTS_SESSION_LOGOFF:
                 this.onMachineLocked(lParam.intValue());
                 break;
-            }
-            case Wtsapi32.WTS_SESSION_UNLOCK: {
+            case Wtsapi32.WTS_SESSION_UNLOCK:
+            case Wtsapi32.WTS_SESSION_LOGON:
                 this.onMachineUnlocked(lParam.intValue());
                 break;
-            }
         }
     }
 

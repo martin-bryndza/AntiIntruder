@@ -22,7 +22,7 @@ class PersonStateManager {
 
     private PersonStateManager() {
         client = new RestClient();
-        state = PersonState.AVAILABLE;
+        state = client.returnFromAway();
     }
 
     static PersonStateManager getInstance() {

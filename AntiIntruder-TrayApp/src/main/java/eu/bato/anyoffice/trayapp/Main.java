@@ -38,6 +38,7 @@ public class Main {
         if (workstationLockListener != null) {
             workstationLockListener.destroy();
         }
+        PersonStateManager.getInstance().setState(PersonState.UNKNOWN);
         System.exit(0);
     }
     
