@@ -100,7 +100,7 @@
                 <tr>
                     <th>Display Name</th>
                     <th>State</th>
-                    <th>Last change</th>
+                    <th>DND end</th>
                     <th>Description</th>
                     <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
                 </tr>
@@ -114,7 +114,7 @@
                         </select>
                         <div th:case="false" th:text="${ent.state.name}" >Unknown</div>
                     </td>
-                    <td data-th-text="${#dates.format(ent.lastStateChange, 'dd/MMM/yyyy HH:mm')}">Last change</td>
+                    <td data-th-text="${#dates.format(ent.dndEnd, 'dd/MMM/yyyy HH:mm')}">N/A</td>
                     <td data-th-text="${ent.description}">Entity description</td>
                     <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
 <!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">

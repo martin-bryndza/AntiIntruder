@@ -55,7 +55,7 @@ public class PersonStateController{
     @RequestMapping(value = "locked", method = PUT)
     @ResponseBody
     public PersonState setSessionLocked(@RequestBody Boolean locked, Authentication authentication) {
-        log.info("User " + authentication.getName() + (locked?" ":"started client or un") + "locked session");
+        log.info("User " + authentication.getName() + (locked?" ":" started client or un") + "locked session");
         if (locked){
             return personStateManager.setState(authentication.getName(), PersonState.AWAY, false);
         } else {

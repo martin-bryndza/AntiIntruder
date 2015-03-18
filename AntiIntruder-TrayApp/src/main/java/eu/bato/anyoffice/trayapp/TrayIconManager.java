@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import org.slf4j.Logger;
@@ -213,7 +214,7 @@ class TrayIconManager {
     
     Credentials requestCredentials(){
         JTextField field1 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_USER));
-        JTextField field2 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_PASSWORD));
+        JPasswordField field2 = new JPasswordField(Configuration.getInstance().getProperty(Property.CURRENT_PASSWORD));
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Username:"));
         panel.add(field1);
@@ -233,7 +234,7 @@ class TrayIconManager {
         if (result == JOptionPane.OK_OPTION) {
             Credentials c;
             try {
-                c = new Credentials(field1.getText(), field2.getText().toCharArray());
+                c = new Credentials(field1.getText(), field2.getPassword());
             } catch (IOException ex) {
                 log.error(ex.getMessage(), ex);
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
