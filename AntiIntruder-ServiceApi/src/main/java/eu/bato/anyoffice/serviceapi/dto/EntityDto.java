@@ -18,7 +18,6 @@ public abstract class EntityDto {
     private String displayName;
     private Long id;
     private Long lastStateChange;
-    private List<Long> interactionEntitiesIds;
     private String location;
 
     public Long getId() {
@@ -59,14 +58,6 @@ public abstract class EntityDto {
 
     public void setLastStateChange(Long lastStateChange) {
         this.lastStateChange = lastStateChange;
-    }
-
-    public List<Long> getInteractionEntitiesIds() {
-        return interactionEntitiesIds;
-    }
-
-    public void setInteractionEntitiesIds(List<Long> interactionEntitiesIds) {
-        this.interactionEntitiesIds = interactionEntitiesIds;
     }
     
     @Override

@@ -1,5 +1,6 @@
 package eu.bato.anyoffice.serviceapi.dto;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ public class PersonDto extends EntityDto{
     private Long dndStart;
     private Long dndEnd;
     private Optional<Long> awayStart = Optional.empty();
+    private List<Long> interactionEntitiesIds;
 
     public PersonState getState() {
         return state;
@@ -62,6 +64,14 @@ public class PersonDto extends EntityDto{
 
     public void setAwayStart(Optional<Long> awayStart) {
         this.awayStart = awayStart;
+    }
+    
+    public List<Long> getInteractionEntitiesIds() {
+        return interactionEntitiesIds;
+    }
+
+    public void setInteractionEntitiesIds(List<Long> interactionEntitiesIds) {
+        this.interactionEntitiesIds = interactionEntitiesIds;
     }
 
     @Override

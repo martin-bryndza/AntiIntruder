@@ -53,7 +53,6 @@ public class ResourceConvert{
         dto.setNextPossibleStateChange(entity.getNextPossibleStateChange());
         dto.setStateExpiration(entity.getStateExpiration());
         dto.setLocation(entity.getLocation());
-        dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
         return dto;
     }
     

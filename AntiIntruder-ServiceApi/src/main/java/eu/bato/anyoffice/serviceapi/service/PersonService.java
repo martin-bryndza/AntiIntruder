@@ -12,16 +12,7 @@ import java.util.Optional;
  * @author Bato
  */
 public interface PersonService extends Service<PersonDto> {
-    
-//    /**
-//     * Verify if Person with given username and password exists.
-//     *
-//     * @param username
-//     * @param password
-//     * @return Person if person with given username and password exist, null otherwise
-//     */
-//    PersonDto login(String username, String password);
-    
+       
     /**
      * Gets hashed password of the Person with username.
      * @param username
@@ -93,5 +84,15 @@ public interface PersonService extends Service<PersonDto> {
     void setTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart);
     
     boolean isPresent(String username);
+    
+    void addInteractionEntity(String username, Long id);
+    
+    void removeInteractionEntity(String username, Long id);
+    
+    void removeAllInteractionEntities(String username);
+    
+    List<Long> getInteractingPersons(String username);
+    
+    void removeAllInteractingPersons(String username);
     
 }
