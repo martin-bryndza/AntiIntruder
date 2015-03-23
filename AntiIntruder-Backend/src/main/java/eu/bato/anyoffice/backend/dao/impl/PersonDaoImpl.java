@@ -121,26 +121,56 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public void addInteractionPerson(Long id, Long interactionPersonId) {
-        Person p1 = findOne(id);
-        Person p2 = findOne(interactionPersonId);
+    public void addInteractionEntity(String username, Long interactionEntityId) {
+        Person p1 = findOneByUsername(username);
+        Person p2 = findOne(interactionEntityId);
         p1.addInteractionEntity(p2);
-        }
+    }
 
     @Override
-    public void removeInteractionPerson(Long id, Long interactionPersonId) {
-        Person p1 = findOne(id);
-        Person p2 = findOne(interactionPersonId);
+    public void removeInteractionEntity(String username, Long interactionEntityId) {
+        Person p1 = findOneByUsername(username);
+        Person p2 = findOne(interactionEntityId);
         p1.removeInteractionEntity(p2);
     }
 
     @Override
+    public void removeAllInteractionEntities(String username) {
+        Person p1 = findOneByUsername(username);
+        p1.removeAllInteractionEntities();
+    }
+
+    @Override
+    public List<Long> getInteractingPersons(String username) {
+        Long id = findOneByUsername(username).getId();
+        return em.createQuery("SELECT e.person_id FROM Interaction e WHERE e.entity_id = :id", Long.class).setParameter("id", id).getResultList();
+    }
+
+    @Override
+    public void removeAllInteractingPersons(String username) {
+        Long id = findOneByUsername(username).getId();
+        em.createQuery("DELETE FROM Interaction e WHERE e.entity_id = :id", Long.class).setParameter("id", id).executeUpdate();
+    }
+    
+    @Override
     public boolean isTaken(String username) {
-        if (username==null){
+        if (username == null) {
             throw new IllegalArgumentException("Username is null.");
         }
         return em.createQuery("SELECT tbl.id FROM Person tbl WHERE tbl.username = "
-                + ":givenUsername", Long.class).setParameter("givenUsername", username).getResultList().size()>0;
+                + ":givenUsername", Long.class).setParameter("givenUsername", username).getResultList().size() > 0;
+    }
+
+    @Override
+    public void setLocation(String username, String location) {
+        Person p1 = findOneByUsername(username);
+        p1.setLocation(location==null?"":location);
+    }
+
+    @Override
+    public String getLocation(String username) {
+        String location = findOneByUsername(username).getLocation();
+        return location == null ? "" : location;
     }
     
 }

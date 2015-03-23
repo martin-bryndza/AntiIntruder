@@ -3,6 +3,7 @@ package eu.bato.anyoffice.backend.dao;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import javax.persistence.NoResultException;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,10 +63,43 @@ public interface PersonDao extends Dao<Person, Long>{
      */
     void updateTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart);
     
-    void addInteractionPerson(Long id, Long interactionPersonId);
-    
-    void removeInteractionPerson(Long id, Long interactionPersonId);
+    /**
+     * Adds an interaction of this person with an entity.
+     * @param username
+     * @param id 
+     */
+    void addInteractionEntity(String username, Long id);
+
+    /**
+     * Removes interaction with entity that this person interacts with
+     * @param username
+     * @param id 
+     */
+    void removeInteractionEntity(String username, Long id);
+
+    /**
+     * Removes interactions with entities that this person interacts with
+     * @param username 
+     */
+    void removeAllInteractionEntities(String username);
+
+    /**
+     * Returns ids of all persons that interact with this Entity
+     * @param username
+     * @return 
+     */
+    List<Long> getInteractingPersons(String username);
+
+    /**
+     * Removes interactions with all persons that interact with this Entity
+     * @param username 
+     */
+    void removeAllInteractingPersons(String username);
     
     boolean isTaken(String username);
+    
+    void setLocation(String username, String location);
+
+    String getLocation(String username);
     
 }

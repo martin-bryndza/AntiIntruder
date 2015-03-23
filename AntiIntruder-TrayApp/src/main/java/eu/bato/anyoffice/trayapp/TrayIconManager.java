@@ -12,13 +12,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.MenuItem;
-import java.awt.Panel;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -53,6 +50,8 @@ class TrayIconManager {
     private PopupMenu popup;
     private Map<PersonState, MenuItem> stateItems;
     private PersonState currentState;
+    private final RestClient client;
+    private String location;
     private final UpdateIconMouseListener updateIconMouseListener;
     private final SwitchToDndFrame switchToDndFrame;
     
@@ -61,6 +60,11 @@ class TrayIconManager {
     private TrayIconManager() {
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToDndFrame();
+        client = new RestClient();
+        location = client.getLocation();
+        if (location == null || location.isEmpty()) {
+            location = "-";
+        }
     }
     
     static TrayIconManager getInstance(){
@@ -132,6 +136,14 @@ class TrayIconManager {
             stateItems.put(state, item);
             popup.add(item);
         }
+        
+        popup.addSeparator();
+        
+        MenuItem locationMenuItem = new MenuItem("Set location... (" + location + ")");
+        locationMenuItem.addActionListener((ActionEvent) -> {
+            requestLocation();
+        });
+        popup.add(locationMenuItem);
         
         popup.addSeparator();
         
@@ -210,6 +222,30 @@ class TrayIconManager {
         PersonState newStateByServer = PersonStateManager.getInstance().setState(state);
         log.debug("Server returned state " + newStateByServer + " after state change to " + state);
         updateState(newStateByServer);
+    }
+    
+    /**
+     * Requests and sets new location.
+     */
+    void requestLocation(){
+        JTextField field1 = new JTextField(location);
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("What is your current location?"));
+        panel.add(field1);
+        field1.selectAll();
+        JFrame frame = new JFrame();
+        frame.setAlwaysOnTop(true);
+        frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        int result = JOptionPane.showConfirmDialog(frame, panel, "Location",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            String newLocation = field1.getText();
+            if (client.setLocation(newLocation)){
+                location = newLocation;
+            } else {
+                JOptionPane.showMessageDialog(frame, "Unable to change location due to a server error.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
     
     Credentials requestCredentials(){

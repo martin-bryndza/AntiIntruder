@@ -109,6 +109,36 @@ public class RestClient {
     PersonState goAway() {
         return lock(true);
     }
+    
+    String getLocation() {
+        ResponseEntity<String> response;
+        try {
+            response = rest.exchange(URI + "location", HttpMethod.GET, new HttpEntity<>(createHeaders()), String.class);
+            log.debug("GET location response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseString(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to get location.", e);
+            return new String();
+        }
+    }
+
+    boolean setLocation(String location) {
+        HttpEntity<String> entity = null;
+        try {
+            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(location), createHeaders());
+        } catch (IOException e) {
+            log.error(e.getMessage()); //TODO
+        }
+        ResponseEntity<String> response;
+        try {
+            response = rest.exchange(URI + "location", HttpMethod.PUT, entity, String.class);
+            log.info("Set location response:" + response.getStatusCode().toString());
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to set location.", e);
+            return false;
+        }
+    }
 
     private PersonState lock(boolean lock) {
         HttpEntity<String> entity;
@@ -130,11 +160,15 @@ public class RestClient {
     }
     
     private PersonState parseState(String responseBody){
-        return PersonState.valueOf(responseBody.replace("\"", ""));
+        return PersonState.valueOf(parseString(responseBody));
     }
     
     private Boolean parseBoolean(String responseBody){
-        return Boolean.valueOf(responseBody.replace("\"", ""));
+        return Boolean.valueOf(parseString(responseBody));
+    }
+    
+    private String parseString(String responseBody) {
+        return responseBody.replace("\"", "");
     }
 
     private HttpHeaders createHeaders() {

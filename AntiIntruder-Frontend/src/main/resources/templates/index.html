@@ -101,8 +101,10 @@
                     <th>Display Name</th>
                     <th>State</th>
                     <th>DND end</th>
+                    <th>Location</th>
                     <th>Description</th>
                     <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
+                    <th th:if="${#httpServletRequest.isUserInRole('USER')}"></th>
                 </tr>
             </thead>
             <tbody>
@@ -115,13 +117,18 @@
                         <div th:case="false" th:text="${ent.state.name}" >Unknown</div>
                     </td>
                     <td data-th-text="${#dates.format(ent.dndEnd, 'dd/MMM/yyyy HH:mm')}">N/A</td>
-                    <td data-th-text="${ent.description}">Entity description</td>
+                    <td data-th-text="${ent.location}">Unknown</td>
+                    <td data-th-text="${ent.description}"></td>
                     <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
 <!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">
                             <input type="hidden" th:field="${ent.id}"/>
                             <button type="submit" class="btn btn-primary" th:text='#{Deletee}'>Deletee</button>-->
                             <a href="#" data-th-href="@{/delete(id=${ent.id})}" th:text="#{Delete}">Delete</a>
                         <!--</form>-->
+                    </td>
+                    <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}">
+                        <a th:case="true" href="#" data-th-href="@{/cancelinteract(id=${ent.id})}" th:text="#{Remove_consultation}">Remove consultation</a>
+                        <a th:case="false" href="#" data-th-href="@{/interact(id=${ent.id})}" th:text="#{Request_consultation}">Request consultation</a>
                     </td>
                 </tr>
             </tbody>

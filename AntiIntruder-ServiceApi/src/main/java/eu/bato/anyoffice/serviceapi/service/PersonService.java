@@ -85,14 +85,46 @@ public interface PersonService extends Service<PersonDto> {
     
     boolean isPresent(String username);
     
+    /**
+     * Adds an interaction of this person with an entity.
+     *
+     * @param username
+     * @param id
+     */
     void addInteractionEntity(String username, Long id);
-    
+
+    /**
+     * Removes interaction with entity that this person interacts with
+     *
+     * @param username
+     * @param id
+     */
     void removeInteractionEntity(String username, Long id);
-    
+
+    /**
+     * Removes interactions with entities that this person interacts with
+     *
+     * @param username
+     */
     void removeAllInteractionEntities(String username);
-    
+
+    /**
+     * Returns ids of all persons that interact with this Entity
+     *
+     * @param username
+     * @return
+     */
     List<Long> getInteractingPersons(String username);
-    
+
+    /**
+     * Removes interactions with all persons that interact with this Entity
+     *
+     * @param username
+     */
     void removeAllInteractingPersons(String username);
+    
+    void setLocation(String username, String location);
+    
+    String getLocation(String username);
     
 }

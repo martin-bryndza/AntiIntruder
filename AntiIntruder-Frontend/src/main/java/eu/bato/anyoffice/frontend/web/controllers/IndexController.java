@@ -70,6 +70,28 @@ public class IndexController {
         personService.delete(id);
         return "redirect:";
     }
+    
+    @RequestMapping(value = "/interact", method = RequestMethod.GET)
+    public String interact(@RequestParam Long id) {
+        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
+            User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+                personService.addInteractionEntity(currentUser.getUsername(), id);
+            }
+        }
+        return "redirect:";
+    }
+    
+    @RequestMapping(value = "/cancelinteract", method = RequestMethod.GET)
+    public String cancelInteract(@RequestParam Long id) {
+        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
+            User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+                personService.removeInteractionEntity(currentUser.getUsername(), id);
+            }
+        }
+        return "redirect:";
+    }
 
     @RequestMapping(value = "/changeState", method = RequestMethod.GET)
     public String changeState(@RequestParam Long id, String state) {

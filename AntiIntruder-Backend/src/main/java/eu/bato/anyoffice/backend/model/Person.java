@@ -57,7 +57,7 @@ public class Person extends Entity{
                 @MetaValue(value = "P", targetEntity = Person.class),
                 @MetaValue(value = "R", targetEntity = Resource.class)})
     @Cascade(CascadeType.ALL)
-    @JoinTable(name = "INTERACTIONS", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "interactor_id"))
+    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<Entity> interactionEntities;
  
     public PersonRole getRole() {

@@ -3,6 +3,7 @@ package eu.bato.anyoffice.frontend.rest.v1_0.controllers;
 import eu.bato.anyoffice.core.state.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.rest.Versions;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import eu.bato.anyoffice.serviceapi.service.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class PersonStateController{
     
     @Autowired
     PersonStateManager personStateManager;
+    
+    @Autowired
+    PersonService personService;
     
     @RequestMapping(value = "login", method = GET)
     @ResponseStatus(HttpStatus.OK)
@@ -66,6 +70,19 @@ public class PersonStateController{
     @RequestMapping(value = "canchange", method = GET) 
     public @ResponseBody Boolean isStateChangePossible(@RequestParam String state, Authentication authentication) {
         return personStateManager.isStateChangePossible(authentication.getName(), PersonState.valueOf(state));
+    }
+    
+    @RequestMapping(value = "location", method = GET)
+    public @ResponseBody
+    String getCurrentLocation(Authentication authentication) {
+        return personService.getLocation(authentication.getName());
+    }
+
+    @RequestMapping(value = "location", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void setCurrentLocation(@RequestBody String location, Authentication authentication) {
+        log.info("Setting new location: " + location + " to person " + authentication.getName());
+        personService.setLocation(authentication.getName(), location);
     }
     
 }

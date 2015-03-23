@@ -239,27 +239,117 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void addInteractionEntity(String username, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        } else if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Id is null.");
+            log.error("Id is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(username, id) {
+            @Override
+            public void doMethod() {
+                personDao.addInteractionEntity((String) getU(), (Long) getV());
+            }
+        }.tryMethod();
     }
 
     @Override
     public void removeInteractionEntity(String username, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        } else if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Id is null.");
+            log.error("Id is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(username, id) {
+            @Override
+            public void doMethod() {
+                personDao.removeInteractionEntity((String) getU(), (Long) getV());
+            }
+        }.tryMethod();
     }
 
     @Override
     public void removeAllInteractionEntities(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(username) {
+            @Override
+            public void doMethod() {
+                personDao.removeAllInteractionEntities((String) getU());
+            }
+        }.tryMethod();
     }
 
     @Override
     public List<Long> getInteractingPersons(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        return (List<Long>) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public List<Long> doMethod() {
+                return personDao.getInteractingPersons((String) getU());
+            }
+        }.tryMethod();
     }
 
     @Override
     public void removeAllInteractingPersons(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(username) {
+            @Override
+            public void doMethod() {
+                personDao.removeAllInteractingPersons((String) getU());
+            }
+        }.tryMethod();
+    }
+
+    @Override
+    public void setLocation(String username, String location) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        } else if (location == null) {
+            location = "";
+        }
+        new DataAccessExceptionVoidTemplate(username, location) {
+            @Override
+            public void doMethod() {
+                personDao.setLocation((String) getU(), (String) getV());
+            }
+        }.tryMethod();
+    }
+
+    @Override
+    public String getLocation(String username) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        return (String) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public String doMethod() {
+                return personDao.getLocation((String) getU());
+            }
+        }.tryMethod();
     }
     
 }
