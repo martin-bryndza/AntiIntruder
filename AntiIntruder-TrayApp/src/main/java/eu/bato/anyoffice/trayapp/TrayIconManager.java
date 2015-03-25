@@ -16,16 +16,24 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -47,47 +55,61 @@ class TrayIconManager {
     private static TrayIconManager instance;
     
     private TrayIcon trayIcon;
-    private PopupMenu popup;
     private Map<PersonState, MenuItem> stateItems;
-    private PersonState currentState;
-    private final RestClient client;
-    private String location;
     private final UpdateIconMouseListener updateIconMouseListener;
     private final SwitchToDndFrame switchToDndFrame;
+    
+    private final RestClient client;
+    /**
+     * application.properties used to store inner configuration not visible to user
+     * Properties:
+     * as - authentication string
+     */
+    private Properties props;
+    
+    private PersonState currentState;
+    private String currentLocation;
     
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
 
     private TrayIconManager() {
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToDndFrame();
-        client = new RestClient();
-        location = client.getLocation();
-        if (location == null || location.isEmpty()) {
-            location = "-";
+        String authString = Configuration.getInstance().getProperty(Property.GUID);
+        if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))){            
+            client = new RestClient(requestCredentials());
+        } else {
+            client = new RestClient(new Credentials(authString));
         }
+        currentState = client.returnFromAway();
+        currentLocation = client.getLocation();
+        if (currentLocation == null || currentLocation.isEmpty()) {
+            currentLocation = "-";
+        }
+        initialize(currentState, currentLocation);
     }
     
-    static TrayIconManager getInstance(){
+    static TrayIconManager initialize(){
         if (instance == null) {
             instance = new TrayIconManager();
         }
         return instance;
     }
     
-    synchronized void initialize(){
-        popup = new PopupMenu("Any Office");
+    static TrayIconManager getInstance() {
+        return instance;
+    }
+    
+    private synchronized void initialize(PersonState currentState, String currentLocation){
+        log.debug("Initializing visual components with state {} and location {}", currentState, currentLocation);
         stateItems = new HashMap<>();
-        if (currentState == null){
-            currentState = PersonStateManager.getInstance().getStateFromServer();
-        }
-        PersonState state = currentState; // create a local copy
         if (!SystemTray.isSupported()) {
             log.error("SystemTray is not supported on this system.");
             return;
         }
         SystemTray tray = SystemTray.getSystemTray();
         if (trayIcon == null){
-            trayIcon = createIcon(state.getIconPath(), state.getDescription());
+            trayIcon = createIcon(currentState.getIconPath(), currentState.getDescription());
             try {
                 tray.add(trayIcon);
             } catch (AWTException ex) {
@@ -95,10 +117,10 @@ class TrayIconManager {
             }
             showInfoBubble("Welcome!\nRight-click this icon to change your current state.");
         } else {
-            trayIcon.setImage(getTrayIconImage(state.getIconPath()));
-            trayIcon.setToolTip(state.getDescription());
+            trayIcon.setImage(getTrayIconImage(currentState.getIconPath()));
+            trayIcon.setToolTip(currentState.getDescription());
         }
-        trayIcon.setPopupMenu(createMenu(state));
+        trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
         trayIcon.addMouseListener(updateIconMouseListener);
         trayIcon.addActionListener((ActionEvent e) -> {
             if (!currentState.equals(PersonState.DO_NOT_DISTURB) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()){
@@ -107,16 +129,57 @@ class TrayIconManager {
         });
     }
     
-    private PopupMenu createMenu(PersonState currentState){
-//        MenuItem aboutItem = new MenuItem("About");
-//        CheckboxMenuItem cb1 = new CheckboxMenuItem("Set auto size");
-//        CheckboxMenuItem cb2 = new CheckboxMenuItem("Set tooltip");
-//        Menu displayMenu = new Menu("Display");
-//        MenuItem errorItem = new MenuItem("Error");
-//        MenuItem warningItem = new MenuItem("Warning");
-//        MenuItem infoItem = new MenuItem("Info");
-//        MenuItem noneItem = new MenuItem("None");
-        
+    synchronized void update(){
+        boolean wasDndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
+        if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+            stateItems.get(PersonState.DO_NOT_DISTURB).setEnabled(true);
+            log.debug("DND is now enabled");
+            showInfoBubble("Do not disturb state is possible. Click this bubble for further actions.");
+        }
+        PersonState newState = client.getState();
+        String newLocation = client.getLocation();
+        List<String> availableConsulters = client.getNewAvailableConsulters();
+        if (!availableConsulters.isEmpty()){
+            StringBuilder sb = new StringBuilder("Following people are now available:\n");
+            availableConsulters.forEach((p) -> {
+                sb.append(p);
+                sb.append("\n");
+            });
+            showInfoMessage("New available consultations", sb.toString());
+        }
+        if (newState.equals(currentState) && newLocation.equals(currentLocation)) {
+            return;
+        }
+        log.debug("Updating icon to state {}, location {}", newState, newLocation);
+        boolean showAvailableBubble = newState.equals(PersonState.AVAILABLE);
+        currentState = newState;
+        currentLocation = newLocation;
+        initialize(currentState, currentLocation);
+        if (showAvailableBubble) {
+            int requests = client.getNumberOfRequests();
+            showInfoBubble("You have gone Available. You have " + (requests==0?"no":requests) + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
+        }
+    }
+    
+    /**
+     * 
+     * @param lock true to lock, false to unlock
+     */
+    synchronized void lock(boolean lock){
+        if (lock){
+            client.goAway();
+        } else {
+            client.returnFromAway();
+        }
+        log.debug("Session {}locked", lock?"":"un");
+    }
+    
+    void close(){
+        client.setState(PersonState.UNKNOWN);
+    }
+    
+    private PopupMenu createMenu(PersonState currentState, String currentLocation){        
+        PopupMenu popup = new PopupMenu("Any Office");
         for (PersonState state: PersonState.values()){
             if (state.isAwayState()){
                 continue;
@@ -125,7 +188,7 @@ class TrayIconManager {
             if (state.equals(currentState)){
                 item.setFont(BOLD_FONT);
                 item.setLabel("-" + item.getLabel() + "-");
-            } else if (!PersonStateManager.getInstance().isStateChangePossible(state)){
+            } else if (!client.isStateChangePossible(state)){
                 item.setEnabled(false);
             } else {               
                 item.addActionListener((ActionEvent) -> {
@@ -138,10 +201,9 @@ class TrayIconManager {
         }
         
         popup.addSeparator();
-        
-        MenuItem locationMenuItem = new MenuItem("Set location... (" + location + ")");
+        MenuItem locationMenuItem = new MenuItem("Set location... (" + currentLocation + ")");
         locationMenuItem.addActionListener((ActionEvent) -> {
-            requestLocation();
+            requestNewLocation(currentLocation);
         });
         popup.add(locationMenuItem);
         
@@ -154,6 +216,20 @@ class TrayIconManager {
         popup.add(exitItem);
 
         return popup;
+    }
+    
+    private void changeState(PersonState state) {
+        if (state.equals(currentState)) {
+            return;
+        }
+        log.debug("User switched state to " + state);
+        if (!client.isStateChangePossible(state)) {
+            showErrorBubble("Unable to switch to " + state.getDisplayName());
+        }
+        PersonState newStateByServer = client.setState(state);
+        log.info("Server returned state " + newStateByServer + " after user switched state to " + state);
+        currentState = state;
+        initialize(state, currentLocation);
     }
 
     private TrayIcon createIcon(String path, String description) {
@@ -176,59 +252,29 @@ class TrayIconManager {
         int trayIconWidth = new TrayIcon(trayIconImage).getSize().width;
         return trayIconImage.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH);
     }
-        
-    /**
-     * Change of state and/or refresh of tray icon. If the current and requested states are the same and state availability hasn't changed either, nothing will be changed. Do not use this to update menu before displaying it, use updateIcon instead.
-     * @param state 
-     */
-    synchronized void updateState(PersonState state){
-        boolean wasDndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
-        if (!wasDndAvailable && PersonStateManager.getInstance().isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-            stateItems.get(PersonState.DO_NOT_DISTURB).setEnabled(true);
-            showInfoBubble("Do not disturb state is possible. Click this bubble for further actions.");
-        }
-        if (state == null || state.equals(currentState)){
-            return;
-        }
-        log.info("Updating icon to " + state);
-        boolean showAvailableBubble = state.equals(PersonState.AVAILABLE) && !currentState.isAwayState();
-        updateIcon(state);
-        if (showAvailableBubble){
-            showInfoBubble("You have gone Available");
-        }
-    }
-    
-    /**
-     * Update of visual components to correspond to the given state.
-     * @param state 
-     */
-    synchronized void updateIcon(PersonState state){
-        currentState = state;
-        initialize();
-    }
     
     private void showInfoBubble(String text){
         trayIcon.displayMessage("Any Office", text, TrayIcon.MessageType.INFO);
     }
     
-    private void changeState(PersonState state){
-        if (state == null || state.equals(currentState)) {
-            return;
-        }
-        log.info("Changing state to " + state);
-        if (!PersonStateManager.getInstance().isStateChangePossible(state)) {
-            trayIcon.displayMessage("Unable to switch to " + state.getDisplayName(), "", TrayIcon.MessageType.ERROR);
-        }
-        PersonState newStateByServer = PersonStateManager.getInstance().setState(state);
-        log.debug("Server returned state " + newStateByServer + " after state change to " + state);
-        updateState(newStateByServer);
+    private void showErrorBubble(String text){
+        trayIcon.displayMessage("Any Office", text, TrayIcon.MessageType.ERROR);
+    }
+    
+    private void showInfoMessage(String title, String text){
+        JFrame f = new JFrame();
+        f.setAlwaysOnTop(true);
+        Thread t = new Thread(() -> {
+            JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE);
+        });
+        t.start();
     }
     
     /**
-     * Requests and sets new location.
+     * Requests new newLocation.
      */
-    void requestLocation(){
-        JTextField field1 = new JTextField(location);
+    private void requestNewLocation(String currentLocation){
+        JTextField field1 = new JTextField(currentLocation);
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("What is your current location?"));
         panel.add(field1);
@@ -239,29 +285,37 @@ class TrayIconManager {
         int result = JOptionPane.showConfirmDialog(frame, panel, "Location",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
-            String newLocation = field1.getText();
-            if (client.setLocation(newLocation)){
-                location = newLocation;
-            } else {
-                JOptionPane.showMessageDialog(frame, "Unable to change location due to a server error.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            String location = field1.getText();
+            if (client.setLocation(location)){
+                this.currentLocation = location;
+                trayIcon.setPopupMenu(createMenu(currentState, location));
+            }            
         }
     }
     
-    Credentials requestCredentials(){
-        JTextField field1 = new JTextField(Configuration.getInstance().getProperty(Property.CURRENT_USER));
-        JPasswordField field2 = new JPasswordField(Configuration.getInstance().getProperty(Property.CURRENT_PASSWORD));
+    /**
+     * Shows a popup window with request for credentials.
+     * @return New credentials 
+     */
+    private Credentials requestCredentials(){
+        Configuration config = Configuration.getInstance();
+        JTextField field1 = new JTextField(config.getProperty(Property.CURRENT_USER));
+        JPasswordField field2 = new JPasswordField();
+        JCheckBox rememberCheckBox = new JCheckBox("Remember me");
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Username:"));
         panel.add(field1);
         panel.add(new JLabel("Password:"));
         panel.add(field2);
-        field1.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent ce) {
-                field1.requestFocusInWindow();
-            }
-        });
+        panel.add(rememberCheckBox);
+        field1.setSelectionStart(0);
+        field1.setSelectionEnd(field1.getText().length()-1);
+//        field1.addComponentListener(new ComponentAdapter() {
+//            @Override
+//            public void componentShown(ComponentEvent ce) {
+//                field1.setrequestFocusInWindow();
+//            }
+//        });
         JFrame frame = new JFrame();
         frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -276,8 +330,12 @@ class TrayIconManager {
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
                 return requestCredentials();
             }
-            if (new RestClient().isCorrectCredentials(c)){
+            if (RestClient.isCorrectCredentials(c)){
                 Configuration.getInstance().setProperty(Property.CURRENT_USER, field1.getText());
+                if (rememberCheckBox.isSelected()){
+                    log.debug("Saving authentication string.");
+                    config.setProperty(Property.GUID, c.getEncodedAuthenticationString());
+                }
                 return c;
             } else {
                 JOptionPane.showMessageDialog(frame, "Incorrect password or unknown user.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
@@ -298,7 +356,7 @@ class TrayIconManager {
         @Override
         public void mousePressed(MouseEvent e) {
             if (released){
-                updateIcon(PersonStateManager.getInstance().getStateFromServer());
+                update();
                 released = false;
             }
         }
@@ -308,5 +366,183 @@ class TrayIconManager {
             released = true;
         }    
 
+    }
+    
+    private class SwitchToDndFrame extends javax.swing.JFrame {
+
+        /**
+         * Creates new form SwitchToDndFrame
+         */
+        public SwitchToDndFrame() {
+            initComponents();
+            showOnTop(false);
+            this.setLocationRelativeTo(null);
+        }
+
+        void display() {
+            showOnTop(true);
+            jButtonYes.setSelected(true);
+        }
+
+        private void showOnTop(boolean show) {
+            this.setAlwaysOnTop(show);
+            this.setVisible(show);
+        }
+
+        /**
+         * This method is called from within the constructor to initialize the
+         * form. WARNING: Do NOT modify this code. The content of this method is
+         * always regenerated by the Form Editor.
+         */
+        @SuppressWarnings("unchecked")
+        // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+        private void initComponents() {
+
+            jLabel1 = new javax.swing.JLabel();
+            jButtonYes = new javax.swing.JButton();
+            jButtonNo = new javax.swing.JButton();
+            jLabel2 = new javax.swing.JLabel();
+            jTextFieldMinutes = new javax.swing.JTextField();
+            jLabel3 = new javax.swing.JLabel();
+            jButtonOk = new javax.swing.JButton();
+
+            setTitle("Switch to Do Not Disturb?");
+            setResizable(false);
+            setType(java.awt.Window.Type.POPUP);
+            addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override
+                public void keyReleased(java.awt.event.KeyEvent evt) {
+                    formKeyReleased(evt);
+                }
+            });
+
+            jLabel1.setText("Would you like to switch to Do Not Disturb state now?");
+
+            jButtonYes.setText("Yes");
+            jButtonYes.addActionListener((java.awt.event.ActionEvent evt) -> {
+                jButtonYesActionPerformed(evt);
+            });
+
+            jButtonNo.setText("No");
+            jButtonNo.setMaximumSize(new java.awt.Dimension(49, 23));
+            jButtonNo.setMinimumSize(new java.awt.Dimension(49, 23));
+            jButtonNo.setPreferredSize(new java.awt.Dimension(49, 23));
+            jButtonNo.addActionListener((java.awt.event.ActionEvent evt) -> {
+                jButtonNoActionPerformed(evt);
+            });
+
+            jLabel2.setText("Remind me in");
+
+            jTextFieldMinutes.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+            jTextFieldMinutes.setText("15");
+            jTextFieldMinutes.setMaximumSize(new java.awt.Dimension(18, 20));
+            jTextFieldMinutes.setMinimumSize(new java.awt.Dimension(18, 20));
+            jTextFieldMinutes.addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override
+                public void keyReleased(java.awt.event.KeyEvent evt) {
+                    jTextFieldMinutesKeyReleased(evt);
+                }
+            });
+
+            jLabel3.setText("minutes:");
+
+            jButtonOk.setText("OK");
+            jButtonOk.setMaximumSize(new java.awt.Dimension(49, 23));
+            jButtonOk.setMinimumSize(new java.awt.Dimension(49, 23));
+            jButtonOk.setPreferredSize(new java.awt.Dimension(49, 23));
+            jButtonOk.addActionListener((java.awt.event.ActionEvent evt) -> {
+                jButtonOkActionPerformed(evt);
+            });
+
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+            getContentPane().setLayout(layout);
+            layout.setHorizontalGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addGroup(layout.createSequentialGroup()
+                                            .addComponent(jButtonYes)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jButtonNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(jLabel2)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jTextFieldMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jLabel3)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
+            layout.setVerticalGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(jLabel1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jButtonYes)
+                                    .addComponent(jButtonNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jTextFieldMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
+
+            pack();
+        }// </editor-fold>                        
+
+        private void jButtonYesActionPerformed(java.awt.event.ActionEvent evt) {
+            changeState(PersonState.DO_NOT_DISTURB);
+            showOnTop(false);
+        }
+
+        private void jButtonNoActionPerformed(java.awt.event.ActionEvent evt) {
+            showOnTop(false);
+        }
+
+        private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {
+            remindIn(jTextFieldMinutes);
+        }
+
+        private void jTextFieldMinutesKeyReleased(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == (KeyEvent.VK_ENTER)) {
+                jButtonOkActionPerformed(null);
+            }
+        }
+
+        private void formKeyReleased(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == (KeyEvent.VK_ENTER)) {
+                jButtonYesActionPerformed(null);
+            }
+        }
+
+        private void remindIn(JTextField jTextFieldMinutes) {
+            int minutes;
+            try {
+                minutes = Integer.parseInt(jTextFieldMinutes.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(rootPane, "Please use only numeric characters.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (minutes < 1) {
+                JOptionPane.showMessageDialog(rootPane, "Please use positive number.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            JOptionPane.showMessageDialog(rootPane, "Not supported yet.");
+        }
+
+        // Variables declaration - do not modify                     
+        private javax.swing.JButton jButtonNo;
+        private javax.swing.JButton jButtonOk;
+        private javax.swing.JButton jButtonYes;
+        private javax.swing.JLabel jLabel1;
+        private javax.swing.JLabel jLabel2;
+        private javax.swing.JLabel jLabel3;
+        private javax.swing.JTextField jTextFieldMinutes;
+    // End of variables declaration                   
     }
 }

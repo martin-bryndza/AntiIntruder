@@ -28,7 +28,7 @@ public class Main {
         }
         Thread t = new Thread(new WorkstationLockListenerRunner());
         t.start();  
-        TrayIconManager.getInstance().initialize();
+        TrayIconManager.initialize();
         StateCheckService.getInstance().start();
         SwingUtilities.invokeLater(() -> {
         });
@@ -38,7 +38,10 @@ public class Main {
         if (workstationLockListener != null) {
             workstationLockListener.destroy();
         }
-        PersonStateManager.getInstance().setState(PersonState.UNKNOWN);
+        TrayIconManager tim = TrayIconManager.getInstance();
+        if (tim!=null){
+            tim.close();
+        }
         System.exit(0);
     }
     

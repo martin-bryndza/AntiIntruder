@@ -44,7 +44,7 @@ class StateCheckService {
         @Override
         public void run() {
             log.debug("States check started...");
-            TrayIconManager.getInstance().updateState(PersonStateManager.getInstance().getStateFromServer());
+            TrayIconManager.getInstance().update();
             log.debug("States check finished.");
         }
     }

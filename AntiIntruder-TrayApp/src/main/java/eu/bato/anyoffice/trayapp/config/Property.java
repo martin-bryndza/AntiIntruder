@@ -19,7 +19,7 @@ public enum Property {
     CHECK_INTERVAL(PropertyType.LONG, "10000"),
     SERVER_ADDRESS(PropertyType.STRING, "http://localhost:8080"),
     CURRENT_USER(PropertyType.STRING, ""),
-    CURRENT_PASSWORD(PropertyType.STRING,"");
+    GUID(PropertyType.STRING,"");
     
     private final PropertyType type;
     private final String defaultValue;

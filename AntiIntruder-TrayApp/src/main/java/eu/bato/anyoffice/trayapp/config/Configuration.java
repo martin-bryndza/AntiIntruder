@@ -5,9 +5,15 @@
  */
 package eu.bato.anyoffice.trayapp.config;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +116,26 @@ public class Configuration {
     }
     
     public void setProperty(Property p, String value){
-        
+        props.setProperty(p.name(), value);
+        saveConfig();
+    }
+    
+    private void saveConfig(){
+        OutputStream os = null;
+        try {
+            os = new BufferedOutputStream(new FileOutputStream(new File("conf/client.properties")));
+            props.store(os, "");
+            log.debug("Saved new configuration.");
+        } catch (IOException e) {
+            log.error("Unable to save new configuration.", e);
+        }
+        try {
+            if (os != null) {
+                os.close();
+            }
+        } catch (IOException ex) {
+            log.warn("Unable to close OutputStream.", ex);
+        }
     }
     
 }

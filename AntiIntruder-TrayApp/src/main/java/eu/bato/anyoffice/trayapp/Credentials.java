@@ -11,12 +11,9 @@ import java.util.Base64;
  */
 public class Credentials {
     
-    private final String username;
     private final String encodedAuthString;
 
-    public Credentials(String username, char[] password) throws IOException {
-        this.username = username;
-        
+    public Credentials(String username, char[] password) throws IOException {        
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(username.getBytes(Charset.forName("US-ASCII")));
         outputStream.write(':');
@@ -27,10 +24,10 @@ public class Credentials {
         this.encodedAuthString = Base64.getEncoder().encodeToString(c);
     }
 
-    public String getUsername() {
-        return username;
+    public Credentials(String encodedAuthString) {
+        this.encodedAuthString = encodedAuthString;
     }
-    
+
     public String getEncodedAuthenticationString(){
         return encodedAuthString;
     }

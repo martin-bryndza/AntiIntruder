@@ -27,3 +27,4 @@ hs_err_pid*
 out.txt
 dist/
 deploy/
+application.properties

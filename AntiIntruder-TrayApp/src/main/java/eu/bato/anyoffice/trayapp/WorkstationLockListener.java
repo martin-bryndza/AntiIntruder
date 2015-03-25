@@ -72,7 +72,7 @@ public class WorkstationLockListener implements WindowProc {
     public LRESULT callback(HWND hwnd, int uMsg, WPARAM wParam, LPARAM lParam) {
         switch (uMsg) {
             case WinUser.WM_QUIT: {
-                PersonStateManager.getInstance().setState(PersonState.UNKNOWN);
+                TrayIconManager.getInstance().close();
                 return new LRESULT(0);
             }
             case WinUser.WM_DESTROY: {
@@ -129,7 +129,7 @@ public class WorkstationLockListener implements WindowProc {
      */
     private void onMachineLocked(int sessionId) {
         log.info("Machine locked right now!");
-        PersonStateManager.getInstance().workstationLock();
+        TrayIconManager.getInstance().lock(true);
     }
 
     /**
@@ -139,6 +139,6 @@ public class WorkstationLockListener implements WindowProc {
      */
     private void onMachineUnlocked(int sessionId) {
         log.info("Machine unlocked right now!");
-        TrayIconManager.getInstance().updateState(PersonStateManager.getInstance().workstationUnlock());
+        TrayIconManager.getInstance().lock(false);
     }
 }
