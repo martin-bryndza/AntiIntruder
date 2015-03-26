@@ -2,8 +2,12 @@ package eu.bato.anyoffice.frontend.rest.v1_0.controllers;
 
 import eu.bato.anyoffice.core.state.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.rest.Versions;
+import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +87,30 @@ public class PersonStateController{
     public void setCurrentLocation(@RequestBody String location, Authentication authentication) {
         log.info("Setting new location: " + location + " to person " + authentication.getName());
         personService.setLocation(authentication.getName(), location);
+    }
+    
+    @RequestMapping(value = "requests", method = GET)
+    public @ResponseBody
+    Integer getNumberOfRequests(Authentication authentication) {
+        int result = personService.getInteractingPersonsCount(authentication.getName());
+        log.debug("GET requests for user {}, response: {}", authentication.getName(), result);
+        return result;
+    }
+    
+    /**
+     * Returns list of all persons, that have been requested for interaction and are available now. Deletes these consulters from the list of requests.
+     * @param authentication
+     * @return map (username: displayName, location, dndStart)
+     */
+    @RequestMapping(value = "availableInteractionPersons", method = GET)
+    public @ResponseBody
+    List<InteractionPersonDto> getNewAvailableInteractionPersons(Authentication authentication) {
+        List<InteractionPersonDto> interactionPersons = personService.getInteractionPersons(authentication.getName(), PersonState.AVAILABLE);
+        log.debug("GET availableInteractionPersons for user {}, response size: {}", authentication.getName(), interactionPersons.size());
+        if (!interactionPersons.isEmpty()){
+            personService.removeInteractionEntities(authentication.getName(), interactionPersons.stream().map((p) -> p.getId()).collect(Collectors.toList()));
+        }
+        return interactionPersons;
     }
     
 }

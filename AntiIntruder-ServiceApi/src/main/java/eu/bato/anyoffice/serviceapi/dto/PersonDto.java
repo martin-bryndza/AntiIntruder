@@ -66,6 +66,10 @@ public class PersonDto extends EntityDto{
         this.awayStart = awayStart;
     }
     
+    /**
+     * Returns IDs of all entities, that this person interacts with.
+     * @return list of IDs
+     */
     public List<Long> getInteractionEntitiesIds() {
         return interactionEntitiesIds;
     }

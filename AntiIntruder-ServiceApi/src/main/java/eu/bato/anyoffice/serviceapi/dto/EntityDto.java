@@ -5,7 +5,6 @@
  */
 package eu.bato.anyoffice.serviceapi.dto;
 
-import java.util.List;
 import java.util.Objects;
 
 /**

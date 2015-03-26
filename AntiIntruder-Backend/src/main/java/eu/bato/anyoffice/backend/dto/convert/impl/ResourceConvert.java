@@ -8,7 +8,6 @@ package eu.bato.anyoffice.backend.dto.convert.impl;
 import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
 import eu.bato.anyoffice.serviceapi.service.StateService;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

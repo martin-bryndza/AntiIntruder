@@ -1,9 +1,12 @@
 package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.PersonDao;
+import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -123,14 +126,14 @@ public class PersonDaoImpl implements PersonDao {
     @Override
     public void addInteractionEntity(String username, Long interactionEntityId) {
         Person p1 = findOneByUsername(username);
-        Person p2 = findOne(interactionEntityId);
+        Person p2 = findOne(interactionEntityId); //TODO should be Entity
         p1.addInteractionEntity(p2);
     }
 
     @Override
     public void removeInteractionEntity(String username, Long interactionEntityId) {
         Person p1 = findOneByUsername(username);
-        Person p2 = findOne(interactionEntityId);
+        Person p2 = findOne(interactionEntityId); //TODO should be Entity
         p1.removeInteractionEntity(p2);
     }
 
@@ -141,15 +144,37 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public List<Long> getInteractingPersons(String username) {
-        Long id = findOneByUsername(username).getId();
-        return em.createQuery("SELECT e.person_id FROM Interaction e WHERE e.entity_id = :id", Long.class).setParameter("id", id).getResultList();
+    public void removeInteractionEntities(String username, Collection<Long> ids) {
+        Person p1 = findOneByUsername(username);
+        ids.stream().map((id) -> findOne(id)).forEach((p2) -> { //TODO should be Entity
+            p1.removeInteractionEntity(p2);
+        });
+        p1.removeAllInteractionEntities();
+    }
+
+    @Override
+    public List<Person> getInteractingPersons(String username) {
+        Person person = findOneByUsername(username);
+        return person.getInteractingPersons();
     }
 
     @Override
     public void removeAllInteractingPersons(String username) {
-        Long id = findOneByUsername(username).getId();
-        em.createQuery("DELETE FROM Interaction e WHERE e.entity_id = :id", Long.class).setParameter("id", id).executeUpdate();
+        Person person = findOneByUsername(username);
+        person.removeAllInteractingPersons();
+    }
+    
+    @Override
+    public List<Person> getInteractionPersons(String username) {
+        Person person = findOneByUsername(username);
+        List<Entity> entities = person.getInteractionEntities();
+        List<Person> persons = new LinkedList<>();
+        entities.forEach((e) -> {
+            if (Person.class.isInstance(e)){
+                persons.add((Person) e);
+            }
+        });
+        return persons;
     }
     
     @Override
@@ -172,5 +197,5 @@ public class PersonDaoImpl implements PersonDao {
         String location = findOneByUsername(username).getLocation();
         return location == null ? "" : location;
     }
-    
+
 }

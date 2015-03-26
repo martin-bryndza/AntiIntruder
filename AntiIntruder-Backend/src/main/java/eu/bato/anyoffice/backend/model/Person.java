@@ -168,7 +168,7 @@ public class Person extends Entity{
 
     @Override
     public String toString() {
-        return "Person{username=" + username + ", password=" + password + ", role=" + role + '}';
+        return "Person{username=" + username + ", role=" + role + '}';
     }
 
 }

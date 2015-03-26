@@ -28,3 +28,4 @@ out.txt
 dist/
 deploy/
 application.properties
+AvailableConsultersFrame.*

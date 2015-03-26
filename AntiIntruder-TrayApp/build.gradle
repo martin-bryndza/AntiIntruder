@@ -22,12 +22,15 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.1.2'
     compile 'ch.qos.logback:logback-core:1.1.2'
 
-    
+    //spring
     compile 'org.springframework:spring-webmvc:4.1.5.RELEASE'
     compile 'org.apache.httpcomponents:httpclient:4.3.5'
     
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.3'
     compile 'com.fasterxml:jackson-xml-databind:0.6.2'
+    
+    //JSON
+    compile 'com.googlecode.json-simple:json-simple:1.1'
     
     //JNA
     compile 'net.java.dev.jna:jna:4.1.0'

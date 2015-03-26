@@ -2,6 +2,7 @@ package eu.bato.anyoffice.backend.dao;
 
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -82,13 +83,30 @@ public interface PersonDao extends Dao<Person, Long>{
      * @param username 
      */
     void removeAllInteractionEntities(String username);
+    
+    /**
+     * Removes interactions with selected entities (IDs) that this person
+     * (username) wants to interact with
+     *
+     * @param username
+     * @param ids
+     */
+    void removeInteractionEntities(String username, Collection<Long> ids);
+    
+    /**
+     * Returns all persons that this person (username) wants to interact with
+     *
+     * @param username
+     * @return
+     */
+    List<Person> getInteractionPersons(String username);
 
     /**
-     * Returns ids of all persons that interact with this Entity
+     * Returns all persons that want to interact with this Person (username)
      * @param username
      * @return 
      */
-    List<Long> getInteractingPersons(String username);
+    List<Person> getInteractingPersons(String username);
 
     /**
      * Removes interactions with all persons that interact with this Entity
@@ -101,5 +119,5 @@ public interface PersonDao extends Dao<Person, Long>{
     void setLocation(String username, String location);
 
     String getLocation(String username);
-    
+        
 }

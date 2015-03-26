@@ -1,0 +1,673 @@
+2015-03-26 23:16:08,167 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0x904ae
+2015-03-26 23:16:16,135 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=3124EA49970FC6026A8256D9DC4FFB38; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:16:15 GMT]}>
+2015-03-26 23:16:16,136 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:16:16,139 [main] DEBUG e.b.a.t.TrayIconManager - Saving authentication string.
+2015-03-26 23:16:16,140 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:16:16,521 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:16:16,721 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:16,721 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:16:16,905 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:16:16,905 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:16:19,911 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:20,027 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:20,064 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:20,170 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:20,182 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:22,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:22,954 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:22,972 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:22,974 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:22,974 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:25,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:25,953 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:25,968 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:25,984 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:25,984 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:28,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:28,940 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:28,955 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:28,970 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:28,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:31,920 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:31,966 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:31,977 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:31,989 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:31,989 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:34,914 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:34,962 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:34,978 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:34,991 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:34,991 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:37,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:37,951 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:37,967 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:37,974 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:37,974 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:40,919 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:40,935 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:40,959 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:40,970 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:40,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:43,906 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:43,939 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:43,954 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:43,972 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:43,973 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:46,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:46,949 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:46,968 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:46,979 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:46,979 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:49,920 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:49,954 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:49,965 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:49,977 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:49,977 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:52,920 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:52,966 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:52,979 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:52,991 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:52,991 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:55,919 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:55,947 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:55,959 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:55,976 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:55,980 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:16:58,913 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:16:58,962 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:16:58,980 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:16:58,989 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:16:58,989 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:01,908 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:01,944 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:01,969 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:01,972 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:01,972 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:04,919 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:04,946 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:04,961 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:04,972 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:04,972 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:07,920 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:07,966 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:07,978 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:07,989 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:07,989 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:10,918 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:10,969 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:10,979 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:10,988 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:10,988 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:13,920 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:13,968 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:13,976 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:13,986 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:13,986 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:16,910 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:16,938 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:16,953 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:16,971 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:16,972 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:19,918 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:19,977 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:19,988 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:20,006 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:20,006 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:22,918 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:22,968 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:22,980 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:22,988 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:22,988 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:25,918 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:25,964 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:25,977 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:25,987 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:25,987 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:28,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:28,953 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:28,966 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:28,980 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:17:28,980 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:17:31,905 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:17:31,938 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:17:31,951 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:17:32,002 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[{"id":2,"displayName":"Michal Ordelt","location":"R&D Open Space","state":"AVAILABLE","username":"olda","dndStart":1427409150245}]
+2015-03-26 23:20:26,824 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0x80458
+2015-03-26 23:20:27,192 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=046904213BA77668A0531178BCF59D2C; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:20:27 GMT]}>
+2015-03-26 23:20:27,381 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:20:27,396 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:27,396 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:20:27,486 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:20:27,486 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:20:30,499 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:30,514 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:30,530 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:30,557 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:30,567 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:33,498 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:33,529 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:33,554 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:33,569 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:33,570 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:36,487 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:36,533 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:36,552 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:36,564 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:36,564 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:39,500 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:39,520 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:39,551 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:39,564 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:39,564 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:42,495 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:42,511 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:42,527 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:42,550 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:42,551 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:45,497 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:45,528 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:45,553 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:45,571 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:45,571 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:48,486 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:48,521 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:48,536 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:48,552 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:48,552 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:51,495 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:51,527 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:51,549 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:51,561 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:51,561 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:54,497 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:54,540 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:54,553 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:54,573 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:54,573 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:20:57,494 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:20:57,539 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:20:57,554 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:20:57,569 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:20:57,569 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:00,486 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:00,498 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:00,529 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:00,562 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:00,562 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:03,499 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:03,531 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:03,559 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:03,582 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[{"id":2,"displayName":"Michal Ordelt","location":"R&D Open Space","state":"AVAILABLE","username":"olda","dndStart":1427409360735}]
+2015-03-26 23:21:03,588 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:06,500 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:06,531 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:06,558 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:06,576 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:06,577 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:09,494 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:09,531 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:09,550 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:09,562 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:09,562 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:12,486 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:12,496 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:12,528 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:12,550 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:12,550 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:15,487 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:15,495 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:15,510 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:15,526 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:15,526 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:18,493 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:18,524 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:18,548 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:18,558 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:18,558 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:21,494 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:21,525 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:21,551 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:21,562 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:21,564 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:24,501 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:24,532 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:24,557 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:24,571 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:24,571 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:53,137 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0xaa03e6
+2015-03-26 23:21:53,370 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=9542F763A9B6D247F7432A8D3428EDC9; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:21:53 GMT]}>
+2015-03-26 23:21:53,537 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:21:53,558 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:53,559 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:21:53,609 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:21:53,609 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:21:56,623 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:21:56,660 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:56,691 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:56,722 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:56,736 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:21:58,094 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:21:58,125 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:21:58,151 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:21:58,860 [AWT-EventQueue-0] INFO  e.b.a.t.RestClient - Set state "UNKNOWN" response: 200; body: "UNKNOWN"
+2015-03-26 23:22:31,107 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0xa0458
+2015-03-26 23:22:37,738 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=0D543D393D81D02016C7B50A3A0AB3D9; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:22:37 GMT]}>
+2015-03-26 23:22:37,738 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:22:37,892 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:22:37,907 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:37,907 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:22:37,967 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:22:37,970 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:22:40,975 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:41,016 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:22:41,037 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:22:41,047 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:41,061 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:41,069 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:22:43,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:43,991 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:22:44,007 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:22:44,034 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:44,043 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:44,044 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:22:46,974 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:46,989 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:22:47,005 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:22:47,029 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:47,038 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:47,039 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:22:49,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:49,974 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:22:49,990 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:22:50,012 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:50,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:50,021 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:22:52,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:52,988 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:22:53,004 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:22:53,016 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:53,018 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:53,018 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:22:55,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:55,990 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:22:55,990 [Timer-0] DEBUG e.b.a.t.TrayIconManager - DND is now enabled
+2015-03-26 23:22:56,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"DO_NOT_DISTURB"
+2015-03-26 23:22:56,044 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:56,058 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:56,058 [Timer-0] DEBUG e.b.a.t.TrayIconManager - Updating icon to state DO_NOT_DISTURB, location R&D Open Space
+2015-03-26 23:22:56,058 [Timer-0] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state DO_NOT_DISTURB and location R&D Open Space
+2015-03-26 23:22:56,306 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible AVAILABLE response:200 body:true
+2015-03-26 23:22:56,306 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:22:58,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:22:58,984 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"DO_NOT_DISTURB"
+2015-03-26 23:22:59,000 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:22:59,031 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:22:59,031 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:01,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:01,995 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"DO_NOT_DISTURB"
+2015-03-26 23:23:02,008 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:02,023 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:02,023 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:04,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:04,995 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"DO_NOT_DISTURB"
+2015-03-26 23:23:05,010 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:05,032 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:05,033 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:07,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:07,993 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"DO_NOT_DISTURB"
+2015-03-26 23:23:08,009 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:08,025 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:08,025 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:10,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:10,985 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"DO_NOT_DISTURB"
+2015-03-26 23:23:11,003 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:11,007 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:11,007 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:13,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:13,977 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:13,984 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:13,990 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:13,990 [Timer-0] DEBUG e.b.a.t.TrayIconManager - Updating icon to state AVAILABLE, location R&D Open Space
+2015-03-26 23:23:13,990 [Timer-0] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:23:14,006 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:14,105 [Timer-0] DEBUG e.b.a.t.RestClient - GET number of requests response:200 body:1
+2015-03-26 23:23:14,105 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:16,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:16,979 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:17,010 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:17,026 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:17,050 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:17,051 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:19,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:19,990 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:20,005 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:20,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:20,036 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:20,036 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:22,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:22,974 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:22,989 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:23,005 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:23,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:23,021 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:25,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:25,974 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:26,005 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:26,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:26,036 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:26,036 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:28,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:28,989 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:29,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:29,036 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:29,060 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:29,061 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:31,971 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:32,005 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:32,021 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:32,045 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:32,061 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:32,061 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:34,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:34,989 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:35,004 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:35,036 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:35,058 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:35,058 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:37,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:37,981 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:37,994 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:38,003 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:38,012 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:38,012 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:23:40,970 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:23:40,977 [Timer-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:false
+2015-03-26 23:23:40,993 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:23:41,018 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:23:41,032 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:23:41,032 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:31:56,370 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0x490406
+2015-03-26 23:32:02,323 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=7963EF3CE4EAC0B02E8E62BA735B88FC; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:32:02 GMT]}>
+2015-03-26 23:32:02,339 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:32:02,477 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:32:02,492 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:02,492 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:32:02,553 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:32:02,557 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:32:05,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:05,577 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:05,593 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:05,626 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[{"id":2,"displayName":"Michal Ordelt","location":"R&D Open Space","state":"AVAILABLE","username":"olda","dndStart":1427409492995}]
+2015-03-26 23:32:05,644 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:08,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:08,584 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:08,601 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:08,646 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:08,646 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:11,558 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:11,591 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:11,607 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:11,623 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:11,623 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:14,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:14,576 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:14,617 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:14,629 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:14,629 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:17,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:17,579 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:17,595 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:17,610 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:17,610 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:20,558 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:20,585 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:20,598 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:20,614 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:20,614 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:23,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:23,585 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:23,596 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:23,609 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:23,609 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:26,558 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:26,581 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:26,591 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:26,607 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:26,607 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:29,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:29,581 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:29,597 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:29,612 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:29,612 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:32,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:32,591 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:32,622 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:32,637 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:32,637 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:35,558 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:35,577 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:35,592 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:35,624 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:35,624 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:38,558 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:38,576 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:38,591 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:38,623 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:38,623 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:41,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:41,575 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:41,591 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:41,622 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:41,622 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:32:44,557 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:32:44,591 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:32:44,606 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:32:44,639 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:32:44,640 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:02,620 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0xae03e6
+2015-03-26 23:34:06,239 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=B5608F50663F66CF736724F1079215D0; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:34:06 GMT]}>
+2015-03-26 23:34:06,240 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:34:06,372 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:34:06,388 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:06,388 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:34:06,451 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:34:06,455 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:34:09,471 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:09,502 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:09,517 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:09,552 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:09,560 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:12,456 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:12,474 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:12,489 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:12,505 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:12,505 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:15,456 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:15,492 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:15,503 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:15,514 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:15,514 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:18,455 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:18,473 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:18,488 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:18,519 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[{"id":2,"displayName":"Michal Ordelt","location":"R&D Open Space","state":"AVAILABLE","username":"olda","dndStart":1427409492995}]
+2015-03-26 23:34:18,519 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:21,456 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:21,476 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:21,491 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:21,507 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:21,507 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:24,455 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:24,477 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:24,492 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:24,508 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:24,508 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:26,459 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:26,475 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:26,489 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:27,470 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:27,504 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:27,516 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:27,527 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:27,528 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:29,787 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:29,802 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:29,850 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:30,456 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:30,468 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:30,483 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:30,531 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:30,532 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:33,455 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:33,472 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:33,503 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:33,526 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:33,526 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:34,061 [AWT-EventQueue-0] INFO  e.b.a.t.RestClient - Set location "R&D Open Space" response: 200
+2015-03-26 23:34:34,077 [AWT-EventQueue-0] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:34:36,470 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:36,504 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:36,519 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:36,544 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:36,544 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:39,470 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:39,501 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:39,517 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:39,550 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:39,551 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:42,455 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:42,466 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:42,470 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:42,486 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:42,486 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:45,455 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:45,482 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:45,498 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:45,514 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:45,514 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:48,470 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:48,501 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:48,532 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:48,549 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:48,549 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:51,469 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:51,496 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:51,527 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:51,551 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:51,551 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:34:54,470 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:34:54,501 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:34:54,516 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:34:54,543 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:34:54,544 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:19,773 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0x3a03f4
+2015-03-26 23:44:23,727 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=7622F76B59CC6D5F3F2AB5D0CDF011D9; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:44:23 GMT]}>
+2015-03-26 23:44:23,728 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:44:23,948 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:44:24,034 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:24,035 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:44:24,179 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:44:24,195 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:44:27,195 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:27,359 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:27,369 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:27,448 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:27,459 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:30,195 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:30,228 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:30,255 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:30,268 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:30,269 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:33,197 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:33,228 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:33,251 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:33,279 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[{"id":2,"displayName":"Michal Ordelt","location":"R&D Open Space","state":"AVAILABLE","username":"olda","dndStart":1427409492995}]
+2015-03-26 23:44:33,285 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:36,195 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:36,236 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:36,253 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:36,264 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:36,264 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:39,196 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:39,227 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:39,255 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:39,269 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:39,270 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:42,195 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:42,227 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:42,247 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:42,256 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:42,257 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:45,211 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:45,247 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:45,259 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:45,263 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:45,263 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:48,200 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:48,233 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:48,252 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:48,265 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:48,265 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:44:51,210 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:44:51,244 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:44:51,258 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:44:51,270 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:44:51,270 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:19,495 [Thread-1] DEBUG e.b.a.t.WorkstationLockListener - window sucessfully created! window hwnd: native@0x60400
+2015-03-26 23:51:24,283 [main] DEBUG e.b.a.t.RestClient - Login response:<200 OK,{Server=[Apache-Coyote/1.1], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Set-Cookie=[JSESSIONID=7EEB65B6643ECBFD1143E74C8416B9E3; Path=/; HttpOnly], Content-Length=[0], Date=[Thu, 26 Mar 2015 22:51:24 GMT]}>
+2015-03-26 23:51:24,283 [main] DEBUG e.b.a.t.c.Configuration - Saved new configuration.
+2015-03-26 23:51:24,437 [main] DEBUG e.b.a.t.RestClient - Sending info about machine unlock response:200 body:"AVAILABLE"
+2015-03-26 23:51:24,445 [main] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:24,445 [main] DEBUG e.b.a.t.TrayIconManager - Initializing visual components with state AVAILABLE and location R&D Open Space
+2015-03-26 23:51:24,495 [main] DEBUG e.b.a.t.RestClient - Is state change possible DO_NOT_DISTURB response:200 body:true
+2015-03-26 23:51:24,495 [main] INFO  e.b.a.t.StateCheckService - Scheduler service started with period 3000
+2015-03-26 23:51:27,497 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:27,528 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:27,551 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:27,564 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:27,564 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:30,495 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:30,535 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:30,552 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:30,567 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:30,568 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:33,495 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:33,512 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:33,523 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:33,535 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:33,536 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:36,497 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:36,512 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:36,528 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:36,556 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:36,556 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:39,510 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:39,544 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:39,567 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:39,579 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[{"id":2,"displayName":"Michal Ordelt","location":"R&D Open Space","state":"AVAILABLE","username":"olda","dndStart":1427409492995}]
+2015-03-26 23:51:39,595 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:42,496 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:42,519 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:42,529 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:42,540 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:42,541 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:45,510 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:45,532 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:45,548 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:45,559 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:45,560 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:48,510 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:48,546 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:48,565 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:48,581 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:48,581 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:51,511 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:51,544 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:51,562 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:51,580 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:51,580 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.
+2015-03-26 23:51:54,511 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check started...
+2015-03-26 23:51:54,532 [Timer-0] DEBUG e.b.a.t.RestClient - GET state response:200 body:"AVAILABLE"
+2015-03-26 23:51:54,548 [Timer-0] DEBUG e.b.a.t.RestClient - GET location response:200 body:"R&D Open Space"
+2015-03-26 23:51:54,563 [Timer-0] DEBUG e.b.a.t.RestClient - GET new available consulters response:200 body:[]
+2015-03-26 23:51:54,563 [Timer-0] DEBUG e.b.a.t.StateCheckService - States check finished.

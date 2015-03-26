@@ -7,11 +7,18 @@ package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
+import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.http.HttpHost;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -96,7 +103,7 @@ public class RestClient {
         ResponseEntity<String> response;
         try {
             response = rest.exchange(URI + "state", HttpMethod.PUT, entity, String.class);
-            log.info("Set state response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            log.info("Set state \"{}\" response: {}; body: {}", state, response.getStatusCode().toString(), response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to get state.", e);
@@ -151,23 +158,36 @@ public class RestClient {
         ResponseEntity<String> response;
         try {
             response = rest.exchange(URI + "location", HttpMethod.PUT, entity, String.class);
-            log.info("Set location response:" + response.getStatusCode().toString());
+            log.info("Set location \"{}\" response: {}", location, response.getStatusCode().toString());
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to set location.", e);
+            log.error("Unable to set location \"{}\".", location , e);
             return false;
         }
     }
     
     int getNumberOfRequests(){
-        return 5;
+        ResponseEntity<String> response;
+        try {
+            response = rest.exchange(URI + "requests", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET number of requests response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseInteger(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET number of requests.", e);
+            return 0;
+        }
     }
     
-    List<String> getNewAvailableConsulters(){
-        List<String> result = new LinkedList<>();
-        result.add("Olda");
-        result.add("Peter");
-        return result;
+    List<InteractionPerson> getNewAvailableConsulters(){
+        ResponseEntity<String> response;
+        try {
+            response = rest.exchange(URI + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET new available consulters response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseListInteractionPerson(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET new available consulters.", e);
+            return new LinkedList<>();
+        }
     }
 
     private PersonState lock(boolean lock) {
@@ -200,7 +220,72 @@ public class RestClient {
     private String parseString(String responseBody) {
         return responseBody.replace("\"", "");
     }
-
+    
+    private Integer parseInteger(String responseBody) {
+        return Integer.valueOf(parseString(responseBody));
+    }
+    
+    private Map<String, String> parseMapStringString(String responseBody) {
+        responseBody = responseBody.replaceAll("[{}]", "");
+        String[] items = responseBody.split(",");
+        Map<String, String> result = new HashMap<>();
+        for (String item: items){
+            String[] parts = item.split(":", 2);
+            result.put(parseString(parts[0]), parseString(parts[1]));
+        }
+        return result;
+    }
+    
+    private List<String> parseList(String responseBody) {
+        List<String> result = new LinkedList<>();
+        JSONParser parser = new JSONParser();
+        try {
+            JSONArray array = (JSONArray) parser.parse(responseBody);
+            array.stream().forEach((o) -> {
+                result.add((String) o);
+            });
+        } catch (ParseException ex) {
+            log.error("Error while parsing List from body: {}", responseBody, ex);
+        }
+        return result;
+    }
+    
+    private List<InteractionPerson> parseListInteractionPerson(String responseBody){
+        List<InteractionPerson> result = new LinkedList<>();
+        JSONParser parser = new JSONParser();
+        try {
+            JSONArray array = (JSONArray) parser.parse(responseBody);
+            array.stream().forEach((o) -> {
+                result.add(jsonObjectToInteractionPerson((JSONObject) o));
+            });
+        } catch (ParseException ex) {
+            log.error("Error while parsing List from body: {}", responseBody, ex);
+        }
+        return result;
+    }
+    
+    private InteractionPerson parseInteractionPerson(String responseBody) {
+        InteractionPerson result = null;
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject obj = (JSONObject) parser.parse(responseBody);
+            result = jsonObjectToInteractionPerson(obj);
+        } catch (ParseException pe) {
+            log.error("Error while parsing InteractionPerson from body: {}", responseBody, pe);
+        }
+        return result;
+    }
+    
+    private InteractionPerson jsonObjectToInteractionPerson(JSONObject obj) {
+        InteractionPerson person = new InteractionPerson();
+        person.setId((Long) obj.get("id"));
+        person.setDisplayName((String) obj.getOrDefault("displayName", "UNKNOWN"));
+        person.setDndStart((Long) obj.getOrDefault("dndStart", null));
+        person.setLocation((String) obj.getOrDefault("location", "UNKNOWN"));
+        person.setState(PersonState.valueOf((String) obj.getOrDefault("state", "UNKNOWN")));
+        person.setUsername((String) obj.get("username"));
+        return person;
+    }
 //    private class PersonStateMessageConverter extends AbstractHttpMessageConverter<PersonState> {
 //
 //        public PersonStateMessageConverter() {

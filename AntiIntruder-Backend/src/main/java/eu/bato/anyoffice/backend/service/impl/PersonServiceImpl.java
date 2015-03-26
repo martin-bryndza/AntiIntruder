@@ -6,10 +6,16 @@
 package eu.bato.anyoffice.backend.service.impl;
 
 import eu.bato.anyoffice.backend.dao.PersonDao;
+import eu.bato.anyoffice.backend.dto.convert.impl.InteractionPersonConvert;
+import eu.bato.anyoffice.backend.dto.convert.impl.InteractionResourceConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonConvert;
+import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
+import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
+import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
+import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
@@ -19,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -291,16 +298,34 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<Long> getInteractingPersons(String username) {
+    public void removeInteractionEntities(String username, Collection<Long> ids) {
         if (username == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
             log.error("Username is null", iaex);
             throw iaex;
         }
-        return (List<Long>) new DataAccessExceptionNonVoidTemplate(username) {
+        if (ids.isEmpty()){
+            return;
+        }
+        new DataAccessExceptionVoidTemplate(username, ids) {
             @Override
-            public List<Long> doMethod() {
-                return personDao.getInteractingPersons((String) getU());
+            public void doMethod() {
+                personDao.removeInteractionEntities((String) getU(), (Collection<Long>) getV());
+            }
+        }.tryMethod();
+    }
+    
+    @Override
+    public Integer getInteractingPersonsCount(String username) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        return (Integer) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public Integer doMethod() {
+                return personDao.getInteractingPersons((String) getU()).size();
             }
         }.tryMethod();
     }
@@ -350,6 +375,60 @@ public class PersonServiceImpl implements PersonService {
                 return personDao.getLocation((String) getU());
             }
         }.tryMethod();
+    }
+
+    @Override
+    public List<InteractionEntityDto> getInteractionEntities(String username) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        Person person = (Person) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public Person doMethod() {
+                return personDao.findOneByUsername(username);
+            }
+        }.tryMethod();
+        List<Entity> entities = person.getInteractionEntities();
+        List<InteractionEntityDto> result = new LinkedList<>();
+        entities.stream().forEach((entity) -> {
+            if (Person.class.isInstance(entity)){
+                result.add(InteractionPersonConvert.fromEntityToDto((Person) entity));
+            } else if (Resource.class.isInstance(entity)){
+                result.add(InteractionResourceConvert.fromEntityToDto((Resource) entity));
+            } else {
+                log.error("Unknown entity type: {}", entity);
+            }
+        });
+        return result;
+    }
+
+    @Override
+    public List<InteractionPersonDto> getInteractionPersons(String username) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        }
+        List<Person> persons = (List<Person>) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public List<Person> doMethod() {
+                return personDao.getInteractionPersons(username);
+            }
+        }.tryMethod();
+        List<InteractionPersonDto> result = new LinkedList<>();
+        persons.forEach((p) -> result.add(InteractionPersonConvert.fromEntityToDto(p)));
+        return result;
+    }
+
+    @Override
+    public List<InteractionPersonDto> getInteractionPersons(String username, PersonState state) {
+        List<InteractionPersonDto> result = getInteractionPersons(username);
+        result.removeIf((InteractionPersonDto t) -> {
+            return !t.getState().equals(state);
+        });
+        return result;
     }
     
 }

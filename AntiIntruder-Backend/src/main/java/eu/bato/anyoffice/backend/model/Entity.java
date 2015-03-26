@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.AnyMetaDef;
 import org.hibernate.annotations.Cascade;
@@ -42,6 +43,16 @@ public abstract class Entity implements Serializable{
     private String location;    
     @Column(nullable = false, name = "LAST_STATE_CHANGE")
     private Date lastStateChange;
+    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
+    @AnyMetaDef(
+            idType = "long",
+            metaType = "string",
+            metaValues = {
+                @MetaValue(value = "P", targetEntity = Person.class),
+                @MetaValue(value = "R", targetEntity = Resource.class)})
+    @Cascade(CascadeType.ALL)
+    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "person_id"))
+    private List<Person> interactingPersons;
 
     public void setId(Long id) {
         this.id = id;
@@ -82,6 +93,31 @@ public abstract class Entity implements Serializable{
     protected void setLastStateChange(Date lastStateChange) {
         this.lastStateChange = lastStateChange;
     }
+
+    public List<Person> getInteractingPersons() {
+        return interactingPersons;
+    }
+
+    public void setInteractingPersons(List<Person> interactingPersons) {
+        this.interactingPersons = interactingPersons;
+    }
+    
+    public void addInteractingPersons(Person interactingPerson) {
+        if (this.interactingPersons == null) {
+            this.interactingPersons = new LinkedList<>();
+        }
+        this.interactingPersons.add(interactingPerson);
+    }
+
+    public void removeInteractingPerson(Person interactingPerson) {
+        if (this.interactingPersons != null) {
+            this.interactingPersons.remove(interactingPerson);
+        }
+    }
+
+    public void removeAllInteractingPersons() {
+        this.interactingPersons.clear();
+    }
         
     @Override
     public int hashCode() {
@@ -99,10 +135,7 @@ public abstract class Entity implements Serializable{
             return false;
         }
         final Entity other = (Entity) obj;
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.id, other.id);
     }
 
     @Override

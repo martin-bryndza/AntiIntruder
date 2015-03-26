@@ -3,7 +3,6 @@ package eu.bato.anyoffice.frontend.config;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
-import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.ArrayList;
 import java.util.List;
