@@ -1,8 +1,9 @@
 apply plugin: 'spring-boot'
+apply plugin: 'war'
 
 war {
-    baseName = 'Any Office'
-    version =  '0.0.1-SNAPSHOT'
+    baseName = 'anyoffice'
+    version =  '1.0.0-SNAPSHOT'
 }
 
 buildscript {
@@ -26,7 +27,10 @@ dependencies {
 	
     compile 'org.aspectj:aspectjweaver:1.8.4'
     compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
+//    compile ('org.springframework.boot:spring-boot-starter-thymeleaf:' + project.ext.springBootVersion)
     compile 'org.thymeleaf:thymeleaf-spring4:2.1.3.RELEASE'
+    
+    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
     //compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:1.2.6'
     
     // Spring Security

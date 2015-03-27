@@ -1,12 +1,12 @@
 <configuration>
     <contextName>AnyOffice</contextName>
 
-    <if condition='isDefined("catalina.base") &amp;&amp; property("production").equals("true")'>
+    <if condition='isDefined("catalina.home")'>
         <then>
             <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>${catalina.base}/logs/${CONTEXT_NAME}.log</file>
+                <file>${catalina.home}/logs/${CONTEXT_NAME}.log</file>
                 <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                    <fileNamePattern>${catalina.base}/logs/${CONTEXT_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
+                    <fileNamePattern>${catalina.home}/logs/${CONTEXT_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
                 </rollingPolicy>
                 <encoder>
                     <pattern>%d [%thread] %-5level %logger{15} - %msg%n</pattern>
@@ -14,7 +14,7 @@
             </appender>
         </then>
         <else>
-			<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
                 <file>logs/${CONTEXT_NAME}.log</file>
                 <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                     <fileNamePattern>$logs/${CONTEXT_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
@@ -25,7 +25,7 @@
             </appender>
         </else>
     </if>
-	<appender name="APP" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="APP" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -33,12 +33,12 @@
 
     <root level="debug">
         <appender-ref ref="APP"/>
-		<appender-ref ref="FILE"/>
+        <appender-ref ref="FILE"/>
     </root>
 
     <logger name="org.apache.log4j.xml" level="info"/>
     <logger name="org.thymeleaf" level="warn"/>
-	<logger name="org.hibernate" level="warn"/>
+    <logger name="org.hibernate" level="warn"/>
     <logger name="org.springframework" level="warn"/>
     <logger name="org.springframework.web.context.ContextLoader" level="info"/>
     <logger name="eu.bato" level="debug"/>

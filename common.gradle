@@ -6,8 +6,8 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'war'
 
-String mavenGroupId = 'com.ysoft.tools'
-String mavenVersion = '1.0-SNAPSHOT'
+String mavenGroupId = 'eu.bato.anyoffice'
+String mavenVersion = '1.0.0-SNAPSHOT'
 
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

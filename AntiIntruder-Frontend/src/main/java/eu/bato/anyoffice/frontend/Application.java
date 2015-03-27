@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bato.anyoffice.core.scheduler.SchedulerService;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,11 +33,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan(value = {"eu.bato.anyoffice"})
 @EnableWebMvc
 public class Application extends WebMvcConfigurerAdapter{
+    
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
         
     @Autowired
     SchedulerService scheduler;
     
     public static void main(String[] args) {
+        log.info("Any Office web aplication is starting...");
         SpringApplication.run(Application.class, args);
     }
     
