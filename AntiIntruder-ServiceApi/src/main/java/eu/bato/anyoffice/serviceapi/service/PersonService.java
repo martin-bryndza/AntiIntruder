@@ -42,6 +42,8 @@ public interface PersonService extends Service<PersonDto> {
     
     String getUsername(Long id);
     
+    Long getId(String username);
+    
     List<String> findAllUsernames();
     
     /**
@@ -144,12 +146,14 @@ public interface PersonService extends Service<PersonDto> {
     List<InteractionPersonDto> getInteractionPersons(String username, PersonState state);
 
     /**
-     * Returns ids of all persons that want to interact with this person (username)
+     * Returns all persons that want to interact with this person (username)
      *
      * @param username
      * @return
      */
-    Integer getInteractingPersonsCount(String username);
+    List<InteractionPersonDto> getInteractingPersons(String username);
+    
+    InteractionPersonDto findOneByUsernameAsInteractionPerson(String username);
 
     /**
      * Removes interactions with all persons that want to interact with this person (username)

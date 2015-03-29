@@ -1,18 +1,8 @@
 package eu.bato.anyoffice.core.scheduler;
 
-import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
-import eu.bato.anyoffice.serviceapi.dto.StateDto;
-import eu.bato.anyoffice.serviceapi.service.ResourceService;
-import eu.bato.anyoffice.serviceapi.service.StateService;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *

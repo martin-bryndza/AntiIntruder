@@ -63,11 +63,6 @@ class TrayIconManager {
     private final SwitchToDndFrame switchToDndFrame;
 
     private final RestClient client;
-    /**
-     * application.properties used to store inner configuration not visible to
-     * user Properties: as - authentication string
-     */
-    private Properties props;
 
     private PersonState currentState;
     private String currentLocation;
@@ -172,6 +167,7 @@ class TrayIconManager {
     }
 
     void close() {
+        SystemTray.getSystemTray().remove(trayIcon);
         client.setState(PersonState.UNKNOWN);
     }
 

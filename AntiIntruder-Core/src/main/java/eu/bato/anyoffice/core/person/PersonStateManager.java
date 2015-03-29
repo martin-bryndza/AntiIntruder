@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.bato.anyoffice.core.state.person;
+package eu.bato.anyoffice.core.person;
 
 import eu.bato.anyoffice.core.config.Configuration;
 import eu.bato.anyoffice.core.config.Property;

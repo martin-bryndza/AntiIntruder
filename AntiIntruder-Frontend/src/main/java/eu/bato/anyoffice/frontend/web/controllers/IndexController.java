@@ -5,7 +5,7 @@
  */
 package eu.bato.anyoffice.frontend.web.controllers;
 
-import eu.bato.anyoffice.core.state.person.PersonStateManager;
+import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.web.data.PasswordObject;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;

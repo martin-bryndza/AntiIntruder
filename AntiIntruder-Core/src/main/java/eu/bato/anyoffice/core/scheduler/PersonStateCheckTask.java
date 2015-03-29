@@ -1,6 +1,6 @@
 package eu.bato.anyoffice.core.scheduler;
 
-import eu.bato.anyoffice.core.state.person.PersonStateManager;
+import eu.bato.anyoffice.core.person.PersonStateManager;
 import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
