@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.NoResultException;
 
 /**
  *
@@ -99,19 +98,15 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void setPassword(String username, String password) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
-            log.error("PersonServiceImpl.login() called on null parameter: String username or String password", iaex);
-            throw iaex;
-        }
         if (password == null || password.isEmpty()) {
             log.info("Password stays unchanged.");
             return;
         }
-        new DataAccessExceptionNonVoidTemplate(username, password) {
+        Person person = findOnePersonByUsername(username);
+        new DataAccessExceptionNonVoidTemplate(person, password) {
             @Override
             public Object doMethod() {
-                Person person = personDao.findOneByUsername((String) getU());
+                Person person = (Person) getU();
                 person.setPassword((String) getV());
                 Person savedEntity = personDao.save(person);
                 return savedEntity;
@@ -126,10 +121,10 @@ public class PersonServiceImpl implements PersonService {
             public Long doMethod() {
                 PersonDto dto = (PersonDto) getU();
                 Person entity = personConvert.fromDtoToEntity(dto, (String) getV());
-                if (entity.getState()==null){
+                if (entity.getState() == null) {
                     entity.setState(PersonState.UNKNOWN);
                 }
-                if (entity.getState().equals(PersonState.UNKNOWN) || entity.getState().equals(PersonState.AWAY)){
+                if (entity.getState().equals(PersonState.UNKNOWN) || entity.getState().equals(PersonState.AWAY)) {
                     entity.setAwayStart(Optional.of(new Date()));
                 }
                 Person savedEntity = personDao.save(entity);
@@ -160,18 +155,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonDto findOneByUsername(String username) {
-        if (username == null || username.isEmpty()) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: " + username);
-            log.error("PersonServiceImpl.findOneByUsername() called on null or empty parameter: String username", iaex);
-            throw iaex;
-        }
-        return (PersonDto) new DataAccessExceptionNonVoidTemplate(username) {
-            @Override
-            public PersonDto doMethod() {
-                Person entity = personDao.findOneByUsername((String) getU());
-                return PersonConvert.fromEntityToDto(entity);
-            }
-        }.tryMethod();
+        Person entity = findOnePersonByUsername(username);
+        return PersonConvert.fromEntityToDto(entity);
     }
 
     @Override
@@ -200,7 +185,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonState getState(String username) {
-        return findOneByUsername(username).getState();
+        return findOnePersonByUsername(username).getState();
     }
 
     @Override
@@ -220,23 +205,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Optional<LoginDetailsDto> getLoginDetails(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
-            log.error("PersonServiceImpl.getPassword() called on null parameter: String username", iaex);
-            throw iaex;
-        }
-        return (Optional<LoginDetailsDto>) new DataAccessExceptionNonVoidTemplate(username) {
-            @Override
-            public Optional<LoginDetailsDto> doMethod() {
-                Person entity;
-                try{
-                    entity = personDao.findOneByUsername((String) getU());
-                } catch (IllegalArgumentException | NoResultException e){
-                    return Optional.empty();
-                }
-                return Optional.of(new LoginDetailsDto(entity.getPassword(), entity.getRole()));
-            }
-        }.tryMethod();
+        Person entity = findOnePersonByUsername(username);
+        return Optional.of(new LoginDetailsDto(entity.getPassword(), entity.getRole()));
     }
 
     @Override
@@ -304,7 +274,7 @@ public class PersonServiceImpl implements PersonService {
             log.error("Username is null", iaex);
             throw iaex;
         }
-        if (ids.isEmpty()){
+        if (ids.isEmpty()) {
             return;
         }
         new DataAccessExceptionVoidTemplate(username, ids) {
@@ -314,18 +284,27 @@ public class PersonServiceImpl implements PersonService {
             }
         }.tryMethod();
     }
-    
+
     @Override
-    public Integer getInteractingPersonsCount(String username) {
+    public List<InteractionPersonDto> getInteractingPersons(String username) {
         if (username == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
             log.error("Username is null", iaex);
             throw iaex;
         }
-        return (Integer) new DataAccessExceptionNonVoidTemplate(username) {
+        return (List<InteractionPersonDto>) new DataAccessExceptionNonVoidTemplate(username) {
             @Override
-            public Integer doMethod() {
-                return personDao.getInteractingPersons((String) getU()).size();
+            public List<InteractionPersonDto> doMethod() {
+                List<Person> entities = personDao.getInteractingPersons((String) getU());
+                List<InteractionPersonDto> result = new LinkedList<>();
+                entities.stream().forEach((entity) -> {
+                    if (Person.class.isInstance(entity)) {
+                        result.add(InteractionPersonConvert.fromEntityToDto((Person) entity));
+                    } else {
+                        log.error("Invalid entity type (should be Person): {}", entity);
+                    }
+                });
+                return result;
             }
         }.tryMethod();
     }
@@ -379,23 +358,13 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<InteractionEntityDto> getInteractionEntities(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        }
-        Person person = (Person) new DataAccessExceptionNonVoidTemplate(username) {
-            @Override
-            public Person doMethod() {
-                return personDao.findOneByUsername(username);
-            }
-        }.tryMethod();
+        Person person = findOnePersonByUsername(username);
         List<Entity> entities = person.getInteractionEntities();
         List<InteractionEntityDto> result = new LinkedList<>();
         entities.stream().forEach((entity) -> {
-            if (Person.class.isInstance(entity)){
+            if (Person.class.isInstance(entity)) {
                 result.add(InteractionPersonConvert.fromEntityToDto((Person) entity));
-            } else if (Resource.class.isInstance(entity)){
+            } else if (Resource.class.isInstance(entity)) {
                 result.add(InteractionResourceConvert.fromEntityToDto((Resource) entity));
             } else {
                 log.error("Unknown entity type: {}", entity);
@@ -430,5 +399,29 @@ public class PersonServiceImpl implements PersonService {
         });
         return result;
     }
+
+    @Override
+    public Long getId(String username) {
+        return findOnePersonByUsername(username).getId();
+    }
+
+    @Override
+    public InteractionPersonDto findOneByUsernameAsInteractionPerson(String username) {
+        return InteractionPersonConvert.fromEntityToDto(findOnePersonByUsername(username));
+    }
     
+    private Person findOnePersonByUsername(String username){
+        if (username == null || username.isEmpty()) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: " + username);
+            log.error("PersonServiceImpl.findOneByUsername() called on null or empty parameter: String username", iaex);
+            throw iaex;
+        }
+        return (Person) new DataAccessExceptionNonVoidTemplate(username) {
+            @Override
+            public Person doMethod() {
+                return personDao.findOneByUsername(username);
+            }
+        }.tryMethod();
+    }
+
 }
