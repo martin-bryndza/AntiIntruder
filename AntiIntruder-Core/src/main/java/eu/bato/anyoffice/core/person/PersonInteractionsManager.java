@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +51,14 @@ public class PersonInteractionsManager {
     
     /**
      * Returns all persons, that this person (username) wants to interact with and are in the requested state.
+     * The interaction request is canceled automatically after performing this operation and thus will be reported only once.
      * @param username
      * @param state
      * @return 
      */
     public Set<InteractionPersonDto> getInteractionPersons(String username, PersonState state){
-        Set<InteractionPersonDto> interactionPersons = new HashSet<>(personService.getInteractionPersons(username));
+        Set<InteractionPersonDto> interactionPersons = new HashSet<>(personService.getInteractionPersons(username, state));
+        personService.removeInteractionEntities(username, interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         partiallySeenInteractions.forEach((k) -> {
             if (k.getInteractingPersonIdentificator().getUsername().equals(username)){
                 interactionPersons.add(k.getInteractionPersonIdentificator().getInteractionPerson());
