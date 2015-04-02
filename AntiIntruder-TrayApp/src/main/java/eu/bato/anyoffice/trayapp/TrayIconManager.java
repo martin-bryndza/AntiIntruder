@@ -9,6 +9,8 @@ import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
 import java.awt.AWTException;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -20,6 +22,8 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -34,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultCellEditor;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -42,8 +47,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +70,9 @@ class TrayIconManager {
     private TrayIcon trayIcon;
     private Map<PersonState, MenuItem> stateItems;
     private final UpdateIconMouseListener updateIconMouseListener;
+
     private final SwitchToDndFrame switchToDndFrame;
+    private final AvailableConsultersMessageFrame availableConsultersMessageFrame;
 
     private final RestClient client;
 
@@ -72,6 +84,7 @@ class TrayIconManager {
     private TrayIconManager() {
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToDndFrame();
+        availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
         if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))) {
             client = new RestClient(requestCredentials());
@@ -135,9 +148,11 @@ class TrayIconManager {
         }
         PersonState newState = client.getState();
         String newLocation = client.getLocation();
-        List<InteractionPerson> availableConsulters = client.getNewAvailableConsulters();
-        if (!availableConsulters.isEmpty()) {
-            showAvailableConsultersMessage(availableConsulters);
+        if (!newState.isAwayState()) {
+            List<InteractionPerson> availableConsulters = client.getNewAvailableConsulters();
+            if (!availableConsulters.isEmpty()) {
+                availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
+            }
         }
         if (newState.equals(currentState) && newLocation.equals(currentLocation)) {
             return;
@@ -343,97 +358,6 @@ class TrayIconManager {
         }
     }
 
-    private void showAvailableConsultersMessage(List<InteractionPerson> availableConsulters) {
-        if (availableConsulters.isEmpty()) {
-            return;
-        }
-        JFrame frame = new JFrame();
-        frame.setAlwaysOnTop(true);
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        frame.setTitle("Any Office - Available consultations");
-
-        JLabel mainLabel = new JLabel("Following people are now available (at least how long for, where):\n");
-        Map<JLabel, JButton> consulters = new LinkedHashMap<>();
-        availableConsulters.forEach((p) -> {
-            Long millis = p.getDndStart() - new Date().getTime();
-            Integer minutes = 0;
-            Integer seconds = 0;
-            if (millis > 0) {
-                minutes = millis.intValue() / 60000;
-                seconds = millis.intValue() % 60;
-            }
-            StringBuilder sb = new StringBuilder();
-            sb
-                    .append(p.getDisplayName())
-                    .append(" (")
-                    .append(minutes).append("m ").append(seconds).append("s, ")
-                    .append(p.getLocation())
-                    .append(")");
-            JLabel label = new JLabel(sb.toString());
-            JButton b = new JButton("R");
-            b.setToolTipText("Remind again in 10 minutes or when available again.");
-            b.addActionListener((ActionEvent) -> {
-                JOptionPane.showMessageDialog(frame, "Sorry, not supported yet.");
-            });
-            consulters.put(label, b);
-        });
-        JButton dismissButton = new JButton("Dismiss all");
-        dismissButton.addActionListener((ActionEvent) -> {
-            frame.dispose();
-        });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(frame.getContentPane());
-        frame.getContentPane().setLayout(layout);
-        GroupLayout.ParallelGroup horizontalGroup1 = layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
-        GroupLayout.ParallelGroup horizontalGroup2 = layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
-        List<GroupLayout.ParallelGroup> verticalGroups = new LinkedList<>();
-        consulters.forEach((l, b) -> {
-            horizontalGroup1.addComponent(l);
-            horizontalGroup2.addComponent(b, javax.swing.GroupLayout.Alignment.TRAILING);
-            GroupLayout.ParallelGroup verticalGroup = layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE);
-            verticalGroup.addComponent(l).addComponent(b);
-            verticalGroups.add(verticalGroup);
-        });
-        horizontalGroup2.addComponent(dismissButton);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                        .addComponent(mainLabel)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                .addGroup(layout.createSequentialGroup()
-                                        .addGroup(horizontalGroup1)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addGroup(horizontalGroup2))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(dismissButton)))
-                        .addContainerGap())
-        );
-        GroupLayout.SequentialGroup sequentialGroup = layout.createSequentialGroup();
-        sequentialGroup
-                .addContainerGap()
-                .addComponent(mainLabel)
-                .addGap(18, 18, 18);
-        verticalGroups.forEach((g) -> {
-            sequentialGroup.addGroup(g);
-            sequentialGroup.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
-        });
-        sequentialGroup
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                .addComponent(dismissButton)
-                .addContainerGap();
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(sequentialGroup)
-        );
-
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-
-        frame.setVisible(true);
-    }
-
     private class UpdateIconMouseListener extends MouseAdapter {
 
         private boolean released = true;
@@ -451,6 +375,228 @@ class TrayIconManager {
             released = true;
         }
 
+    }
+
+    private class AvailableConsultersMessageFrame extends javax.swing.JFrame {
+
+        private JLabel mainLabel;
+        private javax.swing.JScrollPane jScrollPane1;
+        private JButton dismissButton;
+        private JTable jTable1;
+
+        public AvailableConsultersMessageFrame() {
+            initComponents();
+            showOnTop(false);
+            this.setLocationRelativeTo(null);
+        }
+
+        private void initComponents() {
+            mainLabel = new javax.swing.JLabel("Following people are now available:\n");
+            jScrollPane1 = new javax.swing.JScrollPane();
+            dismissButton = new JButton("Dismiss all");
+
+            dismissButton.addActionListener((ActionEvent) -> {
+                showOnTop(false);
+            });
+
+            setTitle("Any Office - New consultations possible.");
+            setResizable(false);
+            setType(java.awt.Window.Type.POPUP);
+            addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override
+                public void keyReleased(java.awt.event.KeyEvent evt) {
+                    formKeyReleased(evt);
+                }
+            });
+
+            jTable1 = new javax.swing.JTable();
+            jTable1.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object[][]{},
+                    new String[]{
+                        "Who", "How long", "Where", ""
+                    }
+            ) {
+                Class[] types = new Class[]{
+                    java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                };
+
+                @Override
+                public Class getColumnClass(int columnIndex) {
+                    return types[columnIndex];
+                }
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return false;
+                }
+            });
+            jTable1.getColumn("").setCellRenderer(new ButtonRenderer());
+            jTable1.getColumn("").setCellEditor(new ButtonEditor(new JCheckBox()));
+            jTable1.setEnabled(false);
+//            jTable1.setGridColor(new java.awt.Color(255, 255, 255));
+            jTable1.setRowSelectionAllowed(false);
+            jTable1.setSelectionBackground(new java.awt.Color(255, 255, 255));
+            jTable1.setShowHorizontalLines(false);
+            jTable1.setShowVerticalLines(false);
+            jTable1.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
+
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+            getContentPane().setLayout(layout);
+            layout.setHorizontalGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(mainLabel)
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addContainerGap(12, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(dismissButton)
+                            .addContainerGap())
+            );
+            layout.setVerticalGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(mainLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(dismissButton)
+                            .addContainerGap())
+            );
+
+            pack();
+
+        }
+
+        private void showOnTop(boolean show) {
+            this.setAlwaysOnTop(show);
+            this.setVisible(show);
+        }
+
+        void showAvailableConsultersMessage(List<InteractionPerson> availableConsulters) {
+            if (availableConsulters.isEmpty()) {
+                return;
+            }
+            List<String[]> consulters = new LinkedList<>();
+            availableConsulters.forEach((p) -> {
+                Long millis = p.getDndStart() - new Date().getTime();
+                Integer minutes = 0;
+                Integer seconds = 0;
+                if (millis > 0) {
+                    minutes = millis.intValue() / 60000;
+                    seconds = millis.intValue() % 60;
+                }
+                String name = p.getDisplayName();
+                String until = minutes + "m " + seconds + "s";
+                String where = p.getLocation();
+                String[] labels = {name, until, where};
+                JButton b = new JButton("Postpone");
+                b.setToolTipText("Remind again in 10 minutes or when available again.");
+                b.addActionListener((ActionEvent) -> {
+                    JOptionPane.showMessageDialog(this, "Sorry, not supported yet.");
+                });
+                consulters.add(labels);
+            });
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            if (!isVisible()) {
+                model.setRowCount(0);
+            }
+            consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2], "Postpone"}));
+
+            jScrollPane1.setViewportView(jTable1);
+
+            pack();
+            showOnTop(true);
+        }
+
+        private void formKeyReleased(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == (KeyEvent.VK_ENTER)) {
+                showOnTop(false);
+            }
+        }
+
+        class ButtonRenderer extends JButton implements TableCellRenderer {
+
+            public ButtonRenderer() {
+                setOpaque(true);
+            }
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                if (isSelected) {
+                    setForeground(table.getSelectionForeground());
+                    setBackground(table.getSelectionBackground());
+                } else {
+                    setForeground(table.getForeground());
+                    setBackground(UIManager.getColor("Button.background"));
+                }
+                setText((value == null) ? "" : value.toString());
+                return this;
+            }
+        }
+
+        /**
+         * @version 1.0 11/09/98
+         */
+        private final class ButtonEditor extends DefaultCellEditor {
+
+            protected JButton button;
+
+            private String label;
+
+            private boolean isPushed;
+
+            public ButtonEditor(JCheckBox checkBox) {
+                super(checkBox);
+                button = new JButton();
+                button.setOpaque(true);
+                button.addActionListener((ActionEvent e) -> {
+                    fireEditingStopped();
+                });
+            }
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value,
+                    boolean isSelected, int row, int column) {
+                if (isSelected) {
+                    button.setForeground(table.getSelectionForeground());
+                    button.setBackground(table.getSelectionBackground());
+                } else {
+                    button.setForeground(table.getForeground());
+                    button.setBackground(table.getBackground());
+                }
+                label = (value == null) ? "" : value.toString();
+                button.setText(label);
+                button.setToolTipText("Remind again in 10 minutes or when available again.");
+                isPushed = true;
+                return button;
+            }
+
+            @Override
+            public Object getCellEditorValue() {
+                if (isPushed) {
+                    JOptionPane.showMessageDialog(button, "Sorry, not supported yet.");
+                }
+                isPushed = false;
+                return label;
+            }
+
+            @Override
+            public boolean stopCellEditing() {
+                isPushed = false;
+                return super.stopCellEditing();
+            }
+
+            @Override
+            protected void fireEditingStopped() {
+                super.fireEditingStopped();
+            }
+        }
     }
 
     private class SwitchToDndFrame extends javax.swing.JFrame {

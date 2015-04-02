@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +30,17 @@ public class PersonInteractionsManager {
     @Autowired
     private PersonService personService;
     
-    private RemovingSet<Interaction> partiallySeenInteractions = new RemovingSet<Interaction>();
+    private Set<Interaction> partiallySeenInteractions = new HashSet<>();
        
     /**
-     * Returns all persons that want to interact with this person (username)
+     * Returns all persons that want to interact with this person (username) and have seen the notice, that this person is available.
      *
      * @param username
      * @return
      */
     public Set<InteractionPersonDto> getInteractingPersons(String username){
-        Set<InteractionPersonDto> interactingPersons = new HashSet<>(personService.getInteractingPersons(username));
+        //only from list
+        Set<InteractionPersonDto> interactingPersons = new HashSet<>();
         partiallySeenInteractions.forEach((k) -> {
             if (k.getInteractionPersonIdentificator().getUsername().equals(username)){
                 interactingPersons.add(k.getInteractingPersonIdentificator().getInteractionPerson());
@@ -57,13 +57,8 @@ public class PersonInteractionsManager {
      * @return 
      */
     public Set<InteractionPersonDto> getInteractionPersons(String username, PersonState state){
+        //only from DB
         Set<InteractionPersonDto> interactionPersons = new HashSet<>(personService.getInteractionPersons(username, state));
-        personService.removeInteractionEntities(username, interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
-        partiallySeenInteractions.forEach((k) -> {
-            if (k.getInteractingPersonIdentificator().getUsername().equals(username)){
-                interactionPersons.add(k.getInteractionPersonIdentificator().getInteractionPerson());
-            }
-        });
         return interactionPersons;
     }
     
@@ -78,6 +73,7 @@ public class PersonInteractionsManager {
      * @param ids list of interaction entities
      */
     public void seenInteractionEntities(String username, Collection<Long> ids){
+        //remove from DB, add to list
         personService.removeInteractionEntities(username, ids);
         ids.forEach((id -> partiallySeenInteractions.add(new Interaction(new PersonIdentificator(username), new PersonIdentificator(id)))));
     }
@@ -90,7 +86,8 @@ public class PersonInteractionsManager {
      * @param ids 
      */
     public void seenInteractingEntities(String username, Collection<Long> ids){
-        ids.forEach((id -> partiallySeenInteractions.add(new Interaction(new PersonIdentificator(id), new PersonIdentificator(username)))));
+        //remove from list
+        ids.forEach((id -> partiallySeenInteractions.remove(new Interaction(new PersonIdentificator(id), new PersonIdentificator(username)))));
     }
     
     private class PersonIdentificator {
@@ -150,6 +147,10 @@ public class PersonInteractionsManager {
         
     }
     
+    /**
+     * Object containing information about partially seen interactions.
+     * Two interactions are the same if they have the same entities in the same roles.
+     */
     private class Interaction {
         
         //Interacting = who wants to interact
@@ -157,9 +158,9 @@ public class PersonInteractionsManager {
         //Interaction = who is interacted with
         private final PersonIdentificator interactionPersonIdentificator;
 
-        public Interaction(PersonIdentificator interactingPerson, PersonIdentificator interactionPerson) {
-            this.interactingPersonIdentificator = interactingPerson;
-            this.interactionPersonIdentificator = interactionPerson;
+        public Interaction(PersonIdentificator interactingPersonIdentificator, PersonIdentificator interactionPersonIdentificator) {
+            this.interactingPersonIdentificator = interactingPersonIdentificator;
+            this.interactionPersonIdentificator = interactionPersonIdentificator;
         }
 
         public PersonIdentificator getInteractingPersonIdentificator() {
@@ -169,26 +170,28 @@ public class PersonInteractionsManager {
         public PersonIdentificator getInteractionPersonIdentificator() {
             return interactionPersonIdentificator;
         }
-        
-    }
-    
-    private class RemovingSet<K> extends HashSet<K>{
 
         @Override
-        public boolean add(K e) {
-            boolean isFirstTime = super.add(e);
-            if (!isFirstTime) {
-                super.remove(e);
-            }
-            return true;
+        public int hashCode() {
+            int hash = 7;
+            hash = 89 * hash + Objects.hashCode(this.interactingPersonIdentificator);
+            hash = 89 * hash + Objects.hashCode(this.interactionPersonIdentificator);
+            return hash;
         }
 
         @Override
-        public boolean addAll(Collection<? extends K> c) {
-            c.stream().forEach((k) -> {
-                add(k);
-            });
-            return true;
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Interaction other = (Interaction) obj;
+            if (!Objects.equals(this.interactingPersonIdentificator, other.interactingPersonIdentificator)) {
+                return false;
+            }
+            return Objects.equals(this.interactionPersonIdentificator, other.interactionPersonIdentificator);
         }
         
     }

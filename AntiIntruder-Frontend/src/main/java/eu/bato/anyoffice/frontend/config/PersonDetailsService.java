@@ -24,7 +24,7 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
  * @author Bato
  */
 public class PersonDetailsService implements UserDetailsService {
-    
+
     private static final Logger log = LoggerFactory.getLogger(PersonDetailsService.class);
 
     private static final StandardPasswordEncoder encoder = new StandardPasswordEncoder();
@@ -37,27 +37,36 @@ public class PersonDetailsService implements UserDetailsService {
 
     @PostConstruct
     protected void initialize() {
-        if (personService.isPresent("bato")) {
-            return;
+        if (!personService.isPresent("bato")) {
+            PersonDto sampleUser = new PersonDto();
+            sampleUser.setUsername("bato");
+            sampleUser.setDisplayName("Martin Bryndza");
+            sampleUser.setDescription("QA Engineer in ETNA");
+            sampleUser.setLocation("R&D Open Space");
+            sampleUser.setRole(PersonRole.USER);
+            personService.register(sampleUser, encoder.encode("1111"));
         }
-        PersonDto sampleUser = new PersonDto();
-        sampleUser.setUsername("bato");
-        sampleUser.setDisplayName("Martin Bryndza");
-        sampleUser.setDescription("QA Engineer in ETNA");
-        sampleUser.setLocation("R&D Open Space");
-        sampleUser.setRole(PersonRole.USER);
-        personService.register(sampleUser, encoder.encode("1111"));
+
+        if (!personService.isPresent("olda")) {
+            PersonDto sampleUser = new PersonDto();
+            sampleUser.setUsername("olda");
+            sampleUser.setDisplayName("Michal Ordelt");
+            sampleUser.setDescription("Developer in ETNA (KM)");
+            sampleUser.setLocation("R&D Open Space");
+            sampleUser.setRole(PersonRole.USER);
+            personService.register(sampleUser, encoder.encode("olda"));
+        }
         
-        if (personService.isPresent("olda")) {
-            return;
+        if (!personService.isPresent("myska")) {
+            PersonDto sampleUser = new PersonDto();
+            sampleUser.setUsername("myska");
+            sampleUser.setDisplayName("Ondrej Myska");
+            sampleUser.setDescription("Developer in ETNA (FX)");
+            sampleUser.setLocation("R&D Open Space");
+            sampleUser.setRole(PersonRole.USER);
+            personService.register(sampleUser, encoder.encode("myska"));
         }
-        sampleUser = new PersonDto();
-        sampleUser.setUsername("olda");
-        sampleUser.setDisplayName("Michal Ordelt");
-        sampleUser.setDescription("Developer in ETNA (KM)");
-        sampleUser.setLocation("R&D Open Space");
-        sampleUser.setRole(PersonRole.USER);
-        personService.register(sampleUser, encoder.encode("olda"));
+
     }
 
     @Override

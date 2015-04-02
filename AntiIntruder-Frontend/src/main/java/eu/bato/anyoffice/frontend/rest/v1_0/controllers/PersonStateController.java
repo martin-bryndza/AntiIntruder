@@ -7,6 +7,7 @@ import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,8 +95,11 @@ public class PersonStateController{
     @RequestMapping(value = "requests", method = GET)
     public @ResponseBody
     Integer getNumberOfRequests(Authentication authentication) {
-        int result = personInteractionsManager.getInteractingPersons(authentication.getName()).size();
+        Set<InteractionPersonDto> interactingPersons = personInteractionsManager.getInteractingPersons(authentication.getName());
+        int result = interactingPersons.size();
         log.debug("GET requests for user {}, response: {}", authentication.getName(), result);
+        // by now, the confirmation of the fact, that the interacting persons have been see, is done here. In the future this should be done by a call from client
+        personInteractionsManager.seenInteractingEntities(authentication.getName(), interactingPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return result;
     }
     
@@ -110,6 +114,8 @@ public class PersonStateController{
     Set<InteractionPersonDto> getNewAvailableInteractionPersons(Authentication authentication) {
         Set<InteractionPersonDto> interactionPersons = personInteractionsManager.getInteractionPersons(authentication.getName(), PersonState.AVAILABLE);
         log.debug("GET availableInteractionPersons for user {}, response size: {}", authentication.getName(), interactionPersons.size());
+        // by now, the confirmation of the fact, that the interaction persons have been see, is done here. In the future this should be done by a call from client
+        personInteractionsManager.seenInteractionEntities(authentication.getName(), interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return interactionPersons;
     }
     
