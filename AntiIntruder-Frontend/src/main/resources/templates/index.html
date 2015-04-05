@@ -36,6 +36,7 @@
                 <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
                 <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
             </div>
+            <a href="#" data-th-href="@{/personEdit}" th:text="#{Edit_my_details}">Edit my details</a>
             <form th:action="@{/logout}" method="post">
                 <input type="submit" value="Log out" />
             </form>

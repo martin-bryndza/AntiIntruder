@@ -413,7 +413,7 @@ class TrayIconManager {
             jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object[][]{},
                     new String[]{
-                        "Who", "How long", "Where", ""
+                        "Who", "How long", "Where", " "
                     }
             ) {
                 Class[] types = new Class[]{
@@ -430,10 +430,7 @@ class TrayIconManager {
                     return false;
                 }
             });
-            jTable1.getColumn("").setCellRenderer(new ButtonRenderer());
-            jTable1.getColumn("").setCellEditor(new ButtonEditor(new JCheckBox()));
             jTable1.setEnabled(false);
-//            jTable1.setGridColor(new java.awt.Color(255, 255, 255));
             jTable1.setRowSelectionAllowed(false);
             jTable1.setSelectionBackground(new java.awt.Color(255, 255, 255));
             jTable1.setShowHorizontalLines(false);
@@ -502,12 +499,12 @@ class TrayIconManager {
             });
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            if (!isVisible()) {
-                model.setRowCount(0);
-            }
             consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2], "Postpone"}));
 
             jScrollPane1.setViewportView(jTable1);
+            
+            jTable1.getColumn(" ").setCellRenderer(new ButtonRenderer());
+            jTable1.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox()));
 
             pack();
             showOnTop(true);
@@ -553,6 +550,7 @@ class TrayIconManager {
 
             public ButtonEditor(JCheckBox checkBox) {
                 super(checkBox);
+                log.debug("ButtonEditor initialized");
                 button = new JButton();
                 button.setOpaque(true);
                 button.addActionListener((ActionEvent e) -> {
@@ -563,6 +561,7 @@ class TrayIconManager {
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value,
                     boolean isSelected, int row, int column) {
+                log.debug("getTableCellEditorComponent({}, {}, {}, {}, {}) called", table, value, isSelected, row, column);
                 if (isSelected) {
                     button.setForeground(table.getSelectionForeground());
                     button.setBackground(table.getSelectionBackground());
@@ -579,6 +578,7 @@ class TrayIconManager {
 
             @Override
             public Object getCellEditorValue() {
+                log.debug("getCellEditorValue called; isPushed={}", isPushed);
                 if (isPushed) {
                     JOptionPane.showMessageDialog(button, "Sorry, not supported yet.");
                 }
@@ -588,12 +588,14 @@ class TrayIconManager {
 
             @Override
             public boolean stopCellEditing() {
+                log.debug("stopCellEditing called");
                 isPushed = false;
                 return super.stopCellEditing();
             }
 
             @Override
             protected void fireEditingStopped() {
+                log.debug("fireEditingStopped() called");
                 super.fireEditingStopped();
             }
         }

@@ -3,6 +3,7 @@ package eu.bato.anyoffice.backend.dao.impl;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
+import eu.bato.anyoffice.backend.model.StateSwitch;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.Collection;
 import java.util.Date;
@@ -22,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Bato
  */
 @Repository
-@Transactional
+@Transactional(noRollbackFor = NoResultException.class)
 public class PersonDaoImpl implements PersonDao {
 
     final static Logger log = LoggerFactory.getLogger(PersonDaoImpl.class);
@@ -52,8 +53,8 @@ public class PersonDaoImpl implements PersonDao {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
         }
-            return em.createQuery("SELECT e FROM Person e WHERE e.id = :pk", Person.class).setParameter("pk", id).getSingleResult();
-        
+        return em.createQuery("SELECT e FROM Person e WHERE e.id = :pk", Person.class).setParameter("pk", id).getSingleResult();
+
     }
 
     @Override
@@ -61,7 +62,7 @@ public class PersonDaoImpl implements PersonDao {
         if (username == null) {
             throw new IllegalArgumentException("Invalid username: " + username);
         }
-            return em.createQuery("SELECT e FROM Person e WHERE e.username = :username", Person.class).setParameter("username", username).getSingleResult();
+        return em.createQuery("SELECT e FROM Person e WHERE e.username = :username", Person.class).setParameter("username", username).getSingleResult();
     }
 
     @Override
@@ -69,20 +70,32 @@ public class PersonDaoImpl implements PersonDao {
         if (person == null) {
             throw new IllegalArgumentException("Invalid entity (Person): " + person);
         }
+        Person currentPerson = null;
+        if (person.getId()!=null){
+            try {
+                currentPerson = findOne(person.getId());
+            } catch (NoResultException e){
+                currentPerson = null;
+            }
+        }
+        if (currentPerson == null && person.getUsername()!=null){
+            try {
+                currentPerson = findOneByUsername(person.getUsername());
+            } catch (NoResultException e){
+                currentPerson = null;
+            }
+        }        
         //if the password is empty, use the password that is already stored
         if (person.getPassword() == null || person.getPassword().isEmpty()) {
-            //if the person does not have stopred Entity, it is a new person
-            if (person.getId() == null) {
+            if (currentPerson == null) {
                 throw new IllegalArgumentException("Unable to create a new person with empty password.");
+            } else {
+                person.setPassword(currentPerson.getPassword());
             }
-            String currentPass;
-            try {
-                currentPass = em.createQuery("SELECT tbl.password FROM Person tbl WHERE tbl.id = "
-                        + ":givenId", String.class).setParameter("givenId", person.getId()).getSingleResult();
-            } catch (NoResultException e) {
-                throw new IllegalArgumentException("Unable to create a new person with empty password.");
-            }
-            person.setPassword(currentPass);
+        }
+        //if the state has changed, note it
+        if (currentPerson!= null && !person.getState().equals(currentPerson.getState())){
+            noteStateSwitch(currentPerson.getId(), person.getState());
         }
         log.info("Saving " + person.toString());
         Person modelPerson = em.merge(person);
@@ -90,15 +103,25 @@ public class PersonDaoImpl implements PersonDao {
         log.info(" Assigned entity id: " + modelPerson.getId());
         return modelPerson;
     }
+    
+    private void noteStateSwitch(Long personId, PersonState state){
+        StateSwitch sSwitch = new StateSwitch();
+            sSwitch.setPersonId(personId);
+            sSwitch.setState(state);
+            sSwitch.setTime(new Date());
+            em.persist(sSwitch);
+    }
 
     @Override
-    public Person updateState(Long id, PersonState personState) {
+    public Person updateState(Long id, PersonState personState
+    ) {
         Person e = findOne(id);
         return updateState(e, personState);
     }
 
     @Override
-    public Person updateState(String username, PersonState personState) {
+    public Person updateState(String username, PersonState personState
+    ) {
         Person e = findOneByUsername(username);
         return updateState(e, personState);
     }
@@ -107,7 +130,8 @@ public class PersonDaoImpl implements PersonDao {
         if (e.getState().equals(personState)) {
             log.info("Actual and wanted states are the same. State of person " + e.getUsername() + " will not be changed.");
             return e;
-        } 
+        }
+        noteStateSwitch(e.getId(), personState);
         e.setState(personState);
         return e;
     }
@@ -163,20 +187,20 @@ public class PersonDaoImpl implements PersonDao {
         Person person = findOneByUsername(username);
         person.removeAllInteractingPersons();
     }
-    
+
     @Override
     public List<Person> getInteractionPersons(String username) {
         Person person = findOneByUsername(username);
         List<Entity> entities = person.getInteractionEntities();
         List<Person> persons = new LinkedList<>();
         entities.forEach((e) -> {
-            if (Person.class.isInstance(e)){
+            if (Person.class.isInstance(e)) {
                 persons.add((Person) e);
             }
         });
         return persons;
     }
-    
+
     @Override
     public boolean isTaken(String username) {
         if (username == null) {
@@ -189,7 +213,7 @@ public class PersonDaoImpl implements PersonDao {
     @Override
     public void setLocation(String username, String location) {
         Person p1 = findOneByUsername(username);
-        p1.setLocation(location==null?"":location);
+        p1.setLocation(location == null ? "" : location);
     }
 
     @Override

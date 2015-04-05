@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Bato
  */
-@Transactional
+@Transactional(noRollbackFor = NoResultException.class)
 public interface PersonDao extends Dao<Person, Long>{
     
         

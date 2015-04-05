@@ -17,7 +17,7 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
  * @author Bato
  */
 @Configuration
-@PropertySource({"classpath:application.properties"})
+@PropertySource({"classpath:application.properties", "classpath:ldap.properties"})
 @ComponentScan(value = {"eu.bato.anyoffice"})
 public class AppConfig {
     

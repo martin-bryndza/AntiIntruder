@@ -1,0 +1,58 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" media="all" 
+              href="../../css/default.css" th:href="@{/css/default.css}" />
+        <style>
+            table.list {
+                width: 100%;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            table.list th {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            table.list td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 th:text='#{Title}'>AntiIntruder</h1>
+        <div th:if="${#httpServletRequest.remoteUser != null}">
+            <div th:text="#{User}+': '+${personObject.username}"></div>
+            <form th:action="@{/logout}" method="post">
+                <input type="submit" value="Log out" />
+            </form>
+        </div>
+        <form data-th-action="@{/personEdit/save}" data-th-object="${personObject}" method="post">
+            <table>
+                <tbody>
+                    <tr>
+                        <td><label for="displayName" th:text='#{Display_Name}'>Display Name</label></td>
+                        <td><input id="displayName" type="text" data-th-field="*{displayName}"/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="description" th:text='#{Description}'>Description</label></td>
+                        <td><input id="description" type="text" data-th-field="*{description}"/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="location" th:text='#{Location}'>Location</label></td>
+                        <td><input id="location" type="text" data-th-field="*{location}"/></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="submit" th:text='#{Save}'> Save </button></td>
+                        <td />
+                    </tr>
+                </tbody>
+            </table>
+        </form>    
+    </body>
+</html>

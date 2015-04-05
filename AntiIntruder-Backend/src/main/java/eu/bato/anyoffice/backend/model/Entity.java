@@ -17,7 +17,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.AnyMetaDef;
 import org.hibernate.annotations.Cascade;
@@ -37,7 +36,7 @@ public abstract class Entity implements Serializable{
     private Long id;
     @Column(columnDefinition = "VARCHAR(150)", nullable = false)
     private String displayName;
-    @Column(columnDefinition = "VARCHAR(250)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(250)", nullable = true)
     private String description;
     @Column(columnDefinition = "VARCHAR(125)", nullable = true)
     private String location;    

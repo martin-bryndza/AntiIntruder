@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -38,6 +39,8 @@ public class IndexController {
     protected ResourceService entityService;
     @Autowired
     protected PersonStateManager personStateManager;
+    
+    private PersonDto adminPerson = null;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String loadItems(Model model, Authentication authentication) {
@@ -45,8 +48,12 @@ public class IndexController {
         model.addAttribute("password", new PasswordObject());
         model.addAttribute("states", PersonState.values());
         List<PersonDto> otherPersons = personService.findAll();
+        if (adminPerson == null){
+            adminPerson = personService.findOneByUsername("adminn");
+        }
+        otherPersons.remove(adminPerson);
         if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
-            User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
                 PersonDto currentPerson = personService.findOneByUsername(currentUser.getUsername());
                 model.addAttribute("currentPerson", currentPerson);

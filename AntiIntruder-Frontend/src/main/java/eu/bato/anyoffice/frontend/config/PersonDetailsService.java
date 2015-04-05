@@ -37,14 +37,26 @@ public class PersonDetailsService implements UserDetailsService {
 
     @PostConstruct
     protected void initialize() {
+        if (!personService.isPresent("adminn")) {
+            PersonDto sampleUser = new PersonDto();
+            sampleUser.setUsername("adminn");
+            sampleUser.setDisplayName("Administrator");
+            sampleUser.setRole(PersonRole.ADMIN);
+            personService.register(sampleUser, encoder.encode(environment.getProperty("auth.admin.password", "1234")));
+        }
+        
+        if (environment.getProperty("auth.type", "DB").equals("LDAP")){
+            return;
+        }
+        
         if (!personService.isPresent("bato")) {
             PersonDto sampleUser = new PersonDto();
             sampleUser.setUsername("bato");
             sampleUser.setDisplayName("Martin Bryndza");
-            sampleUser.setDescription("QA Engineer in ETNA");
+            sampleUser.setDescription("QA Engineer ETNA");
             sampleUser.setLocation("R&D Open Space");
             sampleUser.setRole(PersonRole.USER);
-            personService.register(sampleUser, encoder.encode("1111"));
+            personService.register(sampleUser, encoder.encode("bato"));
         }
 
         if (!personService.isPresent("olda")) {
@@ -71,13 +83,25 @@ public class PersonDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Authenticating: " + username);
-        if ("admin".equals(username)) {
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(PersonRole.ADMIN.name()));
-            return new User(username, encoder.encode(environment.getProperty("auth.admin.password", "1234")), authorities);
+        if (username.equals("jarda")) {
+            return new User(username, "jarda", null);
         }
+        log.info("Authenticating: " + username);
         Optional<LoginDetailsDto> optDetails = personService.getLoginDetails(username);
+        if (!optDetails.isPresent()) {
+            if (environment.getProperty("auth.type", "DB").equals("DB")) {
+                throw new UsernameNotFoundException("User with username " + username + " was not found.");
+            } else {
+                log.info("User with username {} logged in through LDAP for the first time", username);
+                log.info(username);
+                PersonDto dto = new PersonDto();
+                dto.setUsername(username);
+                dto.setRole(PersonRole.USER);
+                dto.setDisplayName(username);
+                personService.register(dto, encoder.encode("%DU)FöfA8/°LDAP%DU)FöfA8/°")); // because the pass cannot be null
+            }
+        }
+        optDetails = personService.getLoginDetails(username);
         if (!optDetails.isPresent()) {
             throw new UsernameNotFoundException("User with username " + username + " was not found.");
         }

@@ -26,16 +26,22 @@ dependencies {
     compile project(':AntiIntruder-Core')
 	
     compile 'org.aspectj:aspectjweaver:1.8.4'
-    compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
-//    compile ('org.springframework.boot:spring-boot-starter-thymeleaf:' + project.ext.springBootVersion)
-    compile 'org.thymeleaf:thymeleaf-spring4:2.1.3.RELEASE'
     
-    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
+    compile 'org.thymeleaf:thymeleaf-spring4:2.1.3.RELEASE'
     //compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:1.2.6'
+    
+    compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
+    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
     
     // Spring Security
     compile 'org.springframework.security:spring-security-web:3.2.5.RELEASE'
     compile 'org.springframework.security:spring-security-config:3.2.5.RELEASE'
+    
+    //for LDAP
+    compile('org.springframework.boot:spring-boot-starter-security:' + project.ext.springBootVersion)
+    compile('org.springframework.security:spring-security-ldap:4.0.0.RELEASE')
+    compile('org.springframework:spring-tx:' + project.ext.springBootVersion) // because of an issue with gradle, otherwise an older one would be fetched
+    compile("org.apache.directory.server:apacheds-server-jndi:1.5.5")
     
     compile 'joda-time:joda-time:2.3'
 }

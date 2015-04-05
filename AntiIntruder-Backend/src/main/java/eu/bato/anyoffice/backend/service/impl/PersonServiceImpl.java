@@ -31,13 +31,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.persistence.NoResultException;
 
 /**
  *
  * @author Bato
  */
 @Service
-@Transactional
+@Transactional(noRollbackFor=NoResultException.class)
 public class PersonServiceImpl implements PersonService {
 
     final static Logger log = LoggerFactory.getLogger(PersonServiceImpl.class);
@@ -102,7 +103,7 @@ public class PersonServiceImpl implements PersonService {
             log.info("Password stays unchanged.");
             return;
         }
-        Person person = findOnePersonByUsername(username);
+        Person person = findOnePersonByUsername(username).get();
         new DataAccessExceptionNonVoidTemplate(person, password) {
             @Override
             public Object doMethod() {
@@ -155,7 +156,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonDto findOneByUsername(String username) {
-        Person entity = findOnePersonByUsername(username);
+        Person entity = findOnePersonByUsername(username).get();
         return PersonConvert.fromEntityToDto(entity);
     }
 
@@ -185,7 +186,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonState getState(String username) {
-        return findOnePersonByUsername(username).getState();
+        return findOnePersonByUsername(username).get().getState();
     }
 
     @Override
@@ -205,8 +206,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Optional<LoginDetailsDto> getLoginDetails(String username) {
-        Person entity = findOnePersonByUsername(username);
-        return Optional.of(new LoginDetailsDto(entity.getPassword(), entity.getRole()));
+        Optional<Person> entity = findOnePersonByUsername(username);
+        return entity.isPresent()?Optional.of(new LoginDetailsDto(entity.get().getPassword(), entity.get().getRole())):Optional.empty();
     }
 
     @Override
@@ -358,7 +359,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<InteractionEntityDto> getInteractionEntities(String username) {
-        Person person = findOnePersonByUsername(username);
+        Person person = findOnePersonByUsername(username).get();
         List<Entity> entities = person.getInteractionEntities();
         List<InteractionEntityDto> result = new LinkedList<>();
         entities.stream().forEach((entity) -> {
@@ -402,24 +403,29 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Long getId(String username) {
-        return findOnePersonByUsername(username).getId();
+        Optional<Person> p = findOnePersonByUsername(username);
+        return p.isPresent()?p.get().getId():null;
     }
 
     @Override
     public InteractionPersonDto findOneByUsernameAsInteractionPerson(String username) {
-        return InteractionPersonConvert.fromEntityToDto(findOnePersonByUsername(username));
+        return InteractionPersonConvert.fromEntityToDto(findOnePersonByUsername(username).get());
     }
     
-    private Person findOnePersonByUsername(String username){
+    private Optional<Person> findOnePersonByUsername(String username){
         if (username == null || username.isEmpty()) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: " + username);
             log.error("PersonServiceImpl.findOneByUsername() called on null or empty parameter: String username", iaex);
             throw iaex;
         }
-        return (Person) new DataAccessExceptionNonVoidTemplate(username) {
+        return (Optional<Person>) new DataAccessExceptionNonVoidTemplate(username) {
             @Override
-            public Person doMethod() {
-                return personDao.findOneByUsername(username);
+            public Optional<Person> doMethod() {
+                try{
+                    return Optional.of(personDao.findOneByUsername(username));
+                } catch (NoResultException e) {
+                    return Optional.empty();
+                }
             }
         }.tryMethod();
     }
