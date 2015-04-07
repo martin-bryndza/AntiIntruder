@@ -89,17 +89,7 @@ public class PersonDetailsService implements UserDetailsService {
         log.info("Authenticating: " + username);
         Optional<LoginDetailsDto> optDetails = personService.getLoginDetails(username);
         if (!optDetails.isPresent()) {
-            if (environment.getProperty("auth.type", "DB").equals("DB")) {
-                throw new UsernameNotFoundException("User with username " + username + " was not found.");
-            } else {
-                log.info("User with username {} logged in through LDAP for the first time", username);
-                log.info(username);
-                PersonDto dto = new PersonDto();
-                dto.setUsername(username);
-                dto.setRole(PersonRole.USER);
-                dto.setDisplayName(username);
-                personService.register(dto, encoder.encode("%DU)FöfA8/°LDAP%DU)FöfA8/°")); // because the pass cannot be null
-            }
+            throw new UsernameNotFoundException("User with username " + username + " was not found.");
         }
         optDetails = personService.getLoginDetails(username);
         if (!optDetails.isPresent()) {
