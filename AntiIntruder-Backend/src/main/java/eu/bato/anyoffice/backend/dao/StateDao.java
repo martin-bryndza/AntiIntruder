@@ -8,6 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Bato
  */
 @Transactional
-public interface StateDao extends Dao<State, Long>{
-    
+public interface StateDao extends Dao<State, Long> {
+
 }

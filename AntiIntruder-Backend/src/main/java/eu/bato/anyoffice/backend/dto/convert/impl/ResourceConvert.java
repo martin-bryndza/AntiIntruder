@@ -16,18 +16,18 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class ResourceConvert{
-    
+public class ResourceConvert {
+
     @Autowired
     private StateService stateService;
-    
+
     @Autowired
     private StateConvert stateConvert;
 
     public Resource fromDtoToEntity(ResourceDto dto) {
-        if (dto == null){
+        if (dto == null) {
             return null;
-        } 
+        }
         Resource e = new Resource();
         e.setId(dto.getId());
         e.setDescription(dto.getDescription());
@@ -39,8 +39,8 @@ public class ResourceConvert{
         return e;
     }
 
-    public ResourceDto fromEntityToDto (Resource entity) {
-        if (entity == null){
+    public ResourceDto fromEntityToDto(Resource entity) {
+        if (entity == null) {
             return null;
         }
         ResourceDto dto = new ResourceDto();
@@ -54,5 +54,5 @@ public class ResourceConvert{
         dto.setLocation(entity.getLocation());
         return dto;
     }
-    
+
 }

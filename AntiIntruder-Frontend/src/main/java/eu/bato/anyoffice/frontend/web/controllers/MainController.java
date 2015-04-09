@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class MainController {
-    
+
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public String logout(@ModelAttribute CsrfToken csrf) {
-        return "index";
+        return "redirect:/";
     }
-    
+
     @RequestMapping("/**")
     public String notFound() {
         return "errors/404";
     }
-    
+
 }

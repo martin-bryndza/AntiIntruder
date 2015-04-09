@@ -7,10 +7,11 @@ package eu.bato.anyoffice.serviceapi.dto;
 
 /**
  * Represents an entity that can be interacted with by a person.
+ *
  * @author Bato
  */
 public abstract class InteractionEntityDto {
-    
+
     Long id;
     String displayName;
     String location;
@@ -38,5 +39,5 @@ public abstract class InteractionEntityDto {
     public void setLocation(String location) {
         this.location = location;
     }
-    
+
 }

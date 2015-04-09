@@ -29,56 +29,58 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Transactional
 @RestController("PersonStateResourceV1")
-@RequestMapping(value = "/api/v1", 
-produces = Versions.V1_0, 
-consumes = Versions.V1_0)
-public class PersonStateController{
-    
+@RequestMapping(value = "/api/v1",
+        produces = Versions.V1_0,
+        consumes = Versions.V1_0)
+public class PersonStateController {
+
     private static final Logger log = LoggerFactory.getLogger(PersonStateController.class);
-    
+
     @Autowired
     PersonStateManager personStateManager;
-    
+
     @Autowired
     PersonInteractionsManager personInteractionsManager;
-    
+
     @Autowired
     PersonService personService;
-    
+
     @RequestMapping(value = "login", method = GET)
     @ResponseStatus(HttpStatus.OK)
     public void validateCredentials(Authentication authentication) {
         log.info("User " + authentication.getName() + " connected.");
     }
-    
-    @RequestMapping(value="state", method = GET)
-    public @ResponseBody PersonState getCurrentState(Authentication authentication) {
+
+    @RequestMapping(value = "state", method = GET)
+    public @ResponseBody
+    PersonState getCurrentState(Authentication authentication) {
         return personStateManager.getCurrentState(authentication.getName());
     }
-    
+
     @RequestMapping(value = "state", method = PUT)
     @ResponseBody
     public PersonState setCurrentState(@RequestBody PersonState newState, Authentication authentication) {
         log.info("Setting new state: " + newState + " to person " + authentication.getName());
         return personStateManager.setState(authentication.getName(), newState, false);
     }
-    
+
     @RequestMapping(value = "locked", method = PUT)
     @ResponseBody
     public PersonState setSessionLocked(@RequestBody Boolean locked, Authentication authentication) {
-        log.info("User " + authentication.getName() + (locked?" ":" started client or un") + "locked session");
-        if (locked){
+        log.info("User " + authentication.getName() + (locked ? " " : " started client or un") + "locked session");
+        if (locked) {
             return personStateManager.setState(authentication.getName(), PersonState.AWAY, false);
         } else {
             return personStateManager.returnFromAwayState(authentication.getName());
         }
     }
-    
-    @RequestMapping(value = "canchange", method = GET) 
-    public @ResponseBody Boolean isStateChangePossible(@RequestParam String state, Authentication authentication) {
+
+    @RequestMapping(value = "canchange", method = GET)
+    public @ResponseBody
+    Boolean isStateChangePossible(@RequestParam String state, Authentication authentication) {
         return personStateManager.isStateChangePossible(authentication.getName(), PersonState.valueOf(state));
     }
-    
+
     @RequestMapping(value = "location", method = GET)
     public @ResponseBody
     String getCurrentLocation(Authentication authentication) {
@@ -91,7 +93,7 @@ public class PersonStateController{
         log.info("Setting new location: " + location + " to person " + authentication.getName());
         personService.setLocation(authentication.getName(), location);
     }
-    
+
     @RequestMapping(value = "requests", method = GET)
     public @ResponseBody
     Integer getNumberOfRequests(Authentication authentication) {
@@ -102,10 +104,12 @@ public class PersonStateController{
         personInteractionsManager.seenInteractingEntities(authentication.getName(), interactingPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return result;
     }
-    
+
     /**
-     * Returns list of all persons, that have been requested for interaction and are available now. 
-     * The interaction request is canceled automatically after performing this operation.
+     * Returns list of all persons, that have been requested for interaction and
+     * are available now. The interaction request is canceled automatically
+     * after performing this operation.
+     *
      * @param authentication
      * @return map (username: displayName, location, dndStart)
      */
@@ -118,5 +122,5 @@ public class PersonStateController{
         personInteractionsManager.seenInteractionEntities(authentication.getName(), interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return interactionPersons;
     }
-    
+
 }

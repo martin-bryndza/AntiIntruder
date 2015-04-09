@@ -71,20 +71,20 @@ public class PersonDaoImpl implements PersonDao {
             throw new IllegalArgumentException("Invalid entity (Person): " + person);
         }
         Person currentPerson = null;
-        if (person.getId()!=null){
+        if (person.getId() != null) {
             try {
                 currentPerson = findOne(person.getId());
-            } catch (NoResultException e){
+            } catch (NoResultException e) {
                 currentPerson = null;
             }
         }
-        if (currentPerson == null && person.getUsername()!=null){
+        if (currentPerson == null && person.getUsername() != null) {
             try {
                 currentPerson = findOneByUsername(person.getUsername());
-            } catch (NoResultException e){
+            } catch (NoResultException e) {
                 currentPerson = null;
             }
-        }        
+        }
         //if the password is empty, use the password that is already stored
         if (person.getPassword() == null || person.getPassword().isEmpty()) {
             if (currentPerson == null) {
@@ -94,7 +94,7 @@ public class PersonDaoImpl implements PersonDao {
             }
         }
         //if the state has changed, note it
-        if (currentPerson!= null && !person.getState().equals(currentPerson.getState())){
+        if (currentPerson != null && !person.getState().equals(currentPerson.getState())) {
             noteStateSwitch(currentPerson.getId(), person.getState());
         }
         log.info("Saving " + person.toString());
@@ -103,13 +103,13 @@ public class PersonDaoImpl implements PersonDao {
         log.info(" Assigned entity id: " + modelPerson.getId());
         return modelPerson;
     }
-    
-    private void noteStateSwitch(Long personId, PersonState state){
+
+    private void noteStateSwitch(Long personId, PersonState state) {
         StateSwitch sSwitch = new StateSwitch();
-            sSwitch.setPersonId(personId);
-            sSwitch.setState(state);
-            sSwitch.setTime(new Date());
-            em.persist(sSwitch);
+        sSwitch.setPersonId(personId);
+        sSwitch.setState(state);
+        sSwitch.setTime(new Date());
+        em.persist(sSwitch);
     }
 
     @Override

@@ -12,7 +12,7 @@ import eu.bato.anyoffice.trayapp.PersonState;
  * @author Bato
  */
 public class InteractionPerson {
-    
+
     Long id;
     String displayName;
     String location;
@@ -67,5 +67,5 @@ public class InteractionPerson {
     public void setDndStart(Long dndStart) {
         this.dndStart = dndStart;
     }
-    
+
 }

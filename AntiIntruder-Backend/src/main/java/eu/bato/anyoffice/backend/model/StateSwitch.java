@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package eu.bato.anyoffice.backend.model;
 
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
@@ -21,11 +20,11 @@ import javax.persistence.Id;
  */
 @javax.persistence.Entity
 public class StateSwitch {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(nullable=false)
+    @Column(nullable = false)
     private Long personId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -64,5 +63,5 @@ public class StateSwitch {
     public void setTime(Date time) {
         this.time = time;
     }
-    
+
 }

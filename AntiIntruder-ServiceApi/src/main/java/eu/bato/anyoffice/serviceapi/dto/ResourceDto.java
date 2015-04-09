@@ -4,9 +4,8 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
-
 public class ResourceDto extends EntityDto {
-    
+
     private Long stateId;
     private Date nextPossibleStateChange;
     private Optional<Date> stateExpiration;
@@ -18,7 +17,7 @@ public class ResourceDto extends EntityDto {
     public void setStateId(Long stateId) {
         this.stateId = stateId;
     }
-    
+
     public Date getNextPossibleStateChange() {
         return nextPossibleStateChange;
     }
@@ -63,5 +62,5 @@ public class ResourceDto extends EntityDto {
     public String toString() {
         return "ResourceDto{" + "stateId=" + stateId + '}';
     }
-    
+
 }

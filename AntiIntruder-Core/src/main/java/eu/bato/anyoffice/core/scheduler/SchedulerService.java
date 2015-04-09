@@ -20,13 +20,13 @@ import org.springframework.stereotype.Service;
 @Service
 @org.springframework.context.annotation.Configuration
 public class SchedulerService {
-    
+
     final static Logger log = LoggerFactory.getLogger(SchedulerService.class);
-        
-    public void start(){
+
+    public void start() {
         Timer t = new Timer();
         Long period = Configuration.getInstance().getLongProperty(Property.STATE_CHECK_INTERVAL);
-        if (period <= 0){
+        if (period <= 0) {
             log.info("Scheduler service for states check is disabled.");
         } else {
             t.scheduleAtFixedRate(stateCheckTask(), 0, period);
@@ -40,16 +40,15 @@ public class SchedulerService {
             log.info("Scheduler service for people's states check started with interval " + period);
         }
     }
-    
+
     @Bean
     public StateCheckTask stateCheckTask() {
         return new StateCheckTask();
     }
-    
+
     @Bean
     public PersonStateCheckTask personStateCheckTask() {
         return new PersonStateCheckTask();
     }
-    
-    
+
 }

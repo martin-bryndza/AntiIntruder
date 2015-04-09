@@ -27,14 +27,14 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class ResourceServiceImpl implements ResourceService{
-    
+public class ResourceServiceImpl implements ResourceService {
+
     final static Logger log = LoggerFactory.getLogger(ResourceServiceImpl.class);
     @Autowired
     private ResourceDao resourceDao;
     @Autowired
     private ResourceConvert resourceConvert;
-    
+
     @Override
     @Transactional(readOnly = false)
     public Long save(ResourceDto dto) {
@@ -42,7 +42,7 @@ public class ResourceServiceImpl implements ResourceService{
             @Override
             public Long doMethod() {
                 ResourceDto dto = (ResourceDto) getU();
-                if (dto.getStateId() == null){
+                if (dto.getStateId() == null) {
                     dto.setStateId(1L); // TODO: Replace with default state for entity type
                 }
                 Resource entity = resourceConvert.fromDtoToEntity((ResourceDto) getU());
@@ -83,7 +83,7 @@ public class ResourceServiceImpl implements ResourceService{
                 }
             }.tryMethod();
         }
-    }    
+    }
 
     //TODO: add paging
     @Override

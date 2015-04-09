@@ -14,7 +14,7 @@ import java.util.Set;
  * @author Bato
  */
 public class StateDto {
-    
+
     private long id;
     private String name;
     private long maxDuration;
@@ -96,5 +96,5 @@ public class StateDto {
     public String toString() {
         return "StateDto{" + "id=" + id + ", name=" + name + ", maxDuration=" + maxDuration + ", minDuration=" + minDuration + '}';
     }
-    
+
 }

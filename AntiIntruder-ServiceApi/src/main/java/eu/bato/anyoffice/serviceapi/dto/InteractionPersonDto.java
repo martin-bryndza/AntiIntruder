@@ -7,10 +7,11 @@ package eu.bato.anyoffice.serviceapi.dto;
 
 /**
  * Represents a person that can be interacted with by a person.
+ *
  * @author Bato
  */
-public class InteractionPersonDto extends InteractionEntityDto{
-    
+public class InteractionPersonDto extends InteractionEntityDto {
+
     private PersonState state;
     private String username;
     private Long dndStart;
@@ -38,5 +39,5 @@ public class InteractionPersonDto extends InteractionEntityDto{
     public void setDndStart(Long dndStart) {
         this.dndStart = dndStart;
     }
-    
+
 }

@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
 /**
  * Helper class for getting password as a model attribute.
+ *
  * @author Bato
  */
 public class PasswordObject {
@@ -21,7 +22,8 @@ public class PasswordObject {
 
     /**
      * <b>Encodes</b> and sets value parameter of this PasswordObject.
-     * @param value 
+     *
+     * @param value
      */
     public void setValue(String value) {
         this.value = encoder.encode(value);

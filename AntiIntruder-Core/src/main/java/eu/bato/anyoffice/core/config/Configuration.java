@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Bato
  */
 public class Configuration {
-  
+
     private static Properties props;
     private final static Logger log = LoggerFactory.getLogger(Configuration.class);
     private static Configuration instance = null;
@@ -45,17 +45,17 @@ public class Configuration {
         }
         return instance;
     }
-    
-    public String getProperty(Property p){
-        if (props == null){
+
+    public String getProperty(Property p) {
+        if (props == null) {
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
             return p.getDefaultValue();
-        }        
-        return props.getProperty(p.name(),p.getDefaultValue());
+        }
+        return props.getProperty(p.name(), p.getDefaultValue());
     }
-    
+
     public Integer getIntegerProperty(Property p) {
-        if (!p.getType().equals(PropertyType.INTEGER)){
+        if (!p.getType().equals(PropertyType.INTEGER)) {
             String msg = "Property " + p.name() + " is not of type Integer. Type is " + p.getType().toString();
             log.error(msg);
             throw new IllegalArgumentException(msg);
@@ -65,15 +65,15 @@ public class Configuration {
             return Integer.parseInt(p.getDefaultValue());
         }
         String result = props.getProperty(p.name(), p.getDefaultValue());
-        try{
+        try {
             return Integer.parseInt(result);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             log.warn("The value of the property " + p.name() + " is not of type Integer. Current value: " + result + ". Using default: " + p.getDefaultValue());
             return Integer.parseInt(p.getDefaultValue());
         }
     }
-    
-    public Long getLongProperty(Property p){
+
+    public Long getLongProperty(Property p) {
         if (!p.getType().equals(PropertyType.LONG)) {
             String msg = "Property " + p.name() + " is not of type Long. Type is " + p.getType().toString();
             log.error(msg);
@@ -91,7 +91,7 @@ public class Configuration {
             return Long.parseLong(p.getDefaultValue());
         }
     }
-    
+
     public Boolean getBooleanProperty(Property p) {
         if (!p.getType().equals(PropertyType.BOOLEAN)) {
             String msg = "Property " + p.name() + " is not of type Boolean. Type is " + p.getType().toString();

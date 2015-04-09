@@ -10,7 +10,7 @@ package eu.bato.anyoffice.serviceapi.dto;
  * @author Bato
  */
 public class LoginDetailsDto {
-    
+
     private final String password;
     private final PersonRole role;
 
@@ -26,5 +26,5 @@ public class LoginDetailsDto {
     public PersonRole getRole() {
         return role;
     }
-    
+
 }

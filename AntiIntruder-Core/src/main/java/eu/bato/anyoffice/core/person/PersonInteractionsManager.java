@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package eu.bato.anyoffice.core.person;
 
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
@@ -24,74 +23,81 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PersonInteractionsManager {
-    
+
     private final static Logger log = LoggerFactory.getLogger(PersonInteractionsManager.class);
 
     @Autowired
     private PersonService personService;
-    
+
     private Set<Interaction> partiallySeenInteractions = new HashSet<>();
-       
+
     /**
-     * Returns all persons that want to interact with this person (username) and have seen the notice, that this person is available.
+     * Returns all persons that want to interact with this person (username) and
+     * have seen the notice, that this person is available.
      *
      * @param username
      * @return
      */
-    public Set<InteractionPersonDto> getInteractingPersons(String username){
+    public Set<InteractionPersonDto> getInteractingPersons(String username) {
         //only from list
         Set<InteractionPersonDto> interactingPersons = new HashSet<>();
         partiallySeenInteractions.forEach((k) -> {
-            if (k.getInteractionPersonIdentificator().getUsername().equals(username)){
+            if (k.getInteractionPersonIdentificator().getUsername().equals(username)) {
                 interactingPersons.add(k.getInteractingPersonIdentificator().getInteractionPerson());
             }
         });
         return interactingPersons;
     }
-    
+
     /**
-     * Returns all persons, that this person (username) wants to interact with and are in the requested state.
-     * The interaction request is canceled automatically after performing this operation and thus will be reported only once.
+     * Returns all persons, that this person (username) wants to interact with
+     * and are in the requested state. The interaction request is canceled
+     * automatically after performing this operation and thus will be reported
+     * only once.
+     *
      * @param username
      * @param state
-     * @return 
+     * @return
      */
-    public Set<InteractionPersonDto> getInteractionPersons(String username, PersonState state){
+    public Set<InteractionPersonDto> getInteractionPersons(String username, PersonState state) {
         //only from DB
         Set<InteractionPersonDto> interactionPersons = new HashSet<>(personService.getInteractionPersons(username, state));
         return interactionPersons;
     }
-    
+
     /**
-     * Marks the interaction entities (ids) as have been seen by the person (username).
-     * These are the entities, that the person wants to interact with and he has 
-     * been notified about their availability.
-     * The interaction is removed from DB. If the interaction has not been seen 
-     * by the interaction Person, it is kept in memory and removed afterwards by 
-     * the seenInteractingEntities method.
+     * Marks the interaction entities (ids) as have been seen by the person
+     * (username). These are the entities, that the person wants to interact
+     * with and he has been notified about their availability. The interaction
+     * is removed from DB. If the interaction has not been seen by the
+     * interaction Person, it is kept in memory and removed afterwards by the
+     * seenInteractingEntities method.
+     *
      * @param username interacting Person
      * @param ids list of interaction entities
      */
-    public void seenInteractionEntities(String username, Collection<Long> ids){
+    public void seenInteractionEntities(String username, Collection<Long> ids) {
         //remove from DB, add to list
         personService.removeInteractionEntities(username, ids);
         ids.forEach((id -> partiallySeenInteractions.add(new Interaction(new PersonIdentificator(username), new PersonIdentificator(id)))));
     }
-    
+
     /**
-     * Marks the interacting persons (ids) as have been seen by the person (username) that they want to interact with
-     * If the interaction is marked as seen by interaction Person or removed 
-     * from the memory if it has already been marked as seen by the interacting Person.
+     * Marks the interacting persons (ids) as have been seen by the person
+     * (username) that they want to interact with If the interaction is marked
+     * as seen by interaction Person or removed from the memory if it has
+     * already been marked as seen by the interacting Person.
+     *
      * @param username
-     * @param ids 
+     * @param ids
      */
-    public void seenInteractingEntities(String username, Collection<Long> ids){
+    public void seenInteractingEntities(String username, Collection<Long> ids) {
         //remove from list
         ids.forEach((id -> partiallySeenInteractions.remove(new Interaction(new PersonIdentificator(id), new PersonIdentificator(username)))));
     }
-    
+
     private class PersonIdentificator {
-        
+
         private final Long id;
         private final String username;
 
@@ -117,8 +123,8 @@ public class PersonInteractionsManager {
         public String getUsername() {
             return username;
         }
-        
-        public InteractionPersonDto getInteractionPerson(){
+
+        public InteractionPersonDto getInteractionPerson() {
             return personService.findOneByUsernameAsInteractionPerson(username);
         }
 
@@ -144,15 +150,16 @@ public class PersonInteractionsManager {
             }
             return Objects.equals(this.username, other.username);
         }
-        
+
     }
-    
+
     /**
-     * Object containing information about partially seen interactions.
-     * Two interactions are the same if they have the same entities in the same roles.
+     * Object containing information about partially seen interactions. Two
+     * interactions are the same if they have the same entities in the same
+     * roles.
      */
     private class Interaction {
-        
+
         //Interacting = who wants to interact
         private final PersonIdentificator interactingPersonIdentificator;
         //Interaction = who is interacted with
@@ -193,7 +200,7 @@ public class PersonInteractionsManager {
             }
             return Objects.equals(this.interactionPersonIdentificator, other.interactionPersonIdentificator);
         }
-        
+
     }
-    
+
 }

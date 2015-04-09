@@ -26,10 +26,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = "eu.bato.anyoffice.backend.dao.*")
 @EnableTransactionManagement
 public class DataConfig {
-    
+
     @Autowired
     private Environment env;
-   
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();

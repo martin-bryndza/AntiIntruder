@@ -10,6 +10,7 @@ package eu.bato.anyoffice.serviceapi.dto;
  * @author Bato
  */
 public enum PersonRole {
+
     USER,
     ADMIN;
 

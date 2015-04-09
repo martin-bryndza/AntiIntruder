@@ -18,27 +18,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class PersonController {
-    
+
     @Autowired
     protected PersonService personService;
-    
+
     @RequestMapping(value = "/personEdit", method = RequestMethod.GET)
     public String loadItems(Model model, Authentication authentication) {
-        UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        PersonDto currentPerson = personService.findOneByUsername(currentUser.getUsername());
+        Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        PersonDto currentPerson = personService.findOneByUsername(auth.getName());
         model.addAttribute("personObject", currentPerson);
         return "personEdit";
     }
 
     @RequestMapping(value = "/personEdit/save", method = RequestMethod.POST)
     public String submitFormHandler(@ModelAttribute PersonDto person) {
-        UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        PersonDto currentPerson = personService.findOneByUsername(currentUser.getUsername());
+        Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        PersonDto currentPerson = personService.findOneByUsername(auth.getName());
         currentPerson.setLocation(person.getLocation());
         currentPerson.setDescription(person.getDescription());
         currentPerson.setDisplayName(person.getDisplayName());
         personService.save(currentPerson);
         return "redirect:/";
     }
-    
+
 }

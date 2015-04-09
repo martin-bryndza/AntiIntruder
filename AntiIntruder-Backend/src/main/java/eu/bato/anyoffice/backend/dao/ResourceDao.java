@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Bato
  */
 @Transactional
-public interface ResourceDao extends Dao<Resource, Long>{
-    
+public interface ResourceDao extends Dao<Resource, Long> {
+
     Entity updateState(Long id, Long stateId);
-    
+
 }

@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class StateConvert{
-    
+public class StateConvert {
+
     @Autowired
     private StateDao stateDao;
 
     public State fromDtoToEntity(StateDto dto) {
-        if (dto == null){
+        if (dto == null) {
             return null;
         }
         State s = new State();
@@ -34,8 +34,8 @@ public class StateConvert{
         return s;
     }
 
-    public StateDto fromEntityToDto (State entity) {
-        if (entity == null){
+    public StateDto fromEntityToDto(State entity) {
+        if (entity == null) {
             return null;
         }
         StateDto dto = new StateDto();
@@ -46,5 +46,5 @@ public class StateConvert{
         dto.setDefaultSuccessorId(entity.getDefaultSuccessor().getId());
         return dto;
     }
-    
+
 }

@@ -27,29 +27,29 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 @SpringBootApplication // adds @Configuration, @EnableAutoConfiguration, @ComponentScan
 @EnableWebMvc
-public class Application extends WebMvcConfigurerAdapter{
-    
+public class Application extends WebMvcConfigurerAdapter {
+
     private static final Logger log = LoggerFactory.getLogger(Application.class);
-        
+
     @Autowired
     SchedulerService scheduler;
-    
+
     public static void main(String[] args) {
         log.info("Any Office web aplication is starting...");
         SpringApplication.run(Application.class, args);
     }
-    
+
     @PostConstruct
-    protected void startScheduler(){
+    protected void startScheduler() {
         scheduler.start();
     }
-    
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("login");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
-    
+
     @Autowired
     private MessageSource messageSource;
 
@@ -76,5 +76,5 @@ public class Application extends WebMvcConfigurerAdapter{
     public Validator getValidator() {
         return validator();
     }
-    
+
 }

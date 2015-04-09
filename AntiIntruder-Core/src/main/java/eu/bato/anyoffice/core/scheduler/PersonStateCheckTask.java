@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Bato
  */
-public class PersonStateCheckTask extends TimerTask{
-    
+public class PersonStateCheckTask extends TimerTask {
+
     final static Logger log = LoggerFactory.getLogger(PersonStateCheckTask.class);
-    
+
     private static final PersonStateManager personStateManager = new PersonStateManager();
-   
+
     @Override
     public void run() {
         log.info("People's states check started...");

@@ -154,7 +154,7 @@ class TrayIconManager {
         initialize(currentState, currentLocation);
         if (showAvailableBubble) {
             int requests = client.getNumberOfRequests();
-            showInfoBubble("You have gone Available. You have " + (requests == 0 ? "no" : requests) + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
+            showInfoBubble("You have gone Available." + (requests == 0 ? "" : (" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.")));
         }
     }
 
@@ -199,7 +199,7 @@ class TrayIconManager {
         }
 
         popup.addSeparator();
-        MenuItem locationMenuItem = new MenuItem("Set location... (" + currentLocation + ")");
+        MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation==null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
         locationMenuItem.addActionListener((ActionEvent) -> {
             requestNewLocation(currentLocation);
         });
@@ -492,7 +492,7 @@ class TrayIconManager {
             consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2], "Postpone"}));
 
             jScrollPane1.setViewportView(jTable1);
-            
+
             jTable1.getColumn(" ").setCellRenderer(new ButtonRenderer());
             jTable1.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox()));
 

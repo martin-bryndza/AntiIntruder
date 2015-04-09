@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class InteractionResourceConvert{
+public class InteractionResourceConvert {
 
-    public static InteractionResourceDto fromEntityToDto (Resource entity) {
-        if (entity == null){
+    public static InteractionResourceDto fromEntityToDto(Resource entity) {
+        if (entity == null) {
             return null;
         }
         InteractionResourceDto dto = new InteractionResourceDto();
@@ -29,5 +29,5 @@ public class InteractionResourceConvert{
         dto.setLocation(entity.getLocation());
         return dto;
     }
-    
+
 }

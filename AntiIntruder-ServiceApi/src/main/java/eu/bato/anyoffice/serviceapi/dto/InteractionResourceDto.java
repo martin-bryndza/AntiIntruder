@@ -4,9 +4,8 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
-
 public class InteractionResourceDto extends InteractionEntityDto {
-    
+
     private Long stateId;
     private Optional<Date> stateExpiration;
 
@@ -17,7 +16,7 @@ public class InteractionResourceDto extends InteractionEntityDto {
     public void setStateId(Long stateId) {
         this.stateId = stateId;
     }
-    
+
     /**
      *
      * @return Time when the current state expires or null, if the state never
@@ -54,5 +53,5 @@ public class InteractionResourceDto extends InteractionEntityDto {
     public String toString() {
         return "InteractionResourceDto{" + "stateId=" + stateId + '}';
     }
-    
+
 }

@@ -20,7 +20,7 @@ buildscript {
         mavenCentral()
         mavenLocal()
     }
-dependencies {
+    dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$project.ext.springBootVersion")
     }
 } 

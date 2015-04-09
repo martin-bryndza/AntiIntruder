@@ -12,7 +12,7 @@ import java.util.Objects;
  * @author Bato
  */
 public abstract class EntityDto {
-    
+
     private String description;
     private String displayName;
     private Long id;
@@ -42,7 +42,7 @@ public abstract class EntityDto {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
-  
+
     public String getDescription() {
         return description;
     }
@@ -58,7 +58,7 @@ public abstract class EntityDto {
     public void setLastStateChange(Long lastStateChange) {
         this.lastStateChange = lastStateChange;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 3;
@@ -84,6 +84,6 @@ public abstract class EntityDto {
     @Override
     public String toString() {
         return "EntityDto{" + "description=" + description + ", displayName=" + displayName + ", id=" + id + '}';
-    }    
-    
+    }
+
 }

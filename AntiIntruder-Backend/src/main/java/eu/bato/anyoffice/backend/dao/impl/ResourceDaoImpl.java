@@ -21,13 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class ResourceDaoImpl implements ResourceDao{
-    
+public class ResourceDaoImpl implements ResourceDao {
+
     final static Logger log = LoggerFactory.getLogger(ResourceDaoImpl.class);
 
     @Autowired
     private StateDao stateDao;
-    
+
     @PersistenceContext
     private EntityManager em;
 
@@ -63,7 +63,7 @@ public class ResourceDaoImpl implements ResourceDao{
         if (entity == null) {
             throw new IllegalArgumentException("Invalid entity (Resource): " + entity);
         }
-        if (entity.getState() == null){
+        if (entity.getState() == null) {
             throw new IllegalArgumentException("Resource state cannot be null. " + entity.toString());
         }
         //Save the entity
@@ -78,12 +78,12 @@ public class ResourceDaoImpl implements ResourceDao{
     public Resource updateState(Long id, Long stateId) {
         Resource e = findOne(id);
         State s = stateDao.findOne(stateId);
-        if (e.getState().equals(s)){
+        if (e.getState().equals(s)) {
             log.info("Actual and wanted states are the same. State will not be changed.");
             return e;
-        }        
+        }
         e.setState(s);
         return e;
     }
-        
+
 }

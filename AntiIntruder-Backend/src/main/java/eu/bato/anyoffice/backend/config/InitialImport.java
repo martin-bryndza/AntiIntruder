@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class InitialImport {
-    
+
     @Autowired
     StateDao stateDao;
-    
+
     @PostConstruct
-    public void run(){
+    public void run() {
         State state = new State();
         state.setName("AVAILABLE");
         state.setMinDuration(0L);
@@ -30,5 +30,5 @@ public class InitialImport {
         state.setDefaultSuccessor(state);
         stateDao.save(state);
     }
-    
+
 }

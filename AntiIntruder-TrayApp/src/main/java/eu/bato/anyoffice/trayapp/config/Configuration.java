@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * @author Bato
  */
 public class Configuration {
-        
+
     private static Properties props;
     final static Logger log = LoggerFactory.getLogger(Configuration.class);
     private static Configuration instance = null;
@@ -78,7 +78,7 @@ public class Configuration {
             return Integer.parseInt(p.getDefaultValue());
         }
     }
-    
+
     public Long getLongProperty(Property p) {
         if (!p.getType().equals(PropertyType.LONG)) {
             String msg = "Property " + p.name() + " is not of type Long. Type is " + p.getType().toString();
@@ -114,13 +114,13 @@ public class Configuration {
             return Boolean.getBoolean(p.getDefaultValue());
         }
     }
-    
-    public void setProperty(Property p, String value){
+
+    public void setProperty(Property p, String value) {
         props.setProperty(p.name(), value);
         saveConfig();
     }
-    
-    private void saveConfig(){
+
+    private void saveConfig() {
         OutputStream os = null;
         try {
             os = new BufferedOutputStream(new FileOutputStream(new File("conf/client.properties")));
@@ -137,5 +137,5 @@ public class Configuration {
             log.warn("Unable to close OutputStream.", ex);
         }
     }
-    
+
 }

@@ -12,33 +12,33 @@ import org.slf4j.LoggerFactory;
  * @author Bato
  */
 class StateCheckService {
-    
+
     final static Logger log = LoggerFactory.getLogger(StateCheckService.class);
-        
+
     private static StateCheckService instance;
-    
-    private StateCheckService(){
-        
+
+    private StateCheckService() {
+
     }
-    
-    static StateCheckService getInstance(){
+
+    static StateCheckService getInstance() {
         if (instance == null) {
             instance = new StateCheckService();
         }
         return instance;
     }
-    
-    void start(){
+
+    void start() {
         Timer t = new Timer();
         Long period = Configuration.getInstance().getLongProperty(Property.CHECK_INTERVAL);
-        if (period <= 0){
+        if (period <= 0) {
             log.info("Scheduler is disabled.");
         } else {
             t.scheduleAtFixedRate(new StateCheckTask(), period, period);
             log.info("Scheduler service started with period " + period);
         }
-    }  
-    
+    }
+
     private class StateCheckTask extends TimerTask {
 
         @Override
@@ -48,5 +48,5 @@ class StateCheckService {
             log.debug("States check finished.");
         }
     }
-    
+
 }

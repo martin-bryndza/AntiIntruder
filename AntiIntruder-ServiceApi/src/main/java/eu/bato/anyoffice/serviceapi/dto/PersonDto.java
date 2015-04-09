@@ -8,8 +8,8 @@ import java.util.Optional;
  *
  * @author Bato
  */
-public class PersonDto extends EntityDto{
-    
+public class PersonDto extends EntityDto {
+
     private PersonState state;
     private String username;
     private PersonRole role;
@@ -65,9 +65,10 @@ public class PersonDto extends EntityDto{
     public void setAwayStart(Optional<Long> awayStart) {
         this.awayStart = awayStart;
     }
-    
+
     /**
      * Returns IDs of all entities, that this person interacts with.
+     *
      * @return list of IDs
      */
     public List<Long> getInteractionEntitiesIds() {
@@ -100,6 +101,6 @@ public class PersonDto extends EntityDto{
     @Override
     public String toString() {
         return "PersonDto{" + "state=" + state + ", username=" + username + ", role=" + role + '}';
-    } 
-    
+    }
+
 }

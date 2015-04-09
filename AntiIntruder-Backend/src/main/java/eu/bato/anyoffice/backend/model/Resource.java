@@ -18,19 +18,19 @@ import javax.persistence.Table;
  */
 @javax.persistence.Entity
 @Table(name = "Resource")
-public class Resource extends Entity{
-    
+public class Resource extends Entity {
+
     @ManyToOne
     private State state;
     @Column(nullable = true, name = "NEXT_STATE_CHANGE")
     private Date nextPossibleStateChange;
     @Column(nullable = true, name = "STATE_EXPIRATION")
     private Date stateExpiration;
-    
+
     public State getState() {
         return state;
     }
-    
+
     /**
      * Sets new state. If the state is different than the previously set state,
      * fields lastStateChange, nextPossibleStateChange and stateExpiration will
@@ -47,7 +47,7 @@ public class Resource extends Entity{
         }
         this.state = state;
     }
-    
+
     public Date getNextPossibleStateChange() {
         return nextPossibleStateChange;
     }

@@ -73,17 +73,19 @@ public class PersonStateManager {
         PersonDto p = personService.findOneByUsername(username);
         Long now = new Date().getTime();
         PersonState current = getCurrentState(username);
-        if (!current.equals(PersonState.AWAY) && !current.equals(PersonState.UNKNOWN)){
+        if (!current.equals(PersonState.AWAY) && !current.equals(PersonState.UNKNOWN)) {
             log.info("User " + username + " has not been AWAY.");
             return current;
         }
-        if (p.getDndStart().compareTo(p.getDndEnd())>=0){
+        if (p.getDndStart().compareTo(p.getDndEnd()) >= 0) {
             //previous state was AVAILABLE
-            Long newDndStart = p.getDndStart() + (now - p.getAwayStart().orElseThrow(() -> {return new IllegalStateException("User " + username + " is in state AWAY/UNKNOWN but awayStart is empty.");}));
+            Long newDndStart = p.getDndStart() + (now - p.getAwayStart().orElseThrow(() -> {
+                return new IllegalStateException("User " + username + " is in state AWAY/UNKNOWN but awayStart is empty.");
+            }));
             personService.setTimers(username, Optional.of(new Date(newDndStart)), Optional.empty(), Optional.empty());
             personService.setState(username, PersonState.AVAILABLE);
             return PersonState.AVAILABLE;
-        } else if (p.getDndStart().compareTo(p.getDndEnd())<0 && p.getDndEnd().compareTo(now)<=0){
+        } else if (p.getDndStart().compareTo(p.getDndEnd()) < 0 && p.getDndEnd().compareTo(now) <= 0) {
             // previous state was DND but it's already over
             setAvailableState(username);
             return PersonState.AVAILABLE;
@@ -105,14 +107,14 @@ public class PersonStateManager {
 
     public void checkCurrentStatesValidity() {
         List<String> allUsernames = personService.findAllUsernames();
-        if (allUsernames != null){
+        if (allUsernames != null) {
             allUsernames.forEach(p -> checkCurrentStateValidity(p));
         }
     }
 
     public void checkCurrentStateValidity(String username) {
         PersonDto person = personService.findOneByUsername(username);
-        if (person.getState().equals(PersonState.DO_NOT_DISTURB) && person.getDndEnd().compareTo(new Date().getTime()) <=0){
+        if (person.getState().equals(PersonState.DO_NOT_DISTURB) && person.getDndEnd().compareTo(new Date().getTime()) <= 0) {
             // current state is DND and it should have ended
             personService.setState(username, PersonState.AVAILABLE);
         }
@@ -126,16 +128,16 @@ public class PersonStateManager {
             return true;
         }
     }
-    
-    private void setAvailableState(String username){
+
+    private void setAvailableState(String username) {
         Date now = new Date();
         Long minAvailableTime = Configuration.getInstance().getLongProperty(Property.MIN_AVAILABLE_TIME);
         Optional<Date> dndStart = Optional.of(new Date(now.getTime() + minAvailableTime));
         personService.setTimers(username, dndStart, Optional.of(now), Optional.empty());
         personService.setState(username, PersonState.AVAILABLE);
     }
-    
-    private void setDndState(String username){
+
+    private void setDndState(String username) {
         Date now = new Date();
         Long maxDndTime = Configuration.getInstance().getLongProperty(Property.MAX_DND_TIME);
         Optional<Date> dndEnd = Optional.of(new Date(now.getTime() + maxDndTime));
@@ -143,9 +145,9 @@ public class PersonStateManager {
         personService.setState(username, PersonState.DO_NOT_DISTURB);
     }
 
-    private void setUnknownAwayState(String username, PersonState state){
+    private void setUnknownAwayState(String username, PersonState state) {
         personService.setTimers(username, Optional.empty(), Optional.empty(), Optional.of(new Date()));
         personService.setState(username, state);
     }
-    
+
 }

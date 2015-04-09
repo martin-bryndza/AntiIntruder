@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class PersonConvert{
-    
+public class PersonConvert {
+
     public Person fromDtoToEntity(PersonDto dto, String password) {
-        if (dto == null){
+        if (dto == null) {
             return null;
         }
         Person e = new Person();
@@ -33,7 +33,7 @@ public class PersonConvert{
         return e;
     }
 
-    public static PersonDto fromEntityToDto (Person entity) {
+    public static PersonDto fromEntityToDto(Person entity) {
         if (entity == null) {
             return null;
         }
@@ -46,11 +46,11 @@ public class PersonConvert{
         dto.setDescription(entity.getDescription());
         dto.setLastStateChange(entity.getLastStateChange().getTime());
         dto.setLocation(entity.getLocation());
-        dto.setAwayStart(entity.getAwayStart().isPresent()?Optional.of(entity.getAwayStart().get().getTime()):Optional.empty());
+        dto.setAwayStart(entity.getAwayStart().isPresent() ? Optional.of(entity.getAwayStart().get().getTime()) : Optional.empty());
         dto.setDndEnd(entity.getDndEnd().getTime());
         dto.setDndStart(entity.getDndStart().getTime());
         dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
         return dto;
     }
-    
+
 }

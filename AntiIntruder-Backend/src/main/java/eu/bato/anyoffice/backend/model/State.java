@@ -19,16 +19,16 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 public class State {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(columnDefinition = "VARCHAR(50)", nullable = false)
     private String name;
-    
+
     private long maxDuration;
     private long minDuration;
-    
+
     @ManyToOne(optional = true)
     private State defaultSuccessor;
 
@@ -49,7 +49,7 @@ public class State {
     }
 
     /**
-     * 
+     *
      * @return Maximum state duration in milliseconds or 0 for not specified
      */
     public long getMaxDuration() {
@@ -57,15 +57,16 @@ public class State {
     }
 
     /**
-     * 
-     * @param maxDuration Maximum state duration in milliseconds or 0 for not specified
+     *
+     * @param maxDuration Maximum state duration in milliseconds or 0 for not
+     * specified
      */
     public void setMaxDuration(long maxDuration) {
         this.maxDuration = maxDuration;
     }
 
     /**
-     * 
+     *
      * @return Minimum state duration in milliseconds or 0 for not specified
      */
     public long getMinDuration() {
@@ -73,8 +74,9 @@ public class State {
     }
 
     /**
-     * 
-     * @param minDuration Minimum state duration in milliseconds or 0 for not specified
+     *
+     * @param minDuration Minimum state duration in milliseconds or 0 for not
+     * specified
      */
     public void setMinDuration(long minDuration) {
         this.minDuration = minDuration;
@@ -83,16 +85,17 @@ public class State {
     /**
      * Gets the default successor of this state. If the given successor is null,
      * this object will returned as its successor.
+     *
      * @return Default successor state of this state.
      */
     public State getDefaultSuccessor() {
-        return defaultSuccessor==null?this:defaultSuccessor;
+        return defaultSuccessor == null ? this : defaultSuccessor;
     }
 
     public void setDefaultSuccessor(State defaultSuccessor) {
         this.defaultSuccessor = defaultSuccessor;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -115,5 +118,5 @@ public class State {
     public String toString() {
         return "State{" + "id=" + id + ", name=" + name + ", maxDuration=" + maxDuration + ", minDuration=" + minDuration + '}';
     }
-    
+
 }

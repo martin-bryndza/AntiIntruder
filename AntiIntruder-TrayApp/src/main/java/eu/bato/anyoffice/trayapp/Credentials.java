@@ -10,10 +10,10 @@ import java.util.Base64;
  * @author Bato
  */
 public class Credentials {
-    
+
     private final String encodedAuthString;
 
-    public Credentials(String username, char[] password) throws IOException {        
+    public Credentials(String username, char[] password) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(username.getBytes(Charset.forName("US-ASCII")));
         outputStream.write(':');
@@ -28,8 +28,8 @@ public class Credentials {
         this.encodedAuthString = encodedAuthString;
     }
 
-    public String getEncodedAuthenticationString(){
+    public String getEncodedAuthenticationString() {
         return encodedAuthString;
     }
-    
+
 }

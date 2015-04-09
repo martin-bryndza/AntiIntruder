@@ -32,8 +32,8 @@ import org.hibernate.annotations.MetaValue;
  */
 @javax.persistence.Entity
 @Table(name = "Person")
-public class Person extends Entity{
-    
+public class Person extends Entity {
+
     @Column(columnDefinition = "VARCHAR(100)", nullable = false, unique = true)
     private String username;
     @Column(columnDefinition = "VARCHAR(250)", nullable = false)
@@ -59,7 +59,7 @@ public class Person extends Entity{
     @Cascade(CascadeType.ALL)
     @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<Entity> interactionEntities;
- 
+
     public PersonRole getRole() {
         return role;
     }
@@ -67,7 +67,7 @@ public class Person extends Entity{
     public void setRole(PersonRole role) {
         this.role = role;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -99,7 +99,7 @@ public class Person extends Entity{
     }
 
     public void setDndStart(Date dndStart) {
-        this.dndStart = dndStart==null?this.dndStart:dndStart;
+        this.dndStart = dndStart == null ? this.dndStart : dndStart;
     }
 
     public Date getDndEnd() {
@@ -107,7 +107,7 @@ public class Person extends Entity{
     }
 
     public void setDndEnd(Date dndEnd) {
-        this.dndEnd = dndEnd==null?this.dndEnd:dndEnd;
+        this.dndEnd = dndEnd == null ? this.dndEnd : dndEnd;
     }
 
     public Optional<Date> getAwayStart() {
@@ -117,7 +117,7 @@ public class Person extends Entity{
     public void setAwayStart(Optional<Date> awayStart) {
         this.awayStart = awayStart.orElse(null);
     }
-    
+
     public List<Entity> getInteractionEntities() {
         return interactionEntities;
     }
@@ -138,7 +138,7 @@ public class Person extends Entity{
             this.interactionEntities.remove(interactionEntity);
         }
     }
-    
+
     public void removeAllInteractionEntities() {
         this.interactionEntities.clear();
     }

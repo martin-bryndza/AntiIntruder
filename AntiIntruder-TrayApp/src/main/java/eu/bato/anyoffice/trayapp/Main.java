@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
  * @author Bato
  */
 public class Main {
-    
+
     private final static Logger log = LoggerFactory.getLogger(Main.class);
     private static WorkstationLockListener workstationLockListener = null;
-    
+
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -27,31 +27,31 @@ public class Main {
             log.error(ex.getMessage());
         }
         Thread t = new Thread(new WorkstationLockListenerRunner());
-        t.start();  
+        t.start();
         TrayIconManager.initialize();
         StateCheckService.getInstance().start();
         SwingUtilities.invokeLater(() -> {
         });
     }
-    
+
     static void programFinish() {
         if (workstationLockListener != null) {
             workstationLockListener.destroy();
         }
         TrayIconManager tim = TrayIconManager.getInstance();
-        if (tim!=null){
+        if (tim != null) {
             tim.close();
         }
         System.exit(0);
     }
-    
-    private static class WorkstationLockListenerRunner implements Runnable{
+
+    private static class WorkstationLockListenerRunner implements Runnable {
 
         @Override
         public void run() {
             workstationLockListener = new WorkstationLockListener();
         }
-        
+
     }
-    
+
 }

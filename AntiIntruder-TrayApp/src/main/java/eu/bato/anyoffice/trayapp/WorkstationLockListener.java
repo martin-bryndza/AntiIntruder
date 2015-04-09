@@ -16,9 +16,9 @@ import com.sun.jna.platform.win32.Wtsapi32;
 import org.slf4j.LoggerFactory;
 
 public class WorkstationLockListener implements WindowProc {
-    
+
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(WorkstationLockListener.class);
-    
+
     private final HWND hWnd;
     private final WString windowClass;
     private final HMODULE hInst;
@@ -55,8 +55,8 @@ public class WorkstationLockListener implements WindowProc {
             User32.INSTANCE.DispatchMessage(msg);
         }
     }
-    
-    public void destroy(){
+
+    public void destroy() {
         Wtsapi32.INSTANCE.WTSUnRegisterSessionNotification(hWnd);
         User32.INSTANCE.UnregisterClass(windowClass, hInst);
         User32.INSTANCE.DestroyWindow(hWnd);
@@ -111,7 +111,7 @@ public class WorkstationLockListener implements WindowProc {
      */
     private void onSessionChange(WPARAM wParam, LPARAM lParam) {
         switch (wParam.intValue()) {
-            case Wtsapi32.WTS_SESSION_LOCK: 
+            case Wtsapi32.WTS_SESSION_LOCK:
             case Wtsapi32.WTS_SESSION_LOGOFF:
                 this.onMachineLocked(lParam.intValue());
                 break;

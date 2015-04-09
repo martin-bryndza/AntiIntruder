@@ -23,13 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class StateDaoImpl implements StateDao{
+public class StateDaoImpl implements StateDao {
 
     private final static Logger log = LoggerFactory.getLogger(StateDaoImpl.class);
-    
+
     @PersistenceContext
     private EntityManager em;
-    
+
     @Override
     public void delete(Long id) {
         if (id == null) {
@@ -44,7 +44,7 @@ public class StateDaoImpl implements StateDao{
 
     @Override
     public List<State> findAll() {
-        
+
         return em.createQuery("SELECT tbl FROM State tbl", State.class).getResultList();
     }
 
@@ -53,7 +53,7 @@ public class StateDaoImpl implements StateDao{
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
         }
-            return em.createQuery("SELECT e FROM State e WHERE e.id = :pk", State.class).setParameter("pk", id).getSingleResult();
+        return em.createQuery("SELECT e FROM State e WHERE e.id = :pk", State.class).setParameter("pk", id).getSingleResult();
     }
 
     @Override
@@ -67,5 +67,5 @@ public class StateDaoImpl implements StateDao{
         log.debug("Created " + modelEntity.toString() + ". Assigned ID: " + id);
         return modelEntity;
     }
-    
+
 }

@@ -20,7 +20,7 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 @PropertySource({"classpath:application.properties", "classpath:ldap.properties"})
 @ComponentScan(value = {"eu.bato.anyoffice"})
 public class AppConfig {
-    
+
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
@@ -33,5 +33,5 @@ public class AppConfig {
         messageSource.setCacheSeconds(0);
         return messageSource;
     }
-    
+
 }

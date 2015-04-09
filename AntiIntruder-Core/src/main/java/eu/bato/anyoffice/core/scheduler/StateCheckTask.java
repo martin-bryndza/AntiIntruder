@@ -8,16 +8,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Bato
  */
-public class StateCheckTask extends TimerTask{
-    
+public class StateCheckTask extends TimerTask {
+
     final static Logger log = LoggerFactory.getLogger(StateCheckTask.class);
-    
+
 //    @Autowired
 //    ResourceService resourceService;
 //    
 //    @Autowired
 //    StateService stateService;
-   
     @Override
     public void run() {
 //        log.info("States check started...");

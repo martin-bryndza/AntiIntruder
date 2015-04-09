@@ -29,8 +29,8 @@ import org.hibernate.annotations.MetaValue;
  * @author Bato
  */
 @MappedSuperclass
-public abstract class Entity implements Serializable{
-    
+public abstract class Entity implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -39,7 +39,7 @@ public abstract class Entity implements Serializable{
     @Column(columnDefinition = "VARCHAR(250)", nullable = true)
     private String description;
     @Column(columnDefinition = "VARCHAR(125)", nullable = true)
-    private String location;    
+    private String location;
     @Column(nullable = false, name = "LAST_STATE_CHANGE")
     private Date lastStateChange;
     @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
@@ -64,7 +64,7 @@ public abstract class Entity implements Serializable{
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
-    
+
     public String getDescription() {
         return description;
     }
@@ -76,7 +76,7 @@ public abstract class Entity implements Serializable{
     public void setLocation(String location) {
         this.location = location;
     }
-    
+
     public String getDisplayName() {
         return displayName;
     }
@@ -100,7 +100,7 @@ public abstract class Entity implements Serializable{
     public void setInteractingPersons(List<Person> interactingPersons) {
         this.interactingPersons = interactingPersons;
     }
-    
+
     public void addInteractingPersons(Person interactingPerson) {
         if (this.interactingPersons == null) {
             this.interactingPersons = new LinkedList<>();
@@ -117,7 +117,7 @@ public abstract class Entity implements Serializable{
     public void removeAllInteractingPersons() {
         this.interactingPersons.clear();
     }
-        
+
     @Override
     public int hashCode() {
         int hash = 5;

@@ -3,13 +3,14 @@ package eu.bato.anyoffice.backend.service.common;
 import org.springframework.dao.RecoverableDataAccessException;
 
 /**
- * Exception template for wrapping try-catch block around any set of persistence operations, throwing
- * DataAccessExceptions when Exception in the wrapped code itself is thrown.
- * All tested code has to be put into implementation of the abstract doMethod().
- * This class is used when code is expected to include a non-void return statement.
+ * Exception template for wrapping try-catch block around any set of persistence
+ * operations, throwing DataAccessExceptions when Exception in the wrapped code
+ * itself is thrown. All tested code has to be put into implementation of the
+ * abstract doMethod(). This class is used when code is expected to include a
+ * non-void return statement.
  */
-public abstract class DataAccessExceptionNonVoidTemplate<T,U,V> {
-    
+public abstract class DataAccessExceptionNonVoidTemplate<T, U, V> {
+
     private final U u;
     private final V v;
 
@@ -17,12 +18,12 @@ public abstract class DataAccessExceptionNonVoidTemplate<T,U,V> {
         this.u = u;
         this.v = null;
     }
-    
+
     public DataAccessExceptionNonVoidTemplate(U u, V v) {
         this.u = u;
         this.v = v;
     }
-    
+
     public T tryMethod() {
         T returnedObject;
         try {
@@ -32,9 +33,9 @@ public abstract class DataAccessExceptionNonVoidTemplate<T,U,V> {
         }
         return returnedObject;
     }
-    
+
     public abstract T doMethod();
-    
+
     public U getU() {
         return u;
     }
@@ -42,7 +43,5 @@ public abstract class DataAccessExceptionNonVoidTemplate<T,U,V> {
     public V getV() {
         return v;
     }
-    
-    
-}
 
+}

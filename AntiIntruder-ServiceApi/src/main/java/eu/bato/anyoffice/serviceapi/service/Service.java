@@ -19,7 +19,7 @@ public interface Service<T> {
     public T findOne(Long id);
 
     public void delete(Long id);
-    
+
     public List<T> findAll();
-    
+
 }

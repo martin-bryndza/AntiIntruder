@@ -37,18 +37,19 @@ public class PersonDetailsService implements UserDetailsService {
 
     @PostConstruct
     protected void initialize() {
-        if (!personService.isPresent("adminn")) {
+            
+        if (!personService.isPresent("adminAnyOffice")) {
             PersonDto sampleUser = new PersonDto();
-            sampleUser.setUsername("adminn");
+            sampleUser.setUsername("adminAnyOffice");
             sampleUser.setDisplayName("Administrator");
             sampleUser.setRole(PersonRole.ADMIN);
             personService.register(sampleUser, encoder.encode(environment.getProperty("auth.admin.password", "1234")));
         }
-        
-        if (environment.getProperty("auth.type", "DB").equals("LDAP")){
+
+        if (environment.getProperty("auth.type", "DB").equals("LDAP")) {
             return;
         }
-        
+
         if (!personService.isPresent("bato")) {
             PersonDto sampleUser = new PersonDto();
             sampleUser.setUsername("bato");
@@ -68,7 +69,7 @@ public class PersonDetailsService implements UserDetailsService {
             sampleUser.setRole(PersonRole.USER);
             personService.register(sampleUser, encoder.encode("olda"));
         }
-        
+
         if (!personService.isPresent("myska")) {
             PersonDto sampleUser = new PersonDto();
             sampleUser.setUsername("myska");
@@ -83,9 +84,6 @@ public class PersonDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (username.equals("jarda")) {
-            return new User(username, "jarda", null);
-        }
         log.info("Authenticating: " + username);
         Optional<LoginDetailsDto> optDetails = personService.getLoginDetails(username);
         if (!optDetails.isPresent()) {

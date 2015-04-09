@@ -27,14 +27,14 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class StateServiceImpl implements StateService{
-    
+public class StateServiceImpl implements StateService {
+
     final static Logger log = LoggerFactory.getLogger(StateServiceImpl.class);
     @Autowired
     private StateDao stateDao;
     @Autowired
     private StateConvert stateConvert;
-    
+
     @Override
     @Transactional(readOnly = false)
     public Long save(StateDto dto) {
@@ -79,7 +79,7 @@ public class StateServiceImpl implements StateService{
                 }
             }.tryMethod();
         }
-    }    
+    }
 
     @Override
     public List<StateDto> findAll() {

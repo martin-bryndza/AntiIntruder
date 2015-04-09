@@ -3,18 +3,17 @@ package eu.bato.anyoffice.frontend.rest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-
 @ControllerAdvice
 public class DefaultExceptionHandler {
-    
+
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public class BadRequestException extends RuntimeException {
-   //
+        //
     }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public class ResourceNotFoundException extends RuntimeException {
-   //
+        //
     }
 
 //    @RequestMapping(produces = {Versions.V1_0})
@@ -137,5 +136,4 @@ public class DefaultExceptionHandler {
 //        }
 //        return result;
 //    }
-    
 }

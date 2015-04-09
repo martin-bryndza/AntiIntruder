@@ -44,8 +44,8 @@ public class RestClient {
         this.headers = createHeaders(credentials);
         rest = createRestTemplate();
     }
-    
-    private static HttpHeaders createHeaders(Credentials credentials){
+
+    private static HttpHeaders createHeaders(Credentials credentials) {
         return new HttpHeaders() {
             {
                 String authHeader = "Basic " + credentials.getEncodedAuthenticationString();
@@ -54,8 +54,8 @@ public class RestClient {
             }
         };
     }
-    
-    private static RestTemplate createRestTemplate(){
+
+    private static RestTemplate createRestTemplate() {
         RestTemplate rest = new RestTemplate();
         rest.setRequestFactory(new HttpComponentsClientHttpRequestFactoryBasicAuth(new HttpHost("localhost", 8080)));
 //        PersonStateMessageConverter converter = new PersonStateMessageConverter();
@@ -71,7 +71,7 @@ public class RestClient {
     static boolean isCorrectCredentials(Credentials credentials) {
         ResponseEntity<String> response;
         try {
-            
+
             response = createRestTemplate().exchange(URI + "login", HttpMethod.GET, new HttpEntity<>(createHeaders(credentials)), String.class);
             log.debug("Login response:" + response.toString());
             return response.getStatusCode().is2xxSuccessful();
@@ -114,7 +114,7 @@ public class RestClient {
     boolean isStateChangePossible(PersonState toState) {
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "canchange?state="+toState.name(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = rest.exchange(URI + "canchange?state=" + toState.name(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("Is state change possible " + toState + " response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseBoolean(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -130,7 +130,7 @@ public class RestClient {
     PersonState goAway() {
         return lock(true);
     }
-    
+
     String getLocation() {
         ResponseEntity<String> response;
         try {
@@ -144,7 +144,7 @@ public class RestClient {
     }
 
     /**
-     * 
+     *
      * @param location
      * @return true, if location was set successfully, false otherwise
      */
@@ -161,12 +161,12 @@ public class RestClient {
             log.info("Set location \"{}\" response: {}", location, response.getStatusCode().toString());
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to set location \"{}\".", location , e);
+            log.error("Unable to set location \"{}\".", location, e);
             return false;
         }
     }
-    
-    int getNumberOfRequests(){
+
+    int getNumberOfRequests() {
         ResponseEntity<String> response;
         try {
             response = rest.exchange(URI + "requests", HttpMethod.GET, new HttpEntity<>(headers), String.class);
@@ -177,8 +177,8 @@ public class RestClient {
             return 0;
         }
     }
-    
-    List<InteractionPerson> getNewAvailableConsulters(){
+
+    List<InteractionPerson> getNewAvailableConsulters() {
         ResponseEntity<String> response;
         try {
             response = rest.exchange(URI + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
@@ -193,7 +193,7 @@ public class RestClient {
     private PersonState lock(boolean lock) {
         HttpEntity<String> entity;
         try {
-        entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(lock), headers);
+            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(lock), headers);
         } catch (IOException e) {
             log.error(e.getMessage()); //TODO
             return PersonState.UNKNOWN;
@@ -208,34 +208,34 @@ public class RestClient {
             return PersonState.UNKNOWN;
         }
     }
-    
-    private PersonState parseState(String responseBody){
+
+    private PersonState parseState(String responseBody) {
         return PersonState.valueOf(parseString(responseBody));
     }
-    
-    private Boolean parseBoolean(String responseBody){
+
+    private Boolean parseBoolean(String responseBody) {
         return Boolean.valueOf(parseString(responseBody));
     }
-    
+
     private String parseString(String responseBody) {
         return responseBody.replace("\"", "");
     }
-    
+
     private Integer parseInteger(String responseBody) {
         return Integer.valueOf(parseString(responseBody));
     }
-    
+
     private Map<String, String> parseMapStringString(String responseBody) {
         responseBody = responseBody.replaceAll("[{}]", "");
         String[] items = responseBody.split(",");
         Map<String, String> result = new HashMap<>();
-        for (String item: items){
+        for (String item : items) {
             String[] parts = item.split(":", 2);
             result.put(parseString(parts[0]), parseString(parts[1]));
         }
         return result;
     }
-    
+
     private List<String> parseList(String responseBody) {
         List<String> result = new LinkedList<>();
         JSONParser parser = new JSONParser();
@@ -249,8 +249,8 @@ public class RestClient {
         }
         return result;
     }
-    
-    private List<InteractionPerson> parseListInteractionPerson(String responseBody){
+
+    private List<InteractionPerson> parseListInteractionPerson(String responseBody) {
         List<InteractionPerson> result = new LinkedList<>();
         JSONParser parser = new JSONParser();
         try {
@@ -263,7 +263,7 @@ public class RestClient {
         }
         return result;
     }
-    
+
     private InteractionPerson parseInteractionPerson(String responseBody) {
         InteractionPerson result = null;
         JSONParser parser = new JSONParser();
@@ -275,7 +275,7 @@ public class RestClient {
         }
         return result;
     }
-    
+
     private InteractionPerson jsonObjectToInteractionPerson(JSONObject obj) {
         InteractionPerson person = new InteractionPerson();
         person.setId((Long) obj.get("id"));

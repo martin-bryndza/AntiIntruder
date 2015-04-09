@@ -39,7 +39,7 @@ public class IndexController {
     protected ResourceService entityService;
     @Autowired
     protected PersonStateManager personStateManager;
-    
+
     private PersonDto adminPerson = null;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -48,14 +48,14 @@ public class IndexController {
         model.addAttribute("password", new PasswordObject());
         model.addAttribute("states", PersonState.values());
         List<PersonDto> otherPersons = personService.findAll();
-        if (adminPerson == null){
-            adminPerson = personService.findOneByUsername("adminn");
+        if (adminPerson == null) {
+            adminPerson = personService.findOneByUsername("adminAnyOffice");
         }
         otherPersons.remove(adminPerson);
         if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
-            UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
-                PersonDto currentPerson = personService.findOneByUsername(currentUser.getUsername());
+            Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+                PersonDto currentPerson = personService.findOneByUsername(auth.getName());
                 model.addAttribute("currentPerson", currentPerson);
                 otherPersons.remove(currentPerson);
             }
@@ -77,24 +77,24 @@ public class IndexController {
         personService.delete(id);
         return "redirect:";
     }
-    
+
     @RequestMapping(value = "/interact", method = RequestMethod.GET)
     public String interact(@RequestParam Long id) {
-        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
-            User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
-                personService.addInteractionEntity(currentUser.getUsername(), id);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getName().equals("anonymousUser")) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+                personService.addInteractionEntity(auth.getName(), id);
             }
         }
         return "redirect:";
     }
-    
+
     @RequestMapping(value = "/cancelinteract", method = RequestMethod.GET)
     public String cancelInteract(@RequestParam Long id) {
-        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
-            User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
-                personService.removeInteractionEntity(currentUser.getUsername(), id);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getName().equals("anonymousUser")) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+                personService.removeInteractionEntity(auth.getName(), id);
             }
         }
         return "redirect:";

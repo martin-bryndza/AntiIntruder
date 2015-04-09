@@ -96,7 +96,7 @@
             </form>
         </div>    
         <br/>
-        <table class="list">
+        <table th:if="${not #lists.isEmpty(persons)}" class="list">
             <thead>
                 <tr>
                     <th>Display Name</th>
@@ -121,10 +121,10 @@
                     <td data-th-text="${ent.location}">Unknown</td>
                     <td data-th-text="${ent.description}"></td>
                     <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
-<!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">
-                            <input type="hidden" th:field="${ent.id}"/>
-                            <button type="submit" class="btn btn-primary" th:text='#{Deletee}'>Deletee</button>-->
-                            <a href="#" data-th-href="@{/delete(id=${ent.id})}" th:text="#{Delete}">Delete</a>
+                        <!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">
+                                                    <input type="hidden" th:field="${ent.id}"/>
+                                                    <button type="submit" class="btn btn-primary" th:text='#{Deletee}'>Deletee</button>-->
+                        <a href="#" data-th-href="@{/delete(id=${ent.id})}" th:text="#{Delete}">Delete</a>
                         <!--</form>-->
                     </td>
                     <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}">

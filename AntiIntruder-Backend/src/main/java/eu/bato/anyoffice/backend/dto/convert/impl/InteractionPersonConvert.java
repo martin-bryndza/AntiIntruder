@@ -8,7 +8,7 @@ import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
  * @author Bato
  */
 public class InteractionPersonConvert {
-    
+
     public static InteractionPersonDto fromEntityToDto(Person entity) {
         if (entity == null) {
             return null;
@@ -22,5 +22,5 @@ public class InteractionPersonConvert {
         dto.setDndStart(entity.getDndStart().getTime());
         return dto;
     }
-    
+
 }

@@ -38,7 +38,7 @@ import javax.persistence.NoResultException;
  * @author Bato
  */
 @Service
-@Transactional(noRollbackFor=NoResultException.class)
+@Transactional(noRollbackFor = NoResultException.class)
 public class PersonServiceImpl implements PersonService {
 
     final static Logger log = LoggerFactory.getLogger(PersonServiceImpl.class);
@@ -207,7 +207,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Optional<LoginDetailsDto> getLoginDetails(String username) {
         Optional<Person> entity = findOnePersonByUsername(username);
-        return entity.isPresent()?Optional.of(new LoginDetailsDto(entity.get().getPassword(), entity.get().getRole())):Optional.empty();
+        return entity.isPresent() ? Optional.of(new LoginDetailsDto(entity.get().getPassword(), entity.get().getRole())) : Optional.empty();
     }
 
     @Override
@@ -404,15 +404,15 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Long getId(String username) {
         Optional<Person> p = findOnePersonByUsername(username);
-        return p.isPresent()?p.get().getId():null;
+        return p.isPresent() ? p.get().getId() : null;
     }
 
     @Override
     public InteractionPersonDto findOneByUsernameAsInteractionPerson(String username) {
         return InteractionPersonConvert.fromEntityToDto(findOnePersonByUsername(username).get());
     }
-    
-    private Optional<Person> findOnePersonByUsername(String username){
+
+    private Optional<Person> findOnePersonByUsername(String username) {
         if (username == null || username.isEmpty()) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: " + username);
             log.error("PersonServiceImpl.findOneByUsername() called on null or empty parameter: String username", iaex);
@@ -421,7 +421,7 @@ public class PersonServiceImpl implements PersonService {
         return (Optional<Person>) new DataAccessExceptionNonVoidTemplate(username) {
             @Override
             public Optional<Person> doMethod() {
-                try{
+                try {
                     return Optional.of(personDao.findOneByUsername(username));
                 } catch (NoResultException e) {
                     return Optional.empty();
