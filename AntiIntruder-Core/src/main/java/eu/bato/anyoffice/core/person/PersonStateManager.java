@@ -128,6 +128,16 @@ public class PersonStateManager {
             return true;
         }
     }
+    
+    public long getDndStart(String username){
+        //TODO make more effective
+        return personService.findOneByUsername(username).getDndStart();
+    }
+    
+    public long getDndEnd(String username){
+        //TODO make more effective
+        return personService.findOneByUsername(username).getDndEnd();
+    }
 
     private void setAvailableState(String username) {
         Date now = new Date();

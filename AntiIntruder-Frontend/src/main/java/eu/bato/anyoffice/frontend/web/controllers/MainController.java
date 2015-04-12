@@ -17,8 +17,8 @@ public class MainController {
     public String logout(@ModelAttribute CsrfToken csrf) {
         return "redirect:/";
     }
-
-//    @RequestMapping("/**")
+//
+//    @RequestMapping("/error")
 //    public String notFound() {
 //        return "errors/404";
 //    }

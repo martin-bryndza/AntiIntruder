@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .authenticationProvider(ldapAuthenticationProvider());
         }
     }
-
+    
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -74,7 +74,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .and()
                 .formLogin()
-                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .loginPage("/")
                 .permitAll()
                 .and()
                 .logout()

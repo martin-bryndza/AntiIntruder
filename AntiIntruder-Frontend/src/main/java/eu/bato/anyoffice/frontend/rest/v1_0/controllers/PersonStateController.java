@@ -122,5 +122,21 @@ public class PersonStateController {
         personInteractionsManager.seenInteractionEntities(authentication.getName(), interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return interactionPersons;
     }
+    
+    @RequestMapping(value = "dndStart", method = GET)
+    public @ResponseBody
+    Long getdndStart(Authentication authentication) {
+        long result = personStateManager.getDndStart(authentication.getName());
+        log.debug("GET dndStart for user {}, response: {}", authentication.getName(), result);
+        return result;
+    }
+    
+    @RequestMapping(value = "dndEnd", method = GET)
+    public @ResponseBody
+    Long getdndEnd(Authentication authentication) {
+        long result = personStateManager.getDndEnd(authentication.getName());
+        log.debug("GET dndEnd for user {}, response: {}", authentication.getName(), result);
+        return result;
+    }
 
 }

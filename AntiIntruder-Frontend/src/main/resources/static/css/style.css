@@ -20,9 +20,9 @@ h1{
     color:#E6D35E;
 }
 h2{
-    margin:20px 15px 15px 15px;
+    margin:10px 5px;
     font-size:20px;
-    color:#f7951e;
+    color:#E6D35E;
 }
 h3{
     padding:0 0 5px 0;
@@ -40,6 +40,12 @@ p{
     text-align:justify;
     margin:0px 20px;
 }
+
+a#username{
+    font-weight: bold;
+    font-size: 13px;
+}
+
 p.white{
     color:#FFFFFF;
 }
@@ -80,7 +86,7 @@ img.box_img{
      height: 84px;
 }
 #profile{
-    width: 200px;
+    max-width: 300px;
     padding:15px 15px;
     float:right;
 }
@@ -121,10 +127,12 @@ img.box_img{
 
 /*----------------middle green box-----------*/
 .green_box{
-    width:1000px;
+    width:980px;
     clear:both;
     background:url(/images/green_box_bg.gif) no-repeat left #50a842;
     background-position:50px 0px;
+    padding:5px 0 5px 20px;
+    color: #FFFFFF;
 }
 .text_content{
     width:350px;
@@ -395,4 +403,7 @@ table.basic th {
 }
 table.basic .col1 {
    background-color: #F1F1F1; 
+}
+div.dataTables_filter {
+    float: left;
 }

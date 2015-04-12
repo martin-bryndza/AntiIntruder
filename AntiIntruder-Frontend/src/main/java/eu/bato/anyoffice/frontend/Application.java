@@ -45,14 +45,9 @@ public class Application extends WebMvcConfigurerAdapter {
         scheduler.start();
     }
 
-//    @Override
-//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/*");
-//    }
-
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("login");
+        registry.addViewController("/login").setViewName("index");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
@@ -82,5 +77,20 @@ public class Application extends WebMvcConfigurerAdapter {
     public Validator getValidator() {
         return validator();
     }
+    
+//    @Bean 
+//    public ITemplateResolver templateResolver(){
+//        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+//        return resolver;
+//    }
+//    
+//    @Bean
+//    public SpringTemplateEngine templateEngine() {
+//        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+//        templateEngine.addTemplateResolver(templateResolver());
+////        templateEngine.addDialect(new SpringSecurityDialect());
+//        templateEngine.addDialect(new LayoutDialect());
+//        return templateEngine;
+//    }
 
 }
