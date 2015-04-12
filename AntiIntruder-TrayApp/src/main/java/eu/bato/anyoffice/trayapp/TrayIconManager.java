@@ -140,7 +140,7 @@ class TrayIconManager {
         MenuItem dnd = stateItems.get(PersonState.DO_NOT_DISTURB);
         boolean wasDndAvailable = dnd != null && dnd.isEnabled();
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-            if (dnd!=null) {
+            if (dnd != null) {
                 dnd.setEnabled(true);
             }
             log.debug("DND is now enabled");
@@ -154,14 +154,14 @@ class TrayIconManager {
                 availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
             }
         }
-        if (newState.equals(PersonState.DO_NOT_DISTURB)){
-            Long end = client.getDndEnd();
-            trayIcon.setToolTip("Do not disturb will end in " + end/1000 + " minutes.");
-        } else if (newState.equals(PersonState.AVAILABLE)){
+        if (newState.equals(PersonState.DO_NOT_DISTURB)) {
+            Long end = client.getDndEnd() - new Date().getTime();
+            trayIcon.setToolTip("Do not disturb will end in " + (end / 60000) + " minutes.");
+        } else if (newState.equals(PersonState.AVAILABLE)) {
             Long start = client.getDndStart();
             Long current = new Date().getTime();
-            if (start > current){
-                trayIcon.setToolTip("Do not disturb will be available in " + ((current-start)/1000) + " minutes.");
+            if (start > current) {
+                trayIcon.setToolTip("Do not disturb will be available in " + ((current - start) / 1000) + " minutes.");
             } else {
                 trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
             }
@@ -221,14 +221,13 @@ class TrayIconManager {
                 }
                 stateItems.put(state, item);
                 popup.add(item);
-
-                popup.addSeparator();
-                MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
-                locationMenuItem.addActionListener((ActionEvent) -> {
-                    requestNewLocation(currentLocation);
-                });
-                popup.add(locationMenuItem);
             }
+            popup.addSeparator();
+            MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
+            locationMenuItem.addActionListener((ActionEvent) -> {
+                requestNewLocation(currentLocation);
+            });
+            popup.add(locationMenuItem);
         } else {
             MenuItem item = new MenuItem("Server is unreachable");
             item.setEnabled(false);

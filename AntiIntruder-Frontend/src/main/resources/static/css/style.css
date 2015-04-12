@@ -125,6 +125,23 @@ img.box_img{
     color: #C3C1BD;
 }
 
+/*----------------sates----------------------*/
+.state_AVAILABLE{
+    color: green;
+}
+
+.state_DO_NOT_DISTURB{
+    color: red;
+}
+
+.state_AWAY{
+    color: gold;
+}
+
+.state_UNKNOWN{
+    color: darkgrey;
+}
+
 /*----------------middle green box-----------*/
 .green_box{
     width:980px;

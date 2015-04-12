@@ -120,7 +120,7 @@ public class RestClient {
             return parseBoolean(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to find out if change to state " + toState + " is possible.", e);
-            return true;
+            return false;
         }
     }
 
@@ -196,7 +196,7 @@ public class RestClient {
         try {
             response = exchange(URI + "dndStart", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET dndStart response:" + response.getStatusCode().toString() + " body:" + response.getBody());
-            return parseInteger(response.getBody());
+            return parseLong(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to GET dndStart.", e);
             return 0;
@@ -208,7 +208,7 @@ public class RestClient {
         try {
             response = exchange(URI + "dndEnd", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET dndEnd response:" + response.getStatusCode().toString() + " body:" + response.getBody());
-            return parseInteger(response.getBody());
+            return parseLong(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to GET dndEnd.", e);
             return 0;
@@ -264,6 +264,10 @@ public class RestClient {
 
     private Integer parseInteger(String responseBody) {
         return Integer.valueOf(parseString(responseBody));
+    }
+    
+    private Long parseLong(String responseBody) {
+        return Long.valueOf(parseString(responseBody));
     }
 
     private Map<String, String> parseMapStringString(String responseBody) {

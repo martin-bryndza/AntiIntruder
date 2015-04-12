@@ -98,7 +98,6 @@
                         <div th:text="#{Description}+ ': ' + ${currentPerson.description}">Description: UNKNOWN</div>
                         <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
                         <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
-
                         <form th:action="@{/logout}" method="post">
                             <input type="submit" value="Log out" />
                         </form>
@@ -132,8 +131,8 @@
                         <table>
                             <tbody>
                                 <tr>
-                                    <td><label for="username" th:text='#{Username}'>Username</label></td>
-                                    <td><input id="username" type="text" data-th-field="*{username}"/></td>
+                                    <td><label for="usernameField" th:text='#{Username}'>Username</label></td>
+                                    <td><input id="usernameField" type="text" data-th-field="*{username}"/></td>
                                 </tr>
                                 <tr>
                                     <td><label for="password" th:text='#{Password}'>Password</label></td>
@@ -175,7 +174,7 @@
                                 <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
                                     <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}"/>
                                 </select>
-                                <div th:case="false" th:text="${ent.state.name}" >Unknown</div>
+                                <div th:case="false" th:class="'state_' + ${ent.state.name}" th:text="${ent.state.name}" >Unknown</div>
                             </td>
                             <td data-th-text="${#dates.format(ent.dndEnd, 'dd/MMM/yyyy HH:mm')}">N/A</td>
                             <td data-th-text="${ent.location}">Unknown</td>

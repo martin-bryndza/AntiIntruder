@@ -52,9 +52,9 @@ public class IndexController {
         otherPersons.remove(adminPerson);
         if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
             Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+            PersonDto currentPerson = personService.findOneByUsername(auth.getName());
+            model.addAttribute("currentPerson", currentPerson);
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
-                PersonDto currentPerson = personService.findOneByUsername(auth.getName());
-                model.addAttribute("currentPerson", currentPerson);
                 otherPersons.remove(currentPerson);
             }
         }
