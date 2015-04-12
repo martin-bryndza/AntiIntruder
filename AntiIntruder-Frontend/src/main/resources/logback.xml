@@ -37,9 +37,9 @@
     </root>
 
     <logger name="org.apache.log4j.xml" level="info"/>
-    <logger name="org.thymeleaf" level="warn"/>
-    <logger name="org.hibernate" level="warn"/>
-    <logger name="org.springframework" level="warn"/>
+    <logger name="org.thymeleaf" level="info"/>
+    <logger name="org.hibernate" level="info"/>
+    <logger name="org.springframework" level="info"/>
     <logger name="org.springframework.web.context.ContextLoader" level="info"/>
     <logger name="eu.bato" level="debug"/>
 

@@ -18,9 +18,9 @@ public class MainController {
         return "redirect:/";
     }
 
-    @RequestMapping("/**")
-    public String notFound() {
-        return "errors/404";
-    }
+//    @RequestMapping("/**")
+//    public String notFound() {
+//        return "errors/404";
+//    }
 
 }
