@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -26,7 +26,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * @author Bato
  */
 @SpringBootApplication // adds @Configuration, @EnableAutoConfiguration, @ComponentScan
-@EnableWebMvc
+//@EnableWebMvc
+@EnableAutoConfiguration
 public class Application extends WebMvcConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -43,6 +44,11 @@ public class Application extends WebMvcConfigurerAdapter {
     protected void startScheduler() {
         scheduler.start();
     }
+
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/*");
+//    }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {

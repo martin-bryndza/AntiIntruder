@@ -29,14 +29,14 @@ public class SchedulerService {
         if (period <= 0) {
             log.info("Scheduler service for states check is disabled.");
         } else {
-            t.scheduleAtFixedRate(stateCheckTask(), 0, period);
+            t.schedule(stateCheckTask(), 0, period);
             log.info("Scheduler service for states check started with interval " + period);
         }
         period = Configuration.getInstance().getLongProperty(Property.PERSON_STATE_CHECK_INTERVAL);
         if (period <= 0) {
             log.info("Scheduler service for people's states check is disabled.");
         } else {
-            t.scheduleAtFixedRate(personStateCheckTask(), 0, period);
+            t.schedule(personStateCheckTask(), period, period);
             log.info("Scheduler service for people's states check started with interval " + period);
         }
     }

@@ -39,6 +39,8 @@ public class RestClient {
 
     private final RestTemplate rest;
     private final HttpHeaders headers;
+    
+    private static boolean serverOnline = true;
 
     public RestClient(Credentials credentials) {
         this.headers = createHeaders(credentials);
@@ -71,7 +73,6 @@ public class RestClient {
     static boolean isCorrectCredentials(Credentials credentials) {
         ResponseEntity<String> response;
         try {
-
             response = createRestTemplate().exchange(URI + "login", HttpMethod.GET, new HttpEntity<>(createHeaders(credentials)), String.class);
             log.debug("Login response:" + response.toString());
             return response.getStatusCode().is2xxSuccessful();
@@ -84,7 +85,7 @@ public class RestClient {
     PersonState getState() {
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "state", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(URI + "state", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET state response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -102,7 +103,7 @@ public class RestClient {
         }
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "state", HttpMethod.PUT, entity, String.class);
+            response = exchange(URI + "state", HttpMethod.PUT, entity, String.class);
             log.info("Set state \"{}\" response: {}; body: {}", state, response.getStatusCode().toString(), response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -114,7 +115,7 @@ public class RestClient {
     boolean isStateChangePossible(PersonState toState) {
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "canchange?state=" + toState.name(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(URI + "canchange?state=" + toState.name(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("Is state change possible " + toState + " response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseBoolean(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -134,7 +135,7 @@ public class RestClient {
     String getLocation() {
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "location", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(URI + "location", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET location response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseString(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -157,7 +158,7 @@ public class RestClient {
         }
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "location", HttpMethod.PUT, entity, String.class);
+            response = exchange(URI + "location", HttpMethod.PUT, entity, String.class);
             log.info("Set location \"{}\" response: {}", location, response.getStatusCode().toString());
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException | IllegalArgumentException e) {
@@ -169,7 +170,7 @@ public class RestClient {
     int getNumberOfRequests() {
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "requests", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(URI + "requests", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET number of requests response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseInteger(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -181,7 +182,7 @@ public class RestClient {
     List<InteractionPerson> getNewAvailableConsulters() {
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(URI + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET new available consulters response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseListInteractionPerson(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
@@ -189,7 +190,35 @@ public class RestClient {
             return new LinkedList<>();
         }
     }
+    
+    long getDndStart(){
+        ResponseEntity<String> response;
+        try {
+            response = exchange(URI + "dndStart", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET dndStart response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseInteger(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET dndStart.", e);
+            return 0;
+        }
+    }
+    
+    long getDndEnd(){
+        ResponseEntity<String> response;
+        try {
+            response = exchange(URI + "dndEnd", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET dndEnd response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseInteger(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET dndEnd.", e);
+            return 0;
+        }
+    }
 
+    boolean isServerOnline() {
+        return serverOnline;
+    }
+    
     private PersonState lock(boolean lock) {
         HttpEntity<String> entity;
         try {
@@ -200,13 +229,25 @@ public class RestClient {
         }
         ResponseEntity<String> response;
         try {
-            response = rest.exchange(URI + "locked", HttpMethod.PUT, entity, String.class);
+            response = exchange(URI + "locked", HttpMethod.PUT, entity, String.class);
             log.debug("Sending info about machine " + (lock ? "" : "un") + "lock response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to send info about machine " + (lock ? "" : "un") + "lock.", e);
             return PersonState.UNKNOWN;
         }
+    }
+    
+    private <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) throws RestClientException {
+        ResponseEntity<T> response;
+        try{
+            response = rest.exchange(url, method, requestEntity, responseType);
+            serverOnline = true;
+        } catch (RestClientException e){
+            serverOnline = false;
+            throw e;
+        }        
+        return response;
     }
 
     private PersonState parseState(String responseBody) {

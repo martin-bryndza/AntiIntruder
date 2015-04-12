@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -70,8 +71,14 @@ class TrayIconManager {
     private String currentLocation;
 
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
+    private BufferedImage icon = null;
 
     private TrayIconManager() {
+        try {
+            icon = ImageIO.read(new File("images/logo.png"));
+        } catch (IOException ex) {
+            log.error("Unable to load icon.", ex);
+        }
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToDndFrame();
         availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
@@ -109,7 +116,7 @@ class TrayIconManager {
         }
         SystemTray tray = SystemTray.getSystemTray();
         if (trayIcon == null) {
-            trayIcon = createIcon(currentState.getIconPath(), currentState.getDescription());
+            trayIcon = createIcon(currentState.getIconPath());
             try {
                 tray.add(trayIcon);
             } catch (AWTException ex) {
@@ -130,9 +137,12 @@ class TrayIconManager {
     }
 
     synchronized void update() {
-        boolean wasDndAvailable = stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled();
+        MenuItem dnd = stateItems.get(PersonState.DO_NOT_DISTURB);
+        boolean wasDndAvailable = dnd != null && dnd.isEnabled();
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-            stateItems.get(PersonState.DO_NOT_DISTURB).setEnabled(true);
+            if (dnd!=null) {
+                dnd.setEnabled(true);
+            }
             log.debug("DND is now enabled");
             showInfoBubble("Do not disturb state is possible. Click this bubble for further actions.");
         }
@@ -143,6 +153,20 @@ class TrayIconManager {
             if (!availableConsulters.isEmpty()) {
                 availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
             }
+        }
+        if (newState.equals(PersonState.DO_NOT_DISTURB)){
+            Long end = client.getDndEnd();
+            trayIcon.setToolTip("Do not disturb will end in " + end/1000 + " minutes.");
+        } else if (newState.equals(PersonState.AVAILABLE)){
+            Long start = client.getDndStart();
+            Long current = new Date().getTime();
+            if (start > current){
+                trayIcon.setToolTip("Do not disturb will be available in " + ((current-start)/1000) + " minutes.");
+            } else {
+                trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
+            }
+        } else {
+            trayIcon.setToolTip(newState.getDescription());
         }
         if (newState.equals(currentState) && newLocation.equals(currentLocation)) {
             return;
@@ -178,32 +202,38 @@ class TrayIconManager {
 
     private PopupMenu createMenu(PersonState currentState, String currentLocation) {
         PopupMenu popup = new PopupMenu("Any Office");
-        for (PersonState state : PersonState.values()) {
-            if (state.isAwayState()) {
-                continue;
-            }
-            MenuItem item = new MenuItem(state.getDisplayName());
-            if (state.equals(currentState)) {
-                item.setFont(BOLD_FONT);
-                item.setLabel("-" + item.getLabel() + "-");
-            } else if (!client.isStateChangePossible(state)) {
-                item.setEnabled(false);
-            } else {
-                item.addActionListener((ActionEvent) -> {
-                    log.info("State change by user -> " + state);
-                    changeState(state);
+        if (client.isServerOnline()) {
+            for (PersonState state : PersonState.values()) {
+                if (state.isAwayState()) {
+                    continue;
+                }
+                MenuItem item = new MenuItem(state.getDisplayName());
+                if (state.equals(currentState)) {
+                    item.setFont(BOLD_FONT);
+                    item.setLabel("-" + item.getLabel() + "-");
+                } else if (!client.isStateChangePossible(state)) {
+                    item.setEnabled(false);
+                } else {
+                    item.addActionListener((ActionEvent) -> {
+                        log.info("State change by user -> " + state);
+                        changeState(state);
+                    });
+                }
+                stateItems.put(state, item);
+                popup.add(item);
+
+                popup.addSeparator();
+                MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
+                locationMenuItem.addActionListener((ActionEvent) -> {
+                    requestNewLocation(currentLocation);
                 });
+                popup.add(locationMenuItem);
             }
-            stateItems.put(state, item);
+        } else {
+            MenuItem item = new MenuItem("Server is unreachable");
+            item.setEnabled(false);
             popup.add(item);
         }
-
-        popup.addSeparator();
-        MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation==null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
-        locationMenuItem.addActionListener((ActionEvent) -> {
-            requestNewLocation(currentLocation);
-        });
-        popup.add(locationMenuItem);
 
         popup.addSeparator();
 
@@ -230,9 +260,9 @@ class TrayIconManager {
         initialize(state, currentLocation);
     }
 
-    private TrayIcon createIcon(String path, String description) {
-        TrayIcon icon = new TrayIcon(getTrayIconImage(path), description);
-        return icon;
+    private TrayIcon createIcon(String path) {
+        TrayIcon trayIconn = new TrayIcon(getTrayIconImage(path));
+        return trayIconn;
     }
 
     private Image getTrayIconImage(String path) {
@@ -263,7 +293,7 @@ class TrayIconManager {
         JFrame f = new JFrame();
         f.setAlwaysOnTop(true);
         Thread t = new Thread(() -> {
-            JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE, new ImageIcon("images/logo.ico"));
         });
         t.start();
     }
@@ -278,6 +308,7 @@ class TrayIconManager {
         panel.add(field1);
         field1.selectAll();
         JFrame frame = new JFrame();
+        frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         int result = JOptionPane.showConfirmDialog(frame, panel, "Location",
@@ -316,6 +347,7 @@ class TrayIconManager {
 //            }
 //        });
         JFrame frame = new JFrame();
+        frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         int result = JOptionPane.showConfirmDialog(frame, panel, "Please log in",

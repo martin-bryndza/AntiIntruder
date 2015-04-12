@@ -2,10 +2,13 @@ package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
+import java.net.ConnectException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.ResourceAccessException;
 
 /**
  *
@@ -34,7 +37,7 @@ class StateCheckService {
         if (period <= 0) {
             log.info("Scheduler is disabled.");
         } else {
-            t.scheduleAtFixedRate(new StateCheckTask(), period, period);
+            t.schedule(new StateCheckTask(), period, period);
             log.info("Scheduler service started with period " + period);
         }
     }
@@ -44,7 +47,16 @@ class StateCheckService {
         @Override
         public void run() {
             log.debug("States check started...");
-            TrayIconManager.getInstance().update();
+            try{
+                TrayIconManager.getInstance().update();
+            } catch (ResourceAccessException e){
+                log.error("Conection to server failed.");
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException ex) {
+                    //does not matter
+                }
+            }
             log.debug("States check finished.");
         }
     }

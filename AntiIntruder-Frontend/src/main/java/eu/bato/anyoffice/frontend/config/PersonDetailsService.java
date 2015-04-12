@@ -96,6 +96,7 @@ public class PersonDetailsService implements UserDetailsService {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(optDetails.get().getRole().name()));
         return new User(username, optDetails.get().getPassword(), authorities);
+
     }
 
 }
