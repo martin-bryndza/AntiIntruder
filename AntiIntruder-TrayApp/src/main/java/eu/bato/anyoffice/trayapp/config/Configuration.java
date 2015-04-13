@@ -8,8 +8,11 @@ package eu.bato.anyoffice.trayapp.config;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -26,19 +29,27 @@ public class Configuration {
     private static Configuration instance = null;
 
     private Configuration() {
-        File f = new File("src/main/resources/conf/client.properties");
-        FileInputStream fis = null;
+        File f = new File("anyoffice-client.properties");
+        InputStream is;
+        if (f.exists()){
+            try {
+                is = new FileInputStream(f);
+            } catch (FileNotFoundException ex) {
+                log.error("Unable to load configuration file. Default will be used.");
+                is = this.getClass().getClassLoader().getResourceAsStream("conf/client.properties");
+            }
+        } else {
+            is = this.getClass().getClassLoader().getResourceAsStream("conf/client.properties");
+        }
+        InputStreamReader fr = new InputStreamReader(is);
         try {
-            fis = new FileInputStream(f);
             props = new Properties();
-            props.load(fis);
+            props.load(fr);
         } catch (IOException e) {
             log.error("Unable to load configuration. Default values will be used.", e);
         }
         try {
-            if (fis != null) {
-                fis.close();
-            }
+            fr.close();
         } catch (IOException ex) {
             log.warn("Unable to close FileInputStream.", ex);
         }
@@ -120,7 +131,11 @@ public class Configuration {
     private void saveConfig() {
         OutputStream os = null;
         try {
-            os = new BufferedOutputStream(new FileOutputStream(new File("conf/client.properties")));
+            File f = new File("anyoffice-client.properties");
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            os = new BufferedOutputStream(new FileOutputStream(f));
             props.store(os, "");
             log.debug("Saved new configuration.");
         } catch (IOException e) {

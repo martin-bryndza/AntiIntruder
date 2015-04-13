@@ -1,10 +1,10 @@
 <configuration>
-    <contextName>AnyOffice_TrayApp</contextName>
+    <contextName>anyoffice-client</contextName>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/${CONTEXT_NAME}.log</file>
+        <file>${CONTEXT_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>$logs/${CONTEXT_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${CONTEXT_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
         </rollingPolicy>
         <encoder>
             <pattern>%d [%thread] %-5level %logger{15} - %msg%n</pattern>
@@ -23,6 +23,6 @@
 
     <logger name="org.apache.log4j.xml" level="info"/>
     <logger name="org.springframework" level="warn"/>
-    <logger name="eu.bato" level="debug"/>
+    <logger name="eu.bato" level="info"/>
 
 </configuration>

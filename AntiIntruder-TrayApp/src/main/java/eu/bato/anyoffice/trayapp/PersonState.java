@@ -7,6 +7,8 @@ package eu.bato.anyoffice.trayapp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.awt.Image;
+import java.awt.Toolkit;
 
 /**
  *
@@ -18,7 +20,7 @@ public enum PersonState {
     DO_NOT_DISTURB("Do not disturb", "dnd.png", false), AVAILABLE("Available", "available.png", false), UNKNOWN("Unknown", "unknown.png", true), AWAY("Away", "unknown.png", true);
 
     private static final String PREPOSITION = "Any Office - ";
-    private static final String IMAGE_FOLDER = "src/main/resources/images/";
+    private static final String IMAGE_FOLDER = "images/";
     private final String displayName;
     private final String icon;
     private final boolean awayState;
@@ -42,8 +44,8 @@ public enum PersonState {
         return PREPOSITION + displayName;
     }
 
-    public String getIconPath() {
-        return IMAGE_FOLDER + icon;
+    public Image getIcon() {
+        return Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource(IMAGE_FOLDER+icon));
     }
 
     public boolean isAwayState() {

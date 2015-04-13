@@ -50,7 +50,7 @@ task fatJar(type: Jar) {
                 'Main-Class': 'eu.bato.anyoffice.trayapp.Main'
         )
     }
-    archiveName = "anyoffice-client-all.jar"
+    archiveName = "anyoffice-client.jar"
     destinationDir = file("dist")
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
@@ -67,15 +67,15 @@ jar {
                 'Main-Class': 'eu.bato.anyoffice.trayapp.Main'
         )
     }
-    archiveName = "anyoffice-client-all.jar"
+    archiveName = "anyoffice-client.jar"
     destinationDir = file("deploy")
 }
 
 task preparePropertiesFiles(type: Copy){
-    description "Copies files needed to pack into zip, that will be deployed"
-    from fileTree("${rootDir}/AntiIntruder-TrayApp")
-    includes = ["conf/client.properties", "images/**"]
-    into("dist")
+//    description "Copies files needed to pack into zip, that will be deployed"
+//    from fileTree("${rootDir}/AntiIntruder-TrayApp")
+////    includes = ["conf/client.properties", "images/**"]
+//    into("dist")
 }
 
 task pack(type: Zip, dependsOn:["preparePropertiesFiles", "fatJar"]) {

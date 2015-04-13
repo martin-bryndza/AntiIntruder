@@ -16,20 +16,18 @@ import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
+import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.imageio.ImageIO;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -71,14 +69,10 @@ class TrayIconManager {
     private String currentLocation;
 
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
-    private BufferedImage icon = null;
+    private Image icon = null;
 
     private TrayIconManager() {
-        try {
-            icon = ImageIO.read(new File("src/main/resources/images/logo.png"));
-        } catch (IOException ex) {
-            log.error("Unable to load icon.", ex);
-        }
+        icon = Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/logo.png"));
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToDndFrame();
         availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
@@ -116,7 +110,7 @@ class TrayIconManager {
         }
         SystemTray tray = SystemTray.getSystemTray();
         if (trayIcon == null) {
-            trayIcon = createIcon(currentState.getIconPath());
+            trayIcon = createIcon(currentState.getIcon());
             try {
                 tray.add(trayIcon);
             } catch (AWTException ex) {
@@ -124,7 +118,7 @@ class TrayIconManager {
             }
             showInfoBubble("Welcome!\nRight-click this icon to change your current state.");
         } else {
-            trayIcon.setImage(getTrayIconImage(currentState.getIconPath()));
+            trayIcon.setImage(getTrayIconImage(currentState.getIcon()));
             trayIcon.setToolTip(currentState.getDescription());
         }
         trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
@@ -263,25 +257,18 @@ class TrayIconManager {
         initialize(state, currentLocation);
     }
 
-    private TrayIcon createIcon(String path) {
-        TrayIcon trayIconn = new TrayIcon(getTrayIconImage(path));
+    private TrayIcon createIcon(Image image) {
+        TrayIcon trayIconn = new TrayIcon(getTrayIconImage(image));
         return trayIconn;
     }
 
-    private Image getTrayIconImage(String path) {
-        BufferedImage trayIconImage;
-        try {
-            trayIconImage = ImageIO.read(new File(path));
-        } catch (IOException ex) {
-            log.error("Icon " + path + " not found.", ex);
-            return new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-        }
-        if (trayIconImage == null) {
-            log.error("Unable to create tray icon");
-            return new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-        }
-        int trayIconWidth = new TrayIcon(trayIconImage).getSize().width;
-        return trayIconImage.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH);
+    private Image getTrayIconImage(Image image) {
+//        if (trayIconImage == null) {
+//            log.error("Unable to create tray icon");
+//            return new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+//        }
+        int trayIconWidth = new TrayIcon(image).getSize().width;
+        return image.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH);
     }
 
     private void showInfoBubble(String text) {
