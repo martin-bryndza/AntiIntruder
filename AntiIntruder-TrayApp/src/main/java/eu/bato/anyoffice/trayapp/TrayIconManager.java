@@ -75,7 +75,7 @@ class TrayIconManager {
 
     private TrayIconManager() {
         try {
-            icon = ImageIO.read(new File("images/logo.png"));
+            icon = ImageIO.read(new File("src/main/resources/images/logo.png"));
         } catch (IOException ex) {
             log.error("Unable to load icon.", ex);
         }

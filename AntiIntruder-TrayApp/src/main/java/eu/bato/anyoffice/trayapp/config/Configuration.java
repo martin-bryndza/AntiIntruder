@@ -26,7 +26,7 @@ public class Configuration {
     private static Configuration instance = null;
 
     private Configuration() {
-        File f = new File("conf/client.properties");
+        File f = new File("src/main/resources/conf/client.properties");
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(f);

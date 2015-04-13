@@ -18,7 +18,7 @@ public enum PersonState {
     DO_NOT_DISTURB("Do not disturb", "dnd.png", false), AVAILABLE("Available", "available.png", false), UNKNOWN("Unknown", "unknown.png", true), AWAY("Away", "unknown.png", true);
 
     private static final String PREPOSITION = "Any Office - ";
-    private static final String IMAGE_FOLDER = "images/";
+    private static final String IMAGE_FOLDER = "src/main/resources/images/";
     private final String displayName;
     private final String icon;
     private final boolean awayState;
