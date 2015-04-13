@@ -153,15 +153,19 @@ class TrayIconManager {
             if (!availableConsulters.isEmpty()) {
                 availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
             }
+            int requests = client.getNumberOfRequests();
+            if (requests > 0) {
+                showInfoBubble(" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
+            }
         }
+        Long current = new Date().getTime();
         if (newState.equals(PersonState.DO_NOT_DISTURB)) {
-            Long end = client.getDndEnd() - new Date().getTime();
+            Long end = client.getDndEnd() - current;
             trayIcon.setToolTip("Do not disturb will end in " + (end / 60000) + " minutes.");
         } else if (newState.equals(PersonState.AVAILABLE)) {
             Long start = client.getDndStart();
-            Long current = new Date().getTime();
             if (start > current) {
-                trayIcon.setToolTip("Do not disturb will be available in " + ((current - start) / 1000) + " minutes.");
+                trayIcon.setToolTip("Do not disturb will be available in " + ((start - current) / 60000) + " minutes.");
             } else {
                 trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
             }
@@ -409,6 +413,7 @@ class TrayIconManager {
             initComponents();
             showOnTop(false);
             this.setLocationRelativeTo(null);
+            setIconImage(icon);
         }
 
         private void initComponents() {
@@ -492,6 +497,13 @@ class TrayIconManager {
         private void showOnTop(boolean show) {
             this.setAlwaysOnTop(show);
             this.setVisible(show);
+            if (!show) {
+                DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+                int rowCount = dm.getRowCount();
+                for (int i = rowCount - 1; i >= 0; i--) {
+                    dm.removeRow(i);
+                }
+            }
         }
 
         void showAvailableConsultersMessage(List<InteractionPerson> availableConsulters) {
@@ -631,6 +643,7 @@ class TrayIconManager {
             initComponents();
             showOnTop(false);
             this.setLocationRelativeTo(null);
+            setIconImage(icon);
         }
 
         void display() {
@@ -775,24 +788,41 @@ class TrayIconManager {
         }
 
         private void remindIn(JTextField jTextFieldMinutes) {
-            int minutes;
             try {
-                minutes = Integer.parseInt(jTextFieldMinutes.getText());
+                Thread t = new Thread(new RemindInThread(Integer.parseInt(jTextFieldMinutes.getText()), this));
+                t.start();
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(rootPane, "Please use only numeric characters.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
             }
-            if (minutes < 1) {
-                JOptionPane.showMessageDialog(rootPane, "Please use positive number.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+        }
+
+        private class RemindInThread implements Runnable {
+
+            private final int minutes;
+            private final JFrame frame;
+
+            public RemindInThread(int minutes, JFrame frame) {
+                this.minutes = minutes;
+                this.frame = frame;
             }
-            this.setVisible(false);
-            try {
-                Thread.sleep(minutes * 60000);
-            } catch (InterruptedException ex) {
-                log.error("DND reminder sleep interrupted.", ex);
+
+            @Override
+            public void run() {
+                if (minutes < 1) {
+                    JOptionPane.showMessageDialog(rootPane, "Please use positive number.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                frame.setVisible(false);
+                try {
+                    Thread.sleep(minutes * 60000);
+                } catch (InterruptedException ex) {
+                    log.error("DND reminder sleep interrupted.", ex);
+                }
+                if (!currentState.equals(PersonState.DO_NOT_DISTURB)) {
+                    frame.setVisible(true);
+                }
             }
-            this.setVisible(true);
+
         }
 
         // Variables declaration - do not modify                     
