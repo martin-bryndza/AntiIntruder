@@ -17,7 +17,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.*;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -43,6 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .passwordEncoder(new StandardPasswordEncoder());
         } else {
             log.debug("LDAP authentication");
+            ldapAuthenticationProvider().initialize();
             auth
                     .authenticationProvider(ldapAuthenticationProvider());
         }
@@ -89,7 +89,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     LdapAuthenticationProvider ldapAuthenticationProvider() {
-        return new LdapAuthenticationProvider();
+        LdapAuthenticationProvider provider = new LdapAuthenticationProvider();
+//        provider.initialize();
+        return provider;
     }
 
     @Bean

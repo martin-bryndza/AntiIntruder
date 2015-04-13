@@ -439,11 +439,11 @@ class TrayIconManager {
             jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object[][]{},
                     new String[]{
-                        "Who", "How long", "Where", " "
+                        "Who", "At least how long", "Where"//, " "
                     }
             ) {
                 Class[] types = new Class[]{
-                    java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                    java.lang.String.class, java.lang.String.class, java.lang.String.class//, java.lang.Object.class
                 };
 
                 @Override
@@ -523,21 +523,21 @@ class TrayIconManager {
                 String until = minutes + "m " + seconds + "s";
                 String where = p.getLocation();
                 String[] labels = {name, until, where};
-                JButton b = new JButton("Postpone");
-                b.setToolTipText("Remind again in 10 minutes or when available again.");
-                b.addActionListener((ActionEvent) -> {
-                    JOptionPane.showMessageDialog(this, "Sorry, not supported yet.");
-                });
+//                JButton b = new JButton("Postpone");
+//                b.setToolTipText("Remind again in 10 minutes or when available again.");
+//                b.addActionListener((ActionEvent) -> {
+//                    JOptionPane.showMessageDialog(this, "Sorry, not supported yet.");
+//                });
                 consulters.add(labels);
             });
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2], "Postpone"}));
+            consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/}));
 
             jScrollPane1.setViewportView(jTable1);
 
-            jTable1.getColumn(" ").setCellRenderer(new ButtonRenderer());
-            jTable1.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox()));
+//            jTable1.getColumn(" ").setCellRenderer(new ButtonRenderer());
+//            jTable1.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox()));
 
             pack();
             showOnTop(true);
