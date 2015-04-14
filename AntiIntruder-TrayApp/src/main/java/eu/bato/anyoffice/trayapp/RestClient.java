@@ -59,7 +59,7 @@ public class RestClient {
 
     private static RestTemplate createRestTemplate() {
         RestTemplate rest = new RestTemplate();
-        rest.setRequestFactory(new HttpComponentsClientHttpRequestFactoryBasicAuth(new HttpHost("localhost", 8080)));
+        rest.setRequestFactory(new HttpComponentsClientHttpRequestFactoryBasicAuth(new HttpHost("localhost", 80)));
 //        PersonStateMessageConverter converter = new PersonStateMessageConverter();
 //        List<MediaType> mediaTypes = new ArrayList<>();
 //        mediaTypes.add(MediaType.APPLICATION_JSON);
@@ -107,7 +107,7 @@ public class RestClient {
             log.info("Set state \"{}\" response: {}; body: {}", state, response.getStatusCode().toString(), response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to get state.", e);
+            log.error("Unable to set state.", e);
             return PersonState.UNKNOWN;
         }
     }
@@ -242,6 +242,7 @@ public class RestClient {
         ResponseEntity<T> response;
         try{
             response = rest.exchange(url, method, requestEntity, responseType);
+            log.debug("Server is online.");
             serverOnline = true;
         } catch (RestClientException e){
             serverOnline = false;

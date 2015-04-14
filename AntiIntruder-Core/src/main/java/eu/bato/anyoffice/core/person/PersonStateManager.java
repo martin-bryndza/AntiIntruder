@@ -46,7 +46,8 @@ public class PersonStateManager {
         }
         //now the current is DND or AVAILABLE
         if (!force && !isStateChangePossible(username, state)) {
-            throw new IllegalStateException("Unable to switch from state " + current + " to state " + state + " at the moment.");
+            log.warn("Unable to switch from state {} to state {} at the moment.", current, state);
+            return current;
         }
 
         switch (state) {

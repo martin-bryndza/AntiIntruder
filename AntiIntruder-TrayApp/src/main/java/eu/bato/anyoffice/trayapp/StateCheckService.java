@@ -52,7 +52,7 @@ class StateCheckService {
             } catch (ResourceAccessException e){
                 log.error("Conection to server failed.");
                 try {
-                    Thread.sleep(20000);
+                    Thread.sleep(30000);
                 } catch (InterruptedException ex) {
                     //does not matter
                 }

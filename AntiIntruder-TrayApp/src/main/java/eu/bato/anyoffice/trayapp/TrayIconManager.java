@@ -133,7 +133,7 @@ class TrayIconManager {
     synchronized void update() {
         MenuItem dnd = stateItems.get(PersonState.DO_NOT_DISTURB);
         boolean wasDndAvailable = dnd != null && dnd.isEnabled();
-        if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+        if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB) && currentState.equals(PersonState.AVAILABLE)) {
             if (dnd != null) {
                 dnd.setEnabled(true);
             }

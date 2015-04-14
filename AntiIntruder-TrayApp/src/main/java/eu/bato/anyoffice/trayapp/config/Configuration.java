@@ -30,26 +30,30 @@ public class Configuration {
 
     private Configuration() {
         File f = new File("anyoffice-client.properties");
-        InputStream is;
+        InputStream isCustom = null;
         if (f.exists()){
             try {
-                is = new FileInputStream(f);
+                isCustom = new FileInputStream(f);
             } catch (FileNotFoundException ex) {
                 log.error("Unable to load configuration file. Default will be used.");
-                is = this.getClass().getClassLoader().getResourceAsStream("conf/client.properties");
             }
-        } else {
-            is = this.getClass().getClassLoader().getResourceAsStream("conf/client.properties");
         }
-        InputStreamReader fr = new InputStreamReader(is);
+        InputStream isDefault;
+        isDefault = this.getClass().getClassLoader().getResourceAsStream("conf/client.properties");
         try {
             props = new Properties();
-            props.load(fr);
+            props.load(isDefault);
+            if (isCustom != null){
+                props.load(isCustom);
+            }
         } catch (IOException e) {
             log.error("Unable to load configuration. Default values will be used.", e);
         }
         try {
-            fr.close();
+            isDefault.close();
+            if (isCustom != null){
+                isCustom.close();
+            }
         } catch (IOException ex) {
             log.warn("Unable to close FileInputStream.", ex);
         }
@@ -136,7 +140,10 @@ public class Configuration {
                 f.createNewFile();
             }
             os = new BufferedOutputStream(new FileOutputStream(f));
-            props.store(os, "");
+            Properties customProps = new Properties();
+            customProps.setProperty(Property.CURRENT_USER.name(), props.getProperty(Property.CURRENT_USER.name(), ""));
+            customProps.setProperty(Property.GUID.name(), props.getProperty(Property.GUID.name(), ""));
+            customProps.store(os, "");
             log.debug("Saved new configuration.");
         } catch (IOException e) {
             log.error("Unable to save new configuration.", e);
