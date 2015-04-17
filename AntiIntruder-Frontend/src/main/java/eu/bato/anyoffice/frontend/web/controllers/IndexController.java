@@ -37,6 +37,11 @@ public class IndexController {
     protected ResourceService entityService;
     @Autowired
     protected PersonStateManager personStateManager;
+    
+    @ModelAttribute("page")
+    public String module() {
+        return "index";
+    }
 
     private PersonDto adminPerson = null;
 
@@ -70,7 +75,7 @@ public class IndexController {
         return "redirect:";
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public String completeItem(@RequestParam Long id) {
         personService.delete(id);
         return "redirect:";
@@ -98,7 +103,7 @@ public class IndexController {
         return "redirect:";
     }
 
-    @RequestMapping(value = "/changeState", method = RequestMethod.GET)
+    @RequestMapping(value = "/changeState", method = RequestMethod.PUT)
     public String changeState(@RequestParam Long id, String state) {
         personStateManager.setState(id, PersonState.valueOf(state), true);
         return "redirect:";

@@ -1,0 +1,69 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head lang="en">
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
+    </head>
+    <body>
+
+        <div id="main_container">
+            <div id="footer" th:fragment="footer">
+                <div class="footer_links">
+                    <a href='#' th:href='@{/downloadClient}' th:text='#{Download_client}'>Download client</a>
+                </div>
+                <div class="copyright">
+                    (c) Martin Bryndza
+                </div>
+                <div class="footer_links">
+
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+            var staticData = [{
+                        
+                        data: 2,
+                        className: "graphblack"
+                    },{
+                        data: 20,
+                        className: "graphempty"
+                    },{
+                        data: 120,
+                        className: "graphgrey"
+                    },{
+                        data: 120,
+                        className: "graphgreen"
+                    },{
+                        data: 120,
+                        className: "graphyellow"
+                    },{
+                        data: 190,
+                        className: "graphred"
+                    }];
+            var data = /*[[${dailyStates}]]*/ staticData;
+            new Chartist.Pie('.ct-chart', {
+                series: data
+            }, {
+                donut: true,
+                donutWidth: 20,
+                startAngle: 210,
+                total: 720,
+                showLabel: true,
+                labelDirection: 'explode',
+                labelOffset: 25,
+                height: 400,
+                chartPadding: {top: 30, right: 30, bottom: 30, left: 30},
+                labelInterpolationFnc: function(value) {
+                    return Math.floor(value/60) + 'h ' + value%60 + 'm';
+                }
+            });
+        /*]]>*/    
+        </script>
+    </body>
+
+</html>

@@ -128,7 +128,7 @@ public class PersonDaoImpl implements PersonDao {
 
     private Person updateState(Person e, PersonState personState) {
         if (e.getState().equals(personState)) {
-            log.info("Actual and wanted states are the same. State of person " + e.getUsername() + " will not be changed.");
+            log.info("Actual {} and wanted {} states are the same. State of person {} will not be changed.", e.getState(), personState, e.getUsername());
             return e;
         }
         noteStateSwitch(e.getId(), personState);
@@ -220,6 +220,18 @@ public class PersonDaoImpl implements PersonDao {
     public String getLocation(String username) {
         String location = findOneByUsername(username).getLocation();
         return location == null ? "" : location;
+    }
+
+    @Override
+    public void setLastPing(String username, Date when) {
+        Person p = findOneByUsername(username);
+        p.setLastPing(when);
+    }
+
+    @Override
+    public Date getLastPing(String username) {
+        Person p = findOneByUsername(username);
+        return p.getLastPing();
     }
 
 }

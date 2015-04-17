@@ -27,6 +27,7 @@ public class PersonConvert {
         e.setRole(dto.getRole());
         e.setPassword(password); // the check for emptiness is done in DAO
         e.setLocation(dto.getLocation());
+        e.setLastPing(new Date(dto.getLastPing().orElse(0L)));
         //awayStart, dndStart and dndEnd are set by separate method in PersonService
         //interaction entities are added one after another
         //it is not possible to change lastStateChange from outside Backend module
@@ -49,6 +50,8 @@ public class PersonConvert {
         dto.setAwayStart(entity.getAwayStart().isPresent() ? Optional.of(entity.getAwayStart().get().getTime()) : Optional.empty());
         dto.setDndEnd(entity.getDndEnd().getTime());
         dto.setDndStart(entity.getDndStart().getTime());
+        Date ping = entity.getLastPing();
+        dto.setLastPing(Optional.ofNullable(ping==null?null:entity.getLastPing().getTime()));
         dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
         return dto;
     }

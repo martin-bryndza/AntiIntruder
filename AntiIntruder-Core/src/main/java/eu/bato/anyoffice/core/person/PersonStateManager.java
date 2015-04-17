@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class PersonStateManager {
 
     private final static Logger log = LoggerFactory.getLogger(PersonStateManager.class);
-
+    
     @Autowired
     PersonService personService;
 
@@ -118,6 +118,13 @@ public class PersonStateManager {
         if (person.getState().equals(PersonState.DO_NOT_DISTURB) && person.getDndEnd().compareTo(new Date().getTime()) <= 0) {
             // current state is DND and it should have ended
             personService.setState(username, PersonState.AVAILABLE);
+        } else if (!person.getState().equals(PersonState.UNKNOWN)) {
+            long fromLastPing = new Date().getTime() - person.getLastPing().orElse(0L);
+            if (!person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_PING_DELAY)){
+                setUnknownAwayState(username, PersonState.UNKNOWN);
+            } else if (person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_AWAY_PING_DELAY)){
+                setUnknownAwayState(username, PersonState.UNKNOWN);
+            }
         }
     }
 

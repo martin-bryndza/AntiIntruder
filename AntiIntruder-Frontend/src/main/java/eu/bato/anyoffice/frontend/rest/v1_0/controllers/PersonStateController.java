@@ -6,6 +6,7 @@ import eu.bato.anyoffice.frontend.rest.Versions;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -49,11 +50,20 @@ public class PersonStateController {
     @ResponseStatus(HttpStatus.OK)
     public void validateCredentials(Authentication authentication) {
         log.info("User " + authentication.getName() + " connected.");
+        ping(authentication); // temporal, until all clients are updated
+    }
+    
+    @RequestMapping(value = "ping", method = PUT)
+    public @ResponseBody
+    String ping(Authentication authentication) {
+        personService.setLastPing(authentication.getName(), new Date());
+        return "pong";
     }
 
     @RequestMapping(value = "state", method = GET)
     public @ResponseBody
     PersonState getCurrentState(Authentication authentication) {
+        ping(authentication); // temporal, until all clients are updated
         return personStateManager.getCurrentState(authentication.getName());
     }
 

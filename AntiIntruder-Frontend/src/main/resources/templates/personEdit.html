@@ -7,157 +7,70 @@
         <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
         <meta charset="UTF-8" />
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
-        <script type='text/javascript' src='https://code.jquery.com/jquery.min.js'></script>
-        <!-- DataTables -->
-        <link rel="stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
-        <script type="text/javascript" charset="utf-8" src="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-        <script type="text/javascript">
-            $(function () {
-                $('#nav_persons').addClass("current");
-            });
-            $(document).ready(function () {
-                $.extend($.fn.dataTable.defaults, {
-                    "bStateSave": true,
-                    "sPaginationType": "two_button",
-                    "oLanguage": {
-                        "sProcessing": "<p th:text='#{dataTables.processing}'/>",
-                        "sLengthMenu": "<p th:text='#{dataTables.lengthMenu}'/>",
-                        "sZeroRecords": "<p th:text='#{dataTables.zeroRecords}'/>",
-                        "sInfo": "<p th:text='#{dataTables.info}'/>",
-                        "sInfoEmpty": "<p th:text='#{dataTables.infoEmpty}'/>",
-                        "sInfoFiltered": "<p th:text='#{dataTables.infoFiltered}'/>",
-                        "sInfoPostFix": "",
-                        "sSearch": "<p th:text='#{dataTables.search}'/>",
-                        "sUrl": "",
-                        "oPaginate": {
-                            "sFirst": "<p th:text='#{dataTables.first}'/>",
-                            "sPrevious": "<p th:text='#{dataTables.previous}'/>",
-                            "sNext": "<p th:text='#{dataTables.next}'/>",
-                            "sLast": "<p th:text='#{dataTables.laset}'/>"
-                        },
-                        "oAria": {
-                            "sSortAscending": "<p th:text='#{dataTables.sortAscending}'/>",
-                            "sSortDescending": "<p th:text='#{dataTables.sortDescending}'/>"
-                        }
-                    }
-                });
-//                    var activTable = $('#activities').dataTable({
-//            "aaSorting": [[0, "desc"]]
-//            });
-//                    var activTableAdmin = $('#activitiesAdmin').dataTable({
-//            "aaSorting": [[0, "desc"]],
-//                    "aoColumnDefs": [
-//                    {"bSortable": false, "aTargets": [5]}
-//                    ]
-//            });
-//                    var recordsTable = $('#records').dataTable({
-//            "aaSorting": [[0, "desc"]],
-//                    "bFilter": false
-//            });
-//                    var ladderTable = $('#globalLadder').dataTable({
-//            "aoColumnDefs": [
-//            {"bSortable": false, "aTargets": [0, 1]}
-//            ],
-//                    "aaSorting": [[2, "desc"]]
-//            });
-                var personsTable = $('#persons').dataTable({
-                    "aaSorting": [[0, "asc"]]
-//            ,
-//                    "aoColumnDefs": [
-//                    {"bSortable": false, "aTargets": [5]}
-//                    ]
-                });
-//                    var tables = [personsTable];
-//                    tables.forEach($('td').hover(function() {
-//                    $(this.parentNode).addClass('highlighted');
-//                    }, 
-//                    function() {
-//                    tables.forEach($('tr.highlighted').removeClass('highlighted'));
-//                    }));
-            });
-        </script>
     </head>
     <body>
         <div id="main_container">
-            <div>
-                <div th:if="${param.error}" th:text='#{msg.invalid_credentials}' class="green_box">    
-                    Invalid username and password.
-                </div>
-                <div th:if="${param.logout}" th:text='#{msg.logged_out}' class="green_box"> 
-                    You have been logged out.
-                </div>
-            </div>
-            <div id="header">
-                <div id="logo"><a href="/"><img src="../static/images/logo.png" th:src="@{/images/logo.png}" alt="logo" th:title="#{Title}"/></a></div>
-                <h1 id="topTitle" th:text='#{Title}'>Any Office</h1>
-                <!--<h2 id="subTitle" th:text="#{Subtitle}">Time Defragmentation and Reservation</h2>-->
-                <div id="profile">
-                    <div th:if="${#httpServletRequest.remoteUser != null}">
-                        <div id="username" th:text="${currentPerson.displayName}">Display name</div>
-                        <div th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</div>
-                        <div th:text="#{Description}+ ': ' + ${currentPerson.description}">Description: UNKNOWN</div>
-                        <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
-                        <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
-                    </div>
-                    <form th:action="@{/logout}" method="post">
-                        <input type="submit" value="Log out" />
-                    </form>
-                    <div th:if="${#httpServletRequest.remoteUser == null}">
-                        <form name="f" th:action="@{/login}" method="post">               
-                            <table>
-                                <tr>
-                                    <td> <label for="username" th:text='#{Username}'>Username</label> </td>
-                                    <td> <input type="text" name="username"/> </td>
-                                </tr>
-                                <tr>
-                                    <td> <label for="password" th:text='#{Password}'>Password</label> </td>
-                                    <td> <input type="password" name="password"/> </td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td align="right">
-                                        <button type="submit" class="btn" th:text='#{Log_In}'>Log In</button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </form>
-                    </div>
-                </div>
-                <div id="menu"></div>
-            </div>
+            <div id="header" th:replace="fragments/header :: header"> (header) </div>
             <div id="main_content">
                 <form data-th-action="@{/personEdit/save}" data-th-object="${currentPerson}" method="post">
                     <table>
                         <tbody>
                             <tr>
-                                <td><label for="displayName" th:text='#{Display_Name}'>Display Name</label></td>
+                                <td><label for="displayName" th:text='#{Name_surname}'>Display Name</label></td>
                                 <td><input id="displayName" type="text" data-th-field="*{displayName}"/></td>
                             </tr>
                             <tr>
-                                <td><label for="description" th:text='#{Description}'>Description</label></td>
+                                <td><label for="description" th:text='#{Job_title}'>Job_title</label></td>
                                 <td><input id="description" type="text" data-th-field="*{description}"/></td>
                             </tr>
                             <tr>
                                 <td><label for="location" th:text='#{Location}'>Location</label></td>
-                                <td><input id="location" type="text" data-th-field="*{location}"/></td>
+                                <td>
+                                    <select id="location">
+                                        <option th:each="sopt:${T(eu.bato.anyoffice.frontend.web.data.PersonLocation).values()}" th:value="${sopt}" th:text="${sopt.name}" th:selected="*{location}==${sopt}" />
+                                    </select>
+                                    <input id="other_location" type="text" data-th-field="*{location}"/>
+                                </td>
                             </tr>
                             <tr>
+                                <td></td>
                                 <td>
-                                    <button type="submit" th:text='#{Save}'> Save </button></td>
+                                    <button class='btn-submit' type="submit" th:text='#{Save}'> Save </button></td>
                                 <td />
                             </tr>
                         </tbody>
                     </table>
                 </form>    
             </div>
-            <div id="footer">
-                <div class="copyright">
-                    (c) Martin Bryndza
-                </div>
-                <div class="footer_links">
-
-                </div>
-            </div>
+            <div id="footer" th:replace="fragments/footer :: footer"> (footer) </div>
         </div>
+        <script type='text/javascript' src='https://code.jquery.com/jquery.min.js'></script>
+        <script type="text/javascript" th:inline="javascript">
+            /*<![CDATA[*/
+            $(function() {
+                //initially hide the textbox
+                var selectedOption = $('#location').find('option:selected');
+                if (selectedOption.text() === /*[[${currentPerson.location}]]*/'' 
+                        || null === /*[[${currentPerson.location}]]*/'') {
+                    $("#other_location").hide();
+                    if (null === /*[[${currentPerson.location}]]*/'') {
+                        $("#other_location").val(selectedOption.text());
+                    }
+                } else {
+                    $('#location').val('OTHER');
+                }
+                $('#location').change(function() {
+                    var selectedOption = $(this).find('option:selected');
+                    if (selectedOption.val() === "OTHER") {
+                        $("#other_location").val(/*[[${currentPerson.location}]]*/'');
+                        $("#other_location").show();
+                    } else {
+                        $("#other_location").hide();
+                        $("#other_location").val(selectedOption.text());
+                    }
+                });
+            });
+            /*]]>*/
+        </script>
     </body>
 </html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head lang="en">
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <link rel="icon" type="image/png" href="../../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../../static/css/style.css" th:href="@{/css/style.css}" />
+    </head>
+    <body>
+        <div id="main_container">
+            <div th:fragment="header">
+                <div>
+                    <div th:if="${param.error}" th:text='#{msg.invalid_credentials}' class="green_box">    
+                        Invalid username and password.
+                    </div>
+                    <div th:if="${param.logout}" th:text='#{msg.logged_out}' class="green_box"> 
+                        You have been logged out.
+                    </div>
+                </div>
+                <div id="header" th:fragment="header">
+                    <div id="logo"><a href="/"><img src="../../static/images/logo.png" th:src="@{/images/logo.png}" alt="logo" th:title="#{Title}"/></a></div>
+                    <h1 id="topTitle" th:text='#{Title}'>Any Office</h1>
+                    <!--<h2 id="subTitle" th:text="#{Subtitle}">Time Defragmentation and Reservation</h2>-->
+                    <div id="profile">
+                        <div th:if="${#httpServletRequest.remoteUser != null}">
+                            <a class="username" href="#" data-th-href="@{/personEdit}" th:text="${currentPerson.displayName}">
+                                Username 
+                            </a>
+                            <a href="#" data-th-href="@{/personEdit}">
+                                <img class="usernameIcon" src="../../static/images/gear.png" th:src="@{/images/gear.png}" alt="" />
+                            </a>
+                            <div th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</div>
+                            <div th:text="#{Job_title}+ ': ' + ${currentPerson.description}">Description: UNKNOWN</div>
+                            <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
+                            <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
+                            <form th:action="@{/logout}" method="post">
+                                <input type="submit" value="Log out" />
+                            </form>
+                        </div>
+                        <div th:if="${#httpServletRequest.remoteUser == null}">
+                            <form name="f" th:action="@{/login}" method="post">               
+                                <table>
+                                    <tr>
+                                        <td> <label for="username" th:text='#{Username}'>Username</label> </td>
+                                        <td> <input type="text" id="username" name="username"/> </td>
+                                    </tr>
+                                    <tr>
+                                        <td> <label for="password" th:text='#{Password}'>Password</label> </td>
+                                        <td> <input type="password" id="password" name="password"/> </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td align="right">
+                                            <button type="submit" class="btn" th:text='#{Log_In}'>Log In</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                    <div id="menu">
+                        <ul>
+                            <li id="first" th:classappend="${page == 'index' ? 'current' : ''}"><a href="#" th:href="@{/}" th:text='#{Colleagues}'>Colleagues</a></li>
+                            <li th:if="${#httpServletRequest.remoteUser != null}" th:classappend="${page == 'graph' ? 'current' : ''}"><a href="#" th:href="@{/graph}" th:text='#{Daily_graph}'>Daily graph</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -28,3 +28,4 @@ hs_err_pid*
 *.txt
 *.log
 private/
+logs/

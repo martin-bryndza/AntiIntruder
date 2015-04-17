@@ -20,6 +20,11 @@ public class PersonController {
 
     @Autowired
     protected PersonService personService;
+    
+    @ModelAttribute("page")
+    public String module() {
+        return "personEdit";
+    }
 
     @RequestMapping(value = "/personEdit", method = RequestMethod.GET)
     public String loadItems(Model model, Authentication authentication) {

@@ -128,5 +128,9 @@ public interface PersonDao extends Dao<Person, Long> {
     void setLocation(String username, String location);
 
     String getLocation(String username);
+    
+    void setLastPing(String username, Date when);
+    
+    Date getLastPing(String username);
 
 }

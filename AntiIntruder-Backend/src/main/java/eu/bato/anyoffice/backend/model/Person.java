@@ -49,6 +49,8 @@ public class Person extends Entity {
     private Date dndEnd = new Date();
     @Column(nullable = true, name = "AWAY_START")
     private Date awayStart;
+    @Column(nullable = true, name = "LAST_PING")
+    private Date lastPing;
     @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
     @AnyMetaDef(
             idType = "long",
@@ -59,6 +61,14 @@ public class Person extends Entity {
     @Cascade(CascadeType.ALL)
     @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<Entity> interactionEntities;
+
+    public Date getLastPing() {
+        return lastPing;
+    }
+
+    public void setLastPing(Date lastPing) {
+        this.lastPing = lastPing;
+    }
 
     public PersonRole getRole() {
         return role;

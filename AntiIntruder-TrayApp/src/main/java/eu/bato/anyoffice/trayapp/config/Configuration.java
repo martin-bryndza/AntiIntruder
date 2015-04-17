@@ -143,6 +143,7 @@ public class Configuration {
             Properties customProps = new Properties();
             customProps.setProperty(Property.CURRENT_USER.name(), props.getProperty(Property.CURRENT_USER.name(), ""));
             customProps.setProperty(Property.GUID.name(), props.getProperty(Property.GUID.name(), ""));
+            customProps.setProperty(Property.SERVER_ADDRESS.name(), props.getProperty(Property.SERVER_ADDRESS.name(), ""));
             customProps.store(os, "");
             log.debug("Saved new configuration.");
         } catch (IOException e) {

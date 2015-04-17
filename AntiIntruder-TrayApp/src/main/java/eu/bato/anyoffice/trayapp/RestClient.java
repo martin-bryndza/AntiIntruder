@@ -81,6 +81,17 @@ public class RestClient {
             return false;
         }
     }
+    
+    void ping() {
+        ResponseEntity<String> response;
+        try {
+            log.debug("ping");
+            response = exchange(URI + "ping", HttpMethod.PUT, new HttpEntity<>(headers), String.class);
+            log.debug("ping response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Ping server failed.", e);
+        }
+    }
 
     PersonState getState() {
         ResponseEntity<String> response;
@@ -242,7 +253,6 @@ public class RestClient {
         ResponseEntity<T> response;
         try{
             response = rest.exchange(url, method, requestEntity, responseType);
-            log.debug("Server is online.");
             serverOnline = true;
         } catch (RestClientException e){
             serverOnline = false;

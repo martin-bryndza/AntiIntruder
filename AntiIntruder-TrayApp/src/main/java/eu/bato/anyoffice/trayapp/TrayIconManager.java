@@ -82,6 +82,7 @@ class TrayIconManager {
         } else {
             client = new RestClient(new Credentials(authString));
         }
+        client.ping();
         currentState = client.returnFromAway();
         currentLocation = client.getLocation();
         if (currentLocation == null || currentLocation.isEmpty()) {
@@ -124,13 +125,19 @@ class TrayIconManager {
         trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
         trayIcon.addMouseListener(updateIconMouseListener);
         trayIcon.addActionListener((ActionEvent) -> {
-            if (!currentState.equals(PersonState.DO_NOT_DISTURB) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
+            if (currentState.equals(PersonState.AVAILABLE) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
                 switchToDndFrame.display();
             }
         });
     }
 
     synchronized void update() {
+        client.ping();
+        if (!client.isServerOnline()){
+            currentState = PersonState.UNKNOWN;
+            initialize(currentState, currentLocation);
+            return;
+        }
         MenuItem dnd = stateItems.get(PersonState.DO_NOT_DISTURB);
         boolean wasDndAvailable = dnd != null && dnd.isEnabled();
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB) && currentState.equals(PersonState.AVAILABLE)) {
@@ -147,6 +154,7 @@ class TrayIconManager {
             if (!availableConsulters.isEmpty()) {
                 availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
             }
+            // if I can see a consultation request means, that I am or I've just recently been AVAILABLE
             int requests = client.getNumberOfRequests();
             if (requests > 0) {
                 showInfoBubble(" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
@@ -170,7 +178,7 @@ class TrayIconManager {
             return;
         }
         log.debug("Updating icon to state {}, location {}", newState, newLocation);
-        boolean showAvailableBubble = newState.equals(PersonState.AVAILABLE);
+        boolean showAvailableBubble = newState.equals(PersonState.AVAILABLE) && currentState.equals(PersonState.DO_NOT_DISTURB);
         currentState = newState;
         currentLocation = newLocation;
         initialize(currentState, currentLocation);
@@ -359,7 +367,7 @@ class TrayIconManager {
                 }
                 return c;
             } else {
-                JOptionPane.showMessageDialog(frame, "Incorrect password or unknown user.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Incorrect credentials or server is unavailable. If the problem persists, try updating your client.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
                 return requestCredentials();
             }
         } else {

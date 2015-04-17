@@ -5,6 +5,7 @@ import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -177,5 +178,9 @@ public interface PersonService extends Service<PersonDto> {
     void setLocation(String username, String location);
 
     String getLocation(String username);
+    
+    void setLastPing(String username, Date lastPing);
+    
+    List<StateSwitchDto> getStateSwitches(String username, Date from, Date to);
 
 }

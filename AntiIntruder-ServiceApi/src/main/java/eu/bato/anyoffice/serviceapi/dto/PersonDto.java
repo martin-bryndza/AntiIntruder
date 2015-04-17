@@ -16,6 +16,7 @@ public class PersonDto extends EntityDto {
     private Long dndStart;
     private Long dndEnd;
     private Optional<Long> awayStart = Optional.empty();
+    private Optional<Long> lastPing = Optional.empty();
     private List<Long> interactionEntitiesIds;
 
     public PersonState getState() {
@@ -64,6 +65,14 @@ public class PersonDto extends EntityDto {
 
     public void setAwayStart(Optional<Long> awayStart) {
         this.awayStart = awayStart;
+    }
+    
+    public Optional<Long> getLastPing() {
+        return lastPing;
+    }
+
+    public void setLastPing(Optional<Long> lastPing) {
+        this.lastPing = lastPing;
     }
 
     /**

@@ -6,12 +6,15 @@
 package eu.bato.anyoffice.backend.service.impl;
 
 import eu.bato.anyoffice.backend.dao.PersonDao;
+import eu.bato.anyoffice.backend.dao.StateSwitchDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionPersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionResourceConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonConvert;
+import eu.bato.anyoffice.backend.dto.convert.impl.StateSwitchConvert;
 import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.Resource;
+import eu.bato.anyoffice.backend.model.StateSwitch;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
@@ -19,11 +22,7 @@ import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Collection;
 import java.util.Date;
@@ -32,6 +31,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -45,7 +49,11 @@ public class PersonServiceImpl implements PersonService {
     @Autowired
     private PersonDao personDao;
     @Autowired
+    private StateSwitchDao stateSwitchDao;
+    @Autowired
     private PersonConvert personConvert;
+    @Autowired
+    private StateSwitchConvert stateSwitchConvert;
 
     @Override
     @Transactional(readOnly = false)
@@ -428,6 +436,30 @@ public class PersonServiceImpl implements PersonService {
                 }
             }
         }.tryMethod();
+    }
+
+    @Override
+    public void setLastPing(String username, Date lastPing) {
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+            log.error("Username is null", iaex);
+            throw iaex;
+        } else if (lastPing == null) {
+            lastPing = new Date(0L);
+        }
+        new DataAccessExceptionVoidTemplate(username, lastPing) {
+            @Override
+            public void doMethod() {
+                personDao.setLastPing((String) getU(), (Date) getV());
+            }
+        }.tryMethod();
+    }
+
+    @Override
+    public List<StateSwitchDto> getStateSwitches(String username, Date from, Date to) {
+        Long id = getId(username);
+        List<StateSwitch> switches = stateSwitchDao.findRangeForUser(id, from, to);
+        return switches.stream().map(p -> StateSwitchConvert.fromEntityToDto(p)).collect(Collectors.toList());
     }
 
 }
