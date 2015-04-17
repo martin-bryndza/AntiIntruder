@@ -103,7 +103,7 @@ public class IndexController {
         return "redirect:";
     }
 
-    @RequestMapping(value = "/changeState", method = RequestMethod.PUT)
+    @RequestMapping(value = "/changeState", method = RequestMethod.GET)
     public String changeState(@RequestParam Long id, String state) {
         personStateManager.setState(id, PersonState.valueOf(state), true);
         return "redirect:";

@@ -29,14 +29,11 @@ public class StateSwitchDaoImpl implements StateSwitchDao{
     
     @Override
     public List<StateSwitch> findRangeForUser(Long id, Date from, Date to) {
-        System.out.println(from.toString());
-        System.out.println(to.toString());
         TypedQuery<StateSwitch> query = em.createQuery("SELECT tbl FROM StateSwitch tbl WHERE tbl.personId = :id AND tbl.time >= :from AND tbl.time < :to", StateSwitch.class)
                 .setParameter("id", id)
                 .setParameter("from", from)
                 .setParameter("to", to);
         List<StateSwitch> result = query.getResultList();
-        System.out.println(result.toString());
         return result;
     }   
     
