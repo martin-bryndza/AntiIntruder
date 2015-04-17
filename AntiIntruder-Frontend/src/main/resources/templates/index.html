@@ -99,35 +99,37 @@
                 } else {
                     targets = 1;
                 }
+                $.extend($.fn.dataTable.defaults, {
+                    stateSave: true,
+                    paging: true,
+                    lengthChange: true,
+                    pagingType: "simple_numbers",
+                    stripeClasses: [ 'row1', 'row2' ],
+//                    language: {
+//                        processing: "<p th:text='#{dataTables.processing}'/>",
+//                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",
+//                        zeroRecords: "<p th:text='#{dataTables.zeroRecords}'/>",
+//                        info: "<p th:text='#{dataTables.info}'/>",
+//                        infoEmpty: "<p th:text='#{dataTables.infoEmpty}'/>",
+//                        infoFiltered: "<p th:text='#{dataTables.infoFiltered}'/>",
+//                        infoPostFix: "",
+//                        search: "<p th:text='#{dataTables.search}'/>",
+//                        url: "",
+//                        paginate: {
+//                            first: "<p th:text='#{dataTables.first}'/>",
+//                            previous: "<p th:text='#{dataTables.previous}'/>",
+//                            next: "<p th:text='#{dataTables.next}'/>",
+//                            last: "<p th:text='#{dataTables.laset}'/>"
+//                        },
+//                        aria: {
+//                            sortAscending: "<p th:text='#{dataTables.sortAscending}'/>",
+//                            sortDescending: "<p th:text='#{dataTables.sortDescending}'/>"
+//                        }
+//                    }
+                });
                 $('#persons').dataTable({
                     sorting: [[0, "asc"]],
-                    stripeClasses: [ 'row1', 'row2' ],
                     columnDefs: [{type: 'alt-string', targets: targets}]
-                });
-                $.extend($.fn.dataTable.defaults, {
-                    "stateSave": true,
-                    "pagingType": "simple_numbers",
-                    "language": {
-                        "processing": "<p th:text='#{dataTables.processing}'/>",
-                        "lengthMenu": "<p th:text='#{dataTables.lengthMenu}'/>",
-                        "zeroRecords": "<p th:text='#{dataTables.zeroRecords}'/>",
-                        "info": "<p th:text='#{dataTables.info}'/>",
-                        "infoEmpty": "<p th:text='#{dataTables.infoEmpty}'/>",
-                        "infoFiltered": "<p th:text='#{dataTables.infoFiltered}'/>",
-                        "infoPostFix": "",
-                        "search": "<p th:text='#{dataTables.search}'/>",
-                        "url": "",
-                        "paginate": {
-                            "first": "<p th:text='#{dataTables.first}'/>",
-                            "previous": "<p th:text='#{dataTables.previous}'/>",
-                            "next": "<p th:text='#{dataTables.next}'/>",
-                            "last": "<p th:text='#{dataTables.laset}'/>"
-                        },
-                        "aria": {
-                            "sortAscending": "<p th:text='#{dataTables.sortAscending}'/>",
-                            "sortDescending": "<p th:text='#{dataTables.sortDescending}'/>"
-                        }
-                    }
                 });
             });
             /*]]>*/
