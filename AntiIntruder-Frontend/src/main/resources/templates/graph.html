@@ -1,0 +1,210 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head lang="en">
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
+        <script type='text/javascript' src='https://code.jquery.com/jquery.min.js'></script>
+        <!-- DataTables -->
+        <link rel="stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
+        <script type="text/javascript" charset="utf-8" src="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+        <script type="text/javascript">
+            $(function () {
+                $('#nav_persons').addClass("current");
+            });
+            $(document).ready(function () {
+                $.extend($.fn.dataTable.defaults, {
+                    "bStateSave": true,
+                    "sPaginationType": "two_button",
+                    "oLanguage": {
+                        "sProcessing": "<p th:text='#{dataTables.processing}'/>",
+                        "sLengthMenu": "<p th:text='#{dataTables.lengthMenu}'/>",
+                        "sZeroRecords": "<p th:text='#{dataTables.zeroRecords}'/>",
+                        "sInfo": "<p th:text='#{dataTables.info}'/>",
+                        "sInfoEmpty": "<p th:text='#{dataTables.infoEmpty}'/>",
+                        "sInfoFiltered": "<p th:text='#{dataTables.infoFiltered}'/>",
+                        "sInfoPostFix": "",
+                        "sSearch": "<p th:text='#{dataTables.search}'/>",
+                        "sUrl": "",
+                        "oPaginate": {
+                            "sFirst": "<p th:text='#{dataTables.first}'/>",
+                            "sPrevious": "<p th:text='#{dataTables.previous}'/>",
+                            "sNext": "<p th:text='#{dataTables.next}'/>",
+                            "sLast": "<p th:text='#{dataTables.laset}'/>"
+                        },
+                        "oAria": {
+                            "sSortAscending": "<p th:text='#{dataTables.sortAscending}'/>",
+                            "sSortDescending": "<p th:text='#{dataTables.sortDescending}'/>"
+                        }
+                    }
+                });
+//                    var activTable = $('#activities').dataTable({
+//            "aaSorting": [[0, "desc"]]
+//            });
+//                    var activTableAdmin = $('#activitiesAdmin').dataTable({
+//            "aaSorting": [[0, "desc"]],
+//                    "aoColumnDefs": [
+//                    {"bSortable": false, "aTargets": [5]}
+//                    ]
+//            });
+//                    var recordsTable = $('#records').dataTable({
+//            "aaSorting": [[0, "desc"]],
+//                    "bFilter": false
+//            });
+//                    var ladderTable = $('#globalLadder').dataTable({
+//            "aoColumnDefs": [
+//            {"bSortable": false, "aTargets": [0, 1]}
+//            ],
+//                    "aaSorting": [[2, "desc"]]
+//            });
+                var personsTable = $('#persons').dataTable({
+                    "aaSorting": [[0, "asc"]]
+//            ,
+//                    "aoColumnDefs": [
+//                    {"bSortable": false, "aTargets": [5]}
+//                    ]
+                });
+//                    var tables = [personsTable];
+//                    tables.forEach($('td').hover(function() {
+//                    $(this.parentNode).addClass('highlighted');
+//                    }, 
+//                    function() {
+//                    tables.forEach($('tr.highlighted').removeClass('highlighted'));
+//                    }));
+            });
+        </script>
+    </head>
+    <body>
+        <div id="main_container">
+            <div>
+                <div th:if="${param.error}" th:text='#{msg.invalid_credentials}' class="green_box">    
+                    Invalid username and password.
+                </div>
+                <div th:if="${param.logout}" th:text='#{msg.logged_out}' class="green_box"> 
+                    You have been logged out.
+                </div>
+            </div>
+            <div id="header">
+                <div id="logo"><a href="/"><img src="../static/images/logo.png" th:src="@{/images/logo.png}" alt="logo" th:title="#{Title}"/></a></div>
+                <h1 id="topTitle" th:text='#{Title}'>Any Office</h1>
+                <!--<h2 id="subTitle" th:text="#{Subtitle}">Time Defragmentation and Reservation</h2>-->
+                <div id="profile">
+                    <div th:if="${#httpServletRequest.remoteUser != null}">
+                        <a id="username" href="#" data-th-href="@{/personEdit}" th:text="${currentPerson.displayName}">Display name</a>
+                        <div th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</div>
+                        <div th:text="#{Description}+ ': ' + ${currentPerson.description}">Description: UNKNOWN</div>
+                        <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
+                        <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
+                        <form th:action="@{/logout}" method="post">
+                            <input type="submit" value="Log out" />
+                        </form>
+                    </div>
+                    <div th:if="${#httpServletRequest.remoteUser == null}">
+                        <form name="f" th:action="@{/login}" method="post">               
+                            <table>
+                                <tr>
+                                    <td> <label for="username" th:text='#{Username}'>Username</label> </td>
+                                    <td> <input type="text" name="username"/> </td>
+                                </tr>
+                                <tr>
+                                    <td> <label for="password" th:text='#{Password}'>Password</label> </td>
+                                    <td> <input type="password" name="password"/> </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td align="right">
+                                        <button type="submit" class="btn" th:text='#{Log_In}'>Log In</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+                <div id="menu"></div>
+            </div>
+            <div id="main_content">
+                <div th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
+                    <form data-th-action="@{/add}" data-th-object="${personObject}" method="post">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td><label for="usernameField" th:text='#{Username}'>Username</label></td>
+                                    <td><input id="usernameField" type="text" data-th-field="*{username}"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="password" th:text='#{Password}'>Password</label></td>
+                                    <td><input id="password" type="text" data-th-field="${password.value}"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="displayName" th:text='#{Display_Name}'>Display Name</label></td>
+                                    <td><input id="displayName" type="text" data-th-field="*{displayName}"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="description" th:text='#{Description}'>Description</label></td>
+                                    <td><input id="description" type="text" data-th-field="*{description}"/></td>
+                                </tr>
+                                <tr>
+                                    <td><button type="submit" th:text='#{Add}'> Add </button></td>
+                                    <td />
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>    
+                <br/>
+                <table th:if="${not #lists.isEmpty(persons)}" class="list" id="persons">
+                    <thead>
+                        <tr>
+                            <th>Display Name</th>
+                            <th>State</th>
+                            <th>DND end</th>
+                            <th>Location</th>
+                            <th>Description</th>
+                            <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
+                            <th th:if="${#httpServletRequest.isUserInRole('USER')}"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ent, stat: ${persons}">
+                            <td data-th-text="${ent.displayName}">Entity display name</td>
+                            <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}">
+                                <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
+                                    <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}"/>
+                                </select>
+                                <div th:case="false" th:class="'state_' + ${ent.state.name}" th:text="${ent.state.name}" >Unknown</div>
+                            </td>
+                            <td data-th-text="${#dates.format(ent.dndEnd, 'dd/MMM/yyyy HH:mm')}">N/A</td>
+                            <td data-th-text="${ent.location}">Unknown</td>
+                            <td data-th-text="${ent.description}"></td>
+                            <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
+                                <!--                        <form data-th-action="@{/delete}" th:object="${ent}" method="post">
+                                                            <input type="hidden" th:field="${ent.id}"/>
+                                                            <button type="submit" class="btn btn-primary" th:text='#{Deletee}'>Deletee</button>-->
+                                <a href="#" data-th-href="@{/delete(id=${ent.id})}" th:text="#{Delete}">Delete</a>
+                                <!--</form>-->
+                            </td>
+                            <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}">
+                                <a th:case="true" href="#" data-th-href="@{/cancelinteract(id=${ent.id})}" th:text="#{Remove_consultation}">Remove consultation</a>
+                                <a th:case="false" href="#" data-th-href="@{/interact(id=${ent.id})}" th:text="#{Request_consultation}">Request consultation</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="footer">
+                <div class="footer_links">
+                    <a href='#' th:href='@{/downloadClient}' th:text='#{Download_client}'>Download client</a>
+                </div>
+                <div class="copyright">
+                    (c) Martin Bryndza
+                </div>
+                <div class="footer_links">
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
