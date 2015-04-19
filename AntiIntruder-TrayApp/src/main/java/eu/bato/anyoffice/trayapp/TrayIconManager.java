@@ -8,6 +8,7 @@ package eu.bato.anyoffice.trayapp;
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
+import eu.bato.anyoffice.trayapp.entities.PersonLocation;
 import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.Font;
@@ -19,6 +20,8 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,6 +35,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -78,7 +82,7 @@ class TrayIconManager {
         availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
         if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))) {
-            client = new RestClient(requestCredentials());
+            client = new RestClient(requestCredentials(false));
         } else {
             client = new RestClient(new Credentials(authString));
         }
@@ -131,9 +135,12 @@ class TrayIconManager {
         });
     }
 
-    synchronized void update() {
+    void pingServer() {
         client.ping();
-        if (!client.isServerOnline()){
+    }
+
+    synchronized void update() {
+        if (!RestClient.isServerOnline()) {
             currentState = PersonState.UNKNOWN;
             initialize(currentState, currentLocation);
             return;
@@ -202,13 +209,41 @@ class TrayIconManager {
     }
 
     void close() {
+        if (!RestClient.isServerOnline()) {
+            System.exit(0);
+        }
         SystemTray.getSystemTray().remove(trayIcon);
         client.setState(PersonState.UNKNOWN);
     }
 
     private PopupMenu createMenu(PersonState currentState, String currentLocation) {
         PopupMenu popup = new PopupMenu("Any Office");
-        if (client.isServerOnline()) {
+
+        MenuItem exitItem = new MenuItem("Exit");
+        exitItem.addActionListener((ActionEvent) -> {
+            Main.programFinish();
+        });
+        popup.add(exitItem);
+
+        popup.addSeparator();
+
+        MenuItem settingsItem = new MenuItem("Settings...");
+        settingsItem.addActionListener((ActionEvent) -> {
+            showSettings();
+        });
+        popup.add(settingsItem);
+
+        popup.addSeparator();
+
+        if (RestClient.isServerOnline()) {
+            MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
+            locationMenuItem.addActionListener((ActionEvent) -> {
+                requestNewLocation(currentLocation);
+            });
+            popup.add(locationMenuItem);
+
+            popup.addSeparator();
+
             for (PersonState state : PersonState.values()) {
                 if (state.isAwayState()) {
                     continue;
@@ -228,26 +263,11 @@ class TrayIconManager {
                 stateItems.put(state, item);
                 popup.add(item);
             }
-            popup.addSeparator();
-            MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
-            locationMenuItem.addActionListener((ActionEvent) -> {
-                requestNewLocation(currentLocation);
-            });
-            popup.add(locationMenuItem);
         } else {
             MenuItem item = new MenuItem("Server is unreachable");
             item.setEnabled(false);
             popup.add(item);
         }
-
-        popup.addSeparator();
-
-        MenuItem exitItem = new MenuItem("Exit");
-        exitItem.addActionListener((ActionEvent) -> {
-            Main.programFinish();
-        });
-        popup.add(exitItem);
-
         return popup;
     }
 
@@ -297,14 +317,19 @@ class TrayIconManager {
     }
 
     /**
-     * Requests new newLocation.
+     * Displays a window with a field to input a new newLocation. If user
+     * confirms the location, sends the update to server.
      */
     private void requestNewLocation(String currentLocation) {
-        JTextField field1 = new JTextField(currentLocation);
+        JComboBox combo = new JComboBox();
+        combo.setEditable(true);
+        for (PersonLocation location : PersonLocation.values()) {
+            combo.addItem(location.getName());
+        }
+        combo.setSelectedItem(currentLocation);
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("What is your current location?"));
-        panel.add(field1);
-        field1.selectAll();
+        panel.add(combo);
         JFrame frame = new JFrame();
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
@@ -312,10 +337,49 @@ class TrayIconManager {
         int result = JOptionPane.showConfirmDialog(frame, panel, "Location",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
-            String location = field1.getText();
+            String location = combo.getSelectedItem().toString();
             if (client.setLocation(location)) {
                 this.currentLocation = location;
                 trayIcon.setPopupMenu(createMenu(currentState, location));
+            }
+        }
+    }
+
+    /**
+     * Displays a window with a field to input a new newLocation. If user
+     * confirms the location, sends the update to server.
+     */
+    private void showSettings() {
+        Configuration conf = Configuration.getInstance();
+        JLabel serverLabel = new JLabel("Server address and port");
+        JTextField serverField = new JTextField(conf.getProperty(Property.SERVER_ADDRESS));
+        JCheckBox rememberMeCheckBox = new JCheckBox("Remember me", !conf.getProperty(Property.GUID).isEmpty());
+        JCheckBox runAtStratupCheckBox = new JCheckBox("Run at Windows startup", conf.getBooleanProperty(Property.RUN_AT_STARTUP));
+        JPanel panel = new JPanel(new GridLayout(0, 2));
+        panel.add(serverLabel);
+        panel.add(serverField);
+        if (rememberMeCheckBox.isSelected()) { //this property can only be turned off in settings
+            panel.add(rememberMeCheckBox);
+            panel.add(new JLabel());
+        }
+        panel.add(runAtStratupCheckBox);
+        JFrame frame = new JFrame();
+        frame.setIconImage(icon);
+        frame.setAlwaysOnTop(true);
+        frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        int result = JOptionPane.showConfirmDialog(frame, panel, "Location",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            if (!rememberMeCheckBox.isSelected()) {
+                conf.setProperty(Property.GUID, "");
+            }
+            if (!(runAtStratupCheckBox.isSelected() == conf.getBooleanProperty(Property.RUN_AT_STARTUP))) {
+                conf.setProperty(Property.RUN_AT_STARTUP, String.valueOf(runAtStratupCheckBox.isSelected()));
+                shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
+            }
+            if (!serverField.getText().isEmpty() && !serverField.getText().equals(conf.getProperty(Property.SERVER_ADDRESS))) {
+                conf.setProperty(Property.SERVER_ADDRESS, serverField.getText());
+                RestClient.setServerAddress(serverField.getText());
             }
         }
     }
@@ -325,25 +389,33 @@ class TrayIconManager {
      *
      * @return New credentials
      */
-    private Credentials requestCredentials() {
+    private Credentials requestCredentials(boolean serverField) {
         Configuration config = Configuration.getInstance();
         JTextField field1 = new JTextField(config.getProperty(Property.CURRENT_USER));
         JPasswordField field2 = new JPasswordField();
+        JTextField field0 = new JTextField(config.getProperty(Property.SERVER_ADDRESS));
         JCheckBox rememberCheckBox = new JCheckBox("Remember me");
+        JCheckBox runAtStartupCheckBox = new JCheckBox("Run at Windows startup.");
         JPanel panel = new JPanel(new GridLayout(0, 2));
+        if (serverField) {
+            panel.add(new JLabel("Server:"));
+            panel.add(field0);
+        }
         panel.add(new JLabel("Username:"));
         panel.add(field1);
         panel.add(new JLabel("Password:"));
         panel.add(field2);
         panel.add(rememberCheckBox);
+        panel.add(runAtStartupCheckBox);
+        runAtStartupCheckBox.setSelected(Configuration.getInstance().getBooleanProperty(Property.RUN_AT_STARTUP));
         field1.setSelectionStart(0);
         field1.setSelectionEnd(field1.getText().length() - 1);
-//        field1.addComponentListener(new ComponentAdapter() {
-//            @Override
-//            public void componentShown(ComponentEvent ce) {
-//                field1.setrequestFocusInWindow();
-//            }
-//        });
+        field1.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent ce) {
+                field1.requestFocusInWindow();
+            }
+        });
         JFrame frame = new JFrame();
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
@@ -352,12 +424,20 @@ class TrayIconManager {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             Credentials c;
+            if (Configuration.getInstance().getBooleanProperty(Property.RUN_AT_STARTUP) != runAtStartupCheckBox.isSelected()) {
+                Configuration.getInstance().setProperty(Property.RUN_AT_STARTUP, String.valueOf(runAtStartupCheckBox.isSelected()));
+                shortcutInStartupFolder(runAtStartupCheckBox.isSelected());
+            }
             try {
                 c = new Credentials(field1.getText(), field2.getPassword());
             } catch (IOException ex) {
                 log.error(ex.getMessage(), ex);
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
-                return requestCredentials();
+                return requestCredentials(false);
+            }
+            if (field0.isVisible()) {
+                config.setProperty(Property.SERVER_ADDRESS, field0.getText());
+                RestClient.setServerAddress(field0.getText());
             }
             if (RestClient.isCorrectCredentials(c)) {
                 Configuration.getInstance().setProperty(Property.CURRENT_USER, field1.getText());
@@ -368,13 +448,35 @@ class TrayIconManager {
                 return c;
             } else {
                 JOptionPane.showMessageDialog(frame, "Incorrect credentials or server is unavailable. If the problem persists, try updating your client.", "Authentication failed", JOptionPane.ERROR_MESSAGE);
-                return requestCredentials();
+                return requestCredentials(true);
             }
         } else {
             frame.dispose();
             JOptionPane.showMessageDialog(null, "No credentials were provided. Application will exit now.", "Cancelled", JOptionPane.WARNING_MESSAGE);
             Main.programFinish();
             return null;
+        }
+    }
+
+    private void shortcutInStartupFolder(boolean create) {
+        if (create) {
+            runScript("startAtLogon.cmd");
+        } else {
+            runScript("notStartAtLogon.cmd");
+        }
+    }
+
+    private void runScript(String script) {
+        String commandString = "cmd /c " + this.getClass().getClassLoader().getResource(script).getPath().substring(1);
+        Runtime run = Runtime.getRuntime();
+        log.debug("Executing: " + commandString);
+        Process p;
+        try {
+            p = run.exec(commandString);
+            log.info("Command {} finished with value {}", commandString, p.waitFor());
+        } catch (IOException | InterruptedException e1) {
+            String msg = "Unable to execute command " + commandString;
+            log.error(msg, e1);
         }
     }
 
@@ -533,7 +635,6 @@ class TrayIconManager {
 
 //            jTable1.getColumn(" ").setCellRenderer(new ButtonRenderer());
 //            jTable1.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox()));
-
             pack();
             showOnTop(true);
         }
@@ -657,7 +758,7 @@ class TrayIconManager {
          * always regenerated by the Form Editor.
          */
         @SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+        // <editor-fold defaultstate="collapsed" desc="Generated Code">
         private void initComponents() {
 
             jLabel1 = new javax.swing.JLabel();
@@ -755,7 +856,7 @@ class TrayIconManager {
             );
 
             pack();
-        }// </editor-fold>                        
+        }// </editor-fold>
 
         private void jButtonYesActionPerformed(java.awt.event.ActionEvent evt) {
             changeState(PersonState.DO_NOT_DISTURB);
@@ -820,7 +921,7 @@ class TrayIconManager {
 
         }
 
-        // Variables declaration - do not modify                     
+        // Variables declaration - do not modify
         private javax.swing.JButton jButtonNo;
         private javax.swing.JButton jButtonOk;
         private javax.swing.JButton jButtonYes;
@@ -828,6 +929,6 @@ class TrayIconManager {
         private javax.swing.JLabel jLabel2;
         private javax.swing.JLabel jLabel3;
         private javax.swing.JTextField jTextFieldMinutes;
-        // End of variables declaration                   
+        // End of variables declaration
     }
 }

@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -31,11 +30,11 @@ public class Configuration {
     private Configuration() {
         File f = new File("anyoffice-client.properties");
         InputStream isCustom = null;
-        if (f.exists()){
+        if (f.exists()) {
             try {
                 isCustom = new FileInputStream(f);
             } catch (FileNotFoundException ex) {
-                log.error("Unable to load configuration file. Default will be used.");
+                log.warn("Unable to load configuration file. Default will be used.");
             }
         }
         InputStream isDefault;
@@ -43,7 +42,7 @@ public class Configuration {
         try {
             props = new Properties();
             props.load(isDefault);
-            if (isCustom != null){
+            if (isCustom != null) {
                 props.load(isCustom);
             }
         } catch (IOException e) {
@@ -51,7 +50,7 @@ public class Configuration {
         }
         try {
             isDefault.close();
-            if (isCustom != null){
+            if (isCustom != null) {
                 isCustom.close();
             }
         } catch (IOException ex) {
@@ -119,12 +118,7 @@ public class Configuration {
             log.warn("Configuration was not loaded successfuly. Using default value " + p.getDefaultValue() + " for property " + p.name());
         }
         String result = props.getProperty(p.name(), p.getDefaultValue());
-        try {
-            return Boolean.getBoolean(result);
-        } catch (NumberFormatException e) {
-            log.warn("The value of the property " + p.name() + " is not of type Integer. Current value: " + result + ". Using default: " + p.getDefaultValue());
-            return Boolean.getBoolean(p.getDefaultValue());
-        }
+        return Boolean.parseBoolean(result);
     }
 
     public void setProperty(Property p, String value) {
@@ -144,6 +138,7 @@ public class Configuration {
             customProps.setProperty(Property.CURRENT_USER.name(), props.getProperty(Property.CURRENT_USER.name(), ""));
             customProps.setProperty(Property.GUID.name(), props.getProperty(Property.GUID.name(), ""));
             customProps.setProperty(Property.SERVER_ADDRESS.name(), props.getProperty(Property.SERVER_ADDRESS.name(), ""));
+            customProps.setProperty(Property.RUN_AT_STARTUP.name(), props.getProperty(Property.RUN_AT_STARTUP.name(), "false"));
             customProps.store(os, "");
             log.debug("Saved new configuration.");
         } catch (IOException e) {

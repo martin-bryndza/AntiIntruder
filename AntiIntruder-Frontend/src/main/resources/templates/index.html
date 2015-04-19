@@ -43,7 +43,7 @@
                     </form>
                 </div>    
                 <br/>
-                <table th:if="${not #lists.isEmpty(persons)}" class="list" id="persons">
+                <table th:if="${not #lists.isEmpty(persons)}" id="persons">
                     <thead>
                         <tr>
                             <th th:text='#{Display_Name}'>Display Name</th>
@@ -94,17 +94,25 @@
             /*<![CDATA[*/
             $(document).ready(function() {
                 var targets;
-                if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true){
-                    targets = [1,5];
+                if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
+                    targets = [1, 5];
                 } else {
                     targets = 1;
                 }
                 $.extend($.fn.dataTable.defaults, {
                     stateSave: true,
+                    stateSaveCallback: function(settings, oData) {
+                        localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
+                    },
+                    stateLoadCallback: function(settings) {
+                        var data = localStorage.getItem('DataTables_' + window.location.pathname);
+                        return JSON.parse(data);
+                    },
                     paging: true,
                     lengthChange: true,
                     pagingType: "simple_numbers",
-                    stripeClasses: [ 'row1', 'row2' ],
+                    stripeClasses: ['row1', 'row2'],
+                    pageLength: 50
 //                    language: {
 //                        processing: "<p th:text='#{dataTables.processing}'/>",
 //                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",

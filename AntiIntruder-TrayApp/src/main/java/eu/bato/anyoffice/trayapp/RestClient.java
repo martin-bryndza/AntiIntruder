@@ -35,16 +35,21 @@ import org.springframework.web.client.RestTemplate;
 public class RestClient {
 
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(RestClient.class);
-    private final static String URI = Configuration.getInstance().getProperty(Property.SERVER_ADDRESS) + "/api/v1/";
+    private static final String PATH = "/api/v1/";
+    private static String uri = Configuration.getInstance().getProperty(Property.SERVER_ADDRESS) + PATH;
 
     private final RestTemplate rest;
     private final HttpHeaders headers;
-    
+
     private static boolean serverOnline = true;
 
     public RestClient(Credentials credentials) {
         this.headers = createHeaders(credentials);
         rest = createRestTemplate();
+    }
+
+    public static void setServerAddress(String address) {
+        uri = address + PATH;
     }
 
     private static HttpHeaders createHeaders(Credentials credentials) {
@@ -73,34 +78,34 @@ public class RestClient {
     static boolean isCorrectCredentials(Credentials credentials) {
         ResponseEntity<String> response;
         try {
-            response = createRestTemplate().exchange(URI + "login", HttpMethod.GET, new HttpEntity<>(createHeaders(credentials)), String.class);
+            response = createRestTemplate().exchange(uri + "login", HttpMethod.GET, new HttpEntity<>(createHeaders(credentials)), String.class);
             log.debug("Login response:" + response.toString());
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
+            log.error("Unable to connect to server {}", uri, e.getMessage());
             return false;
         }
     }
-    
+
     void ping() {
         ResponseEntity<String> response;
         try {
             log.debug("ping");
-            response = exchange(URI + "ping", HttpMethod.PUT, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "ping", HttpMethod.PUT, new HttpEntity<>(headers), String.class);
             log.debug("ping response:" + response.getStatusCode().toString() + " body:" + response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Ping server failed.", e);
+            log.error("Ping server failed.");
         }
     }
 
     PersonState getState() {
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "state", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "state", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET state response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to get state.", e);
+            log.error("Unable to get state.");
             return PersonState.UNKNOWN;
         }
     }
@@ -114,11 +119,11 @@ public class RestClient {
         }
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "state", HttpMethod.PUT, entity, String.class);
+            response = exchange(uri + "state", HttpMethod.PUT, entity, String.class);
             log.info("Set state \"{}\" response: {}; body: {}", state, response.getStatusCode().toString(), response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to set state.", e);
+            log.error("Unable to set state.");
             return PersonState.UNKNOWN;
         }
     }
@@ -126,11 +131,11 @@ public class RestClient {
     boolean isStateChangePossible(PersonState toState) {
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "canchange?state=" + toState.name(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "canchange?state=" + toState.name(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("Is state change possible " + toState + " response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseBoolean(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to find out if change to state " + toState + " is possible.", e);
+            log.error("Unable to find out if change to state " + toState + " is possible.");
             return false;
         }
     }
@@ -146,11 +151,11 @@ public class RestClient {
     String getLocation() {
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "location", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "location", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET location response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseString(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to get location.", e);
+            log.error("Unable to get location.");
             return new String();
         }
     }
@@ -169,11 +174,11 @@ public class RestClient {
         }
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "location", HttpMethod.PUT, entity, String.class);
+            response = exchange(uri + "location", HttpMethod.PUT, entity, String.class);
             log.info("Set location \"{}\" response: {}", location, response.getStatusCode().toString());
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to set location \"{}\".", location, e);
+            log.error("Unable to set location \"{}\".", location);
             return false;
         }
     }
@@ -181,11 +186,11 @@ public class RestClient {
     int getNumberOfRequests() {
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "requests", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "requests", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET number of requests response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseInteger(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to GET number of requests.", e);
+            log.error("Unable to GET number of requests.");
             return 0;
         }
     }
@@ -193,43 +198,43 @@ public class RestClient {
     List<InteractionPerson> getNewAvailableConsulters() {
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET new available consulters response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseListInteractionPerson(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to GET new available consulters.", e);
+            log.error("Unable to GET new available consulters.");
             return new LinkedList<>();
         }
     }
-    
-    long getDndStart(){
+
+    long getDndStart() {
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "dndStart", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = exchange(uri + "dndStart", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET dndStart response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseLong(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to GET dndStart.", e);
-            return 0;
-        }
-    }
-    
-    long getDndEnd(){
-        ResponseEntity<String> response;
-        try {
-            response = exchange(URI + "dndEnd", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-            log.debug("GET dndEnd response:" + response.getStatusCode().toString() + " body:" + response.getBody());
-            return parseLong(response.getBody());
-        } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to GET dndEnd.", e);
+            log.error("Unable to GET dndStart.");
             return 0;
         }
     }
 
-    boolean isServerOnline() {
+    long getDndEnd() {
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "dndEnd", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET dndEnd response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseLong(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET dndEnd.");
+            return 0;
+        }
+    }
+
+    static boolean isServerOnline() {
         return serverOnline;
     }
-    
+
     private PersonState lock(boolean lock) {
         HttpEntity<String> entity;
         try {
@@ -240,24 +245,25 @@ public class RestClient {
         }
         ResponseEntity<String> response;
         try {
-            response = exchange(URI + "locked", HttpMethod.PUT, entity, String.class);
+            response = exchange(uri + "locked", HttpMethod.PUT, entity, String.class);
             log.debug("Sending info about machine " + (lock ? "" : "un") + "lock response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to send info about machine " + (lock ? "" : "un") + "lock.", e);
+            log.error("Unable to send info about machine " + (lock ? "" : "un") + "lock.");
             return PersonState.UNKNOWN;
         }
     }
-    
+
     private <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) throws RestClientException {
         ResponseEntity<T> response;
-        try{
+        try {
             response = rest.exchange(url, method, requestEntity, responseType);
             serverOnline = true;
-        } catch (RestClientException e){
+        } catch (RestClientException e) {
             serverOnline = false;
+            log.error(e.getMessage());
             throw e;
-        }        
+        }
         return response;
     }
 
@@ -276,7 +282,7 @@ public class RestClient {
     private Integer parseInteger(String responseBody) {
         return Integer.valueOf(parseString(responseBody));
     }
-    
+
     private Long parseLong(String responseBody) {
         return Long.valueOf(parseString(responseBody));
     }

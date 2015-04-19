@@ -47,12 +47,12 @@ class StateCheckService {
         @Override
         public void run() {
             log.debug("States check started...");
-            try{
+            TrayIconManager.getInstance().pingServer();
                 TrayIconManager.getInstance().update();
-            } catch (ResourceAccessException e){
+            if (!RestClient.isServerOnline()) {
                 log.error("Conection to server failed.");
                 try {
-                    Thread.sleep(30000);
+                    Thread.sleep(20000);
                 } catch (InterruptedException ex) {
                     //does not matter
                 }

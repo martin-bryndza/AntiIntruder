@@ -139,7 +139,7 @@ public abstract class Entity implements Serializable {
 
     @Override
     public String toString() {
-        return "Entity{" + "id=" + id + ", displayName=" + displayName + ", description=" + description + "}";
+        return "Entity{" + "id=" + id + ", displayName=" + displayName + ", description=" + description + ", location=" + location + '}';
     }
 
 }
