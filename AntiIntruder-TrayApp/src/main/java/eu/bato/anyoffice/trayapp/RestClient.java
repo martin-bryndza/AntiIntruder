@@ -52,7 +52,7 @@ public class RestClient {
         uri = address + PATH;
     }
 
-    private static HttpHeaders createHeaders(Credentials credentials) {
+    private static HttpHeaders createHeaders(final Credentials credentials) {
         return new HttpHeaders() {
             {
                 String authHeader = "Basic " + credentials.getEncodedAuthenticationString();
@@ -303,9 +303,12 @@ public class RestClient {
         JSONParser parser = new JSONParser();
         try {
             JSONArray array = (JSONArray) parser.parse(responseBody);
-            array.stream().forEach((o) -> {
+            for (Object o : array) {
                 result.add((String) o);
-            });
+            }
+//            array.stream().forEach((o) -> {
+//                result.add((String) o);
+//            });
         } catch (ParseException ex) {
             log.error("Error while parsing List from body: {}", responseBody, ex);
         }
@@ -317,9 +320,12 @@ public class RestClient {
         JSONParser parser = new JSONParser();
         try {
             JSONArray array = (JSONArray) parser.parse(responseBody);
-            array.stream().forEach((o) -> {
+            for (Object o : array) {
                 result.add(jsonObjectToInteractionPerson((JSONObject) o));
-            });
+            }
+//            array.stream().forEach((o) -> {
+//                result.add(jsonObjectToInteractionPerson((JSONObject) o));
+//            });
         } catch (ParseException ex) {
             log.error("Error while parsing List from body: {}", responseBody, ex);
         }

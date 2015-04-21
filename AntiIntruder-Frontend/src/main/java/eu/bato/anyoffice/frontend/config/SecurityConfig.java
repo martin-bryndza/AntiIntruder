@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .authenticationProvider(ldapAuthenticationProvider());
         }
     }
-    
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -63,6 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers("/logout").authenticated()
                 .antMatchers(HttpMethod.GET, "/").permitAll()
+                //                .antMatchers(HttpMethod.GET, "/autorefresh").permitAll()
                 .antMatchers("/downloadClient").permitAll()
                 .antMatchers(HttpMethod.GET, "/changeState").hasAuthority("ADMIN")
                 .antMatchers(HttpMethod.POST, "/").hasAuthority("ADMIN")

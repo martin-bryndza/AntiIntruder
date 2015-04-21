@@ -37,13 +37,13 @@ public class IndexController {
     protected ResourceService entityService;
     @Autowired
     protected PersonStateManager personStateManager;
-    
+
+    private PersonDto adminPerson = null;
+
     @ModelAttribute("page")
     public String module() {
         return "index";
     }
-
-    private PersonDto adminPerson = null;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String loadItems(Model model, Authentication authentication) {

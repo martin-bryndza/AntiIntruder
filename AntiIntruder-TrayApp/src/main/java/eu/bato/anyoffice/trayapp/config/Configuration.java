@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +28,33 @@ public class Configuration {
     final static Logger log = LoggerFactory.getLogger(Configuration.class);
     private static Configuration instance = null;
 
+    private static final String CONFIG_FILE_NAME = "anyoffice-client.properties";
+
     private Configuration() {
-        File f = new File("anyoffice-client.properties");
+        //temporary part to convert from old client and keep settings
+        File oldF = new File(CONFIG_FILE_NAME);
+        File homedir = new File(System.getProperty("user.home") + "/anyoffice");
+        File newF = new File(homedir.getPath() + "/" + CONFIG_FILE_NAME);
+        System.out.println(newF.getAbsolutePath());
+        if (!newF.exists()) {
+            homedir.mkdirs();
+            if (oldF.exists()) {
+                try {
+                    Files.copy(oldF.toPath(), newF.toPath());
+                } catch (IOException ex) {
+                    log.error("Unable to copy old settings file. Settings will be reset.");
+                }
+                try {
+                    Files.deleteIfExists(oldF.toPath());
+                } catch (IOException ex) {
+                    log.warn("Unable to delete old settings file.");
+                }
+            }
+        }
         InputStream isCustom = null;
-        if (f.exists()) {
+        if (newF.exists()) {
             try {
-                isCustom = new FileInputStream(f);
+                isCustom = new FileInputStream(newF);
             } catch (FileNotFoundException ex) {
                 log.warn("Unable to load configuration file. Default will be used.");
             }
@@ -129,7 +151,7 @@ public class Configuration {
     private void saveConfig() {
         OutputStream os = null;
         try {
-            File f = new File("anyoffice-client.properties");
+            File f = new File(System.getProperty("user.home.AppData") + "/anyoffice/" + CONFIG_FILE_NAME);
             if (!f.exists()) {
                 f.createNewFile();
             }

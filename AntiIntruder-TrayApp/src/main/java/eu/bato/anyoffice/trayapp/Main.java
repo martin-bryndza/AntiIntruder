@@ -30,7 +30,12 @@ public class Main {
         t.start();
         TrayIconManager.initialize();
         StateCheckService.getInstance().start();
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                // do nothing
+            }
         });
     }
 

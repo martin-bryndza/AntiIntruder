@@ -8,10 +8,10 @@
         <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
         <!--Timepicker-->
-        <link rel="stylesheet" media="all" type="text/css" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css" />
+        <link rel="stylesheet" media="all" type="text/css" href="../static/css/jquery-ui.css" th:href="@{/css/jquery-ui.css}" />
         <link rel="stylesheet" media="all" type="text/css" href="../static/css/jquery-ui-timepicker-addon.min.css" th:href="@{/css/jquery-ui-timepicker-addon.min.css}" />
         <!--Chartist-->
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css" />
+        <link rel="stylesheet" type="text/css" href="..static/css/chartist.min.css" th:href="@{/css/chartist.min.css}" />
     </head>
     <body>
         <div id="main_container">
@@ -52,7 +52,7 @@
             </div>
         </div>
         <!--Chartist-->
-        <script type="text/javascript" charset="utf-8" src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="../static/js/chartist.min.js" th:src="@{/js/chartist.min.js}" ></script>
         <script type="text/javascript" th:inline="javascript">
             /*<![CDATA[*/
             var staticData = [{

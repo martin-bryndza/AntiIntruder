@@ -20,6 +20,7 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -106,7 +107,7 @@ class TrayIconManager {
         return instance;
     }
 
-    private synchronized void initialize(PersonState currentState, String currentLocation) {
+    private synchronized void initialize(final PersonState currentState, String currentLocation) {
         log.debug("Initializing visual components with state {} and location {}", currentState, currentLocation);
         stateItems = new HashMap<>();
         if (!SystemTray.isSupported()) {
@@ -128,10 +129,18 @@ class TrayIconManager {
         }
         trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
         trayIcon.addMouseListener(updateIconMouseListener);
-        trayIcon.addActionListener((ActionEvent) -> {
-            if (currentState.equals(PersonState.AVAILABLE) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
-                switchToDndFrame.display();
+        trayIcon.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentState.equals(PersonState.AVAILABLE) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
+                    switchToDndFrame.display();
+                }
             }
+//                (ActionEvent) -> {
+//            if (currentState.equals(PersonState.AVAILABLE) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
+//                switchToDndFrame.display();
+//            }
         });
     }
 
@@ -216,35 +225,57 @@ class TrayIconManager {
         client.setState(PersonState.UNKNOWN);
     }
 
-    private PopupMenu createMenu(PersonState currentState, String currentLocation) {
+    private PopupMenu createMenu(PersonState currentState, final String currentLocation) {
         PopupMenu popup = new PopupMenu("Any Office");
 
         MenuItem exitItem = new MenuItem("Exit");
-        exitItem.addActionListener((ActionEvent) -> {
-            Main.programFinish();
+        exitItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Main.programFinish();
+            }
         });
+
+//                (ActionEvent) -> {
+//            Main.programFinish();
+//        });
         popup.add(exitItem);
 
         popup.addSeparator();
 
         MenuItem settingsItem = new MenuItem("Settings...");
-        settingsItem.addActionListener((ActionEvent) -> {
-            showSettings();
+        settingsItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSettings();
+            }
         });
+//        settingsItem.addActionListener((ActionEvent) -> {
+//            showSettings();
+//        });
         popup.add(settingsItem);
 
         popup.addSeparator();
 
         if (RestClient.isServerOnline()) {
             MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
-            locationMenuItem.addActionListener((ActionEvent) -> {
-                requestNewLocation(currentLocation);
+            locationMenuItem.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    requestNewLocation(currentLocation);
+                }
             });
+//            locationMenuItem.addActionListener((ActionEvent) -> {
+//                requestNewLocation(currentLocation);
+//            });
             popup.add(locationMenuItem);
 
             popup.addSeparator();
 
-            for (PersonState state : PersonState.values()) {
+            for (final PersonState state : PersonState.values()) {
                 if (state.isAwayState()) {
                     continue;
                 }
@@ -255,10 +286,18 @@ class TrayIconManager {
                 } else if (!client.isStateChangePossible(state)) {
                     item.setEnabled(false);
                 } else {
-                    item.addActionListener((ActionEvent) -> {
-                        log.info("State change by user -> " + state);
-                        changeState(state);
+                    item.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            log.info("State change by user -> " + state);
+                            changeState(state);
+                        }
                     });
+//                    item.addActionListener((ActionEvent) -> {
+//                        log.info("State change by user -> " + state);
+//                        changeState(state);
+//                    });
                 }
                 stateItems.put(state, item);
                 popup.add(item);
@@ -307,12 +346,19 @@ class TrayIconManager {
         trayIcon.displayMessage("Any Office", text, TrayIcon.MessageType.ERROR);
     }
 
-    private void showInfoMessage(String title, String text) {
-        JFrame f = new JFrame();
+    private void showInfoMessage(final String title, final String text) {
+        final JFrame f = new JFrame();
         f.setAlwaysOnTop(true);
-        Thread t = new Thread(() -> {
-            JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE, new ImageIcon("images/logo.ico"));
+        Thread t = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE, new ImageIcon("images/logo.ico"));
+            }
         });
+//        Thread t = new Thread(() -> {
+//            JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE, new ImageIcon("images/logo.ico"));
+//        });
         t.start();
     }
 
@@ -351,7 +397,7 @@ class TrayIconManager {
      */
     private void showSettings() {
         Configuration conf = Configuration.getInstance();
-        JLabel serverLabel = new JLabel("Server address and port");
+        JLabel serverLabel = new JLabel("Server address");
         JTextField serverField = new JTextField(conf.getProperty(Property.SERVER_ADDRESS));
         JCheckBox rememberMeCheckBox = new JCheckBox("Remember me", !conf.getProperty(Property.GUID).isEmpty());
         JCheckBox runAtStratupCheckBox = new JCheckBox("Run at Windows startup", conf.getBooleanProperty(Property.RUN_AT_STARTUP));
@@ -367,7 +413,7 @@ class TrayIconManager {
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        int result = JOptionPane.showConfirmDialog(frame, panel, "Location",
+        int result = JOptionPane.showConfirmDialog(frame, panel, "Settings",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             if (!rememberMeCheckBox.isSelected()) {
@@ -391,11 +437,11 @@ class TrayIconManager {
      */
     private Credentials requestCredentials(boolean serverField) {
         Configuration config = Configuration.getInstance();
-        JTextField field1 = new JTextField(config.getProperty(Property.CURRENT_USER));
+        final JTextField field1 = new JTextField(config.getProperty(Property.CURRENT_USER));
         JPasswordField field2 = new JPasswordField();
         JTextField field0 = new JTextField(config.getProperty(Property.SERVER_ADDRESS));
         JCheckBox rememberCheckBox = new JCheckBox("Remember me");
-        JCheckBox runAtStartupCheckBox = new JCheckBox("Run at Windows startup.");
+        JCheckBox runAtStartupCheckBox = new JCheckBox("Run at Windows startup");
         JPanel panel = new JPanel(new GridLayout(0, 2));
         if (serverField) {
             panel.add(new JLabel("Server:"));
@@ -518,9 +564,16 @@ class TrayIconManager {
             jScrollPane1 = new javax.swing.JScrollPane();
             dismissButton = new JButton("Dismiss all");
 
-            dismissButton.addActionListener((ActionEvent) -> {
-                showOnTop(false);
+            dismissButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    showOnTop(false);
+                }
             });
+//            dismissButton.addActionListener((ActionEvent) -> {
+//                showOnTop(false);
+//            });
 
             setTitle("Any Office - New consultations possible.");
             setResizable(false);
@@ -608,7 +661,8 @@ class TrayIconManager {
                 return;
             }
             List<String[]> consulters = new LinkedList<>();
-            availableConsulters.forEach((p) -> {
+            for (InteractionPerson p : availableConsulters) {
+//            availableConsulters.forEach((p) -> {
                 Long millis = p.getDndStart() - new Date().getTime();
                 Integer minutes = 0;
                 Integer seconds = 0;
@@ -626,10 +680,14 @@ class TrayIconManager {
 //                    JOptionPane.showMessageDialog(this, "Sorry, not supported yet.");
 //                });
                 consulters.add(labels);
-            });
+            }
+//            });
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/}));
+            for (String[] s : consulters) {
+                model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/});
+            }
+//            consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/}));
 
             jScrollPane1.setViewportView(jTable1);
 
@@ -682,9 +740,16 @@ class TrayIconManager {
                 log.debug("ButtonEditor initialized");
                 button = new JButton();
                 button.setOpaque(true);
-                button.addActionListener((ActionEvent e) -> {
-                    fireEditingStopped();
+                button.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        fireEditingStopped();
+                    }
                 });
+//                button.addActionListener((ActionEvent e) -> {
+//                    fireEditingStopped();
+//                });
             }
 
             @Override
@@ -782,17 +847,31 @@ class TrayIconManager {
             jLabel1.setText("Would you like to switch to Do Not Disturb state now?");
 
             jButtonYes.setText("Yes");
-            jButtonYes.addActionListener((java.awt.event.ActionEvent evt) -> {
-                jButtonYesActionPerformed(evt);
+            jButtonYes.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    jButtonYesActionPerformed(e);
+                }
             });
+//            jButtonYes.addActionListener((java.awt.event.ActionEvent evt) -> {
+//                jButtonYesActionPerformed(evt);
+//            });
 
             jButtonNo.setText("No");
             jButtonNo.setMaximumSize(new java.awt.Dimension(49, 23));
             jButtonNo.setMinimumSize(new java.awt.Dimension(49, 23));
             jButtonNo.setPreferredSize(new java.awt.Dimension(49, 23));
-            jButtonNo.addActionListener((java.awt.event.ActionEvent evt) -> {
-                jButtonNoActionPerformed(evt);
+            jButtonNo.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    jButtonNoActionPerformed(e);
+                }
             });
+//            jButtonNo.addActionListener((java.awt.event.ActionEvent evt) -> {
+//                jButtonNoActionPerformed(evt);
+//            });
 
             jLabel2.setText("Remind me in");
 
@@ -813,9 +892,16 @@ class TrayIconManager {
             jButtonOk.setMaximumSize(new java.awt.Dimension(49, 23));
             jButtonOk.setMinimumSize(new java.awt.Dimension(49, 23));
             jButtonOk.setPreferredSize(new java.awt.Dimension(49, 23));
-            jButtonOk.addActionListener((java.awt.event.ActionEvent evt) -> {
-                jButtonOkActionPerformed(evt);
+            jButtonOk.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    jButtonOkActionPerformed(e);
+                }
             });
+//            jButtonOk.addActionListener((java.awt.event.ActionEvent evt) -> {
+//                jButtonOkActionPerformed(evt);
+//            });
 
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
