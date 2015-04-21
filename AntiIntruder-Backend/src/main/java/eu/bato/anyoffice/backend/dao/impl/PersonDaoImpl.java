@@ -85,6 +85,7 @@ public class PersonDaoImpl implements PersonDao {
                 currentPerson = null;
             }
         }
+
         //if the password is empty, use the password that is already stored
         if (person.getPassword() == null || person.getPassword().isEmpty()) {
             if (currentPerson == null) {
@@ -93,15 +94,45 @@ public class PersonDaoImpl implements PersonDao {
                 person.setPassword(currentPerson.getPassword());
             }
         }
-        //if the state has changed, note it
-        if (currentPerson != null && !person.getState().equals(currentPerson.getState())) {
-            noteStateSwitch(currentPerson.getId(), person.getState());
+
+        if (currentPerson != null) {
+            //if the AwayStart is empty, use the one that is already stored
+            if (person.getAwayStart() == null || !person.getAwayStart().isPresent()) {
+                person.setAwayStart(currentPerson.getAwayStart());
+            }
+            //if the DndStart is empty, use the one that is already stored
+            if (person.getDndStart() == null) {
+                person.setDndStart(currentPerson.getDndStart());
+            }
+            //if the DndEnd is empty, use the one that is already stored
+            if (person.getDndEnd() == null) {
+                person.setDndEnd(currentPerson.getDndEnd());
+            }
+            //if the state has changed, note it
+            if (!person.getState().equals(currentPerson.getState())) {
+                noteStateSwitch(currentPerson.getId(), person.getState());
+            }
+        } else {
+            // this is a new user and dndStart and dndEnd can not be empty
+            //if the DndStart is empty, set it to now
+            if (person.getDndStart() == null) {
+                person.setDndStart(new Date());
+            }
+            //if the DndEnd is empty, set it to now
+            if (person.getDndEnd() == null) {
+                person.setDndEnd(new Date());
+            }
         }
+
         log.info("Saving " + person.toString());
         Person modelPerson = em.merge(person);
         log.info("Saved " + modelPerson.toString() + ".");
         log.info(" Assigned entity id: " + modelPerson.getId());
         return modelPerson;
+    }
+
+    private void replaceIfEmpty() {
+
     }
 
     private void noteStateSwitch(Long personId, PersonState state) {

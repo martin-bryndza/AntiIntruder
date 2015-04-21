@@ -52,8 +52,6 @@ public class PersonServiceImpl implements PersonService {
     private StateSwitchDao stateSwitchDao;
     @Autowired
     private PersonConvert personConvert;
-    @Autowired
-    private StateSwitchConvert stateSwitchConvert;
 
     @Override
     @Transactional(readOnly = false)

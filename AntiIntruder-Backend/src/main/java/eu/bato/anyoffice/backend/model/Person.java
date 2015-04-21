@@ -44,9 +44,9 @@ public class Person extends Entity {
     @Enumerated(EnumType.STRING)
     private PersonRole role;
     @Column(nullable = false, name = "DND_START")
-    private Date dndStart = new Date();
+    private Date dndStart;
     @Column(nullable = false, name = "DND_END")
-    private Date dndEnd = new Date();
+    private Date dndEnd;
     @Column(nullable = true, name = "AWAY_START")
     private Date awayStart;
     @Column(nullable = true, name = "LAST_PING")
@@ -178,9 +178,7 @@ public class Person extends Entity {
 
     @Override
     public String toString() {
-        return "Person{" + "username=" + username + ", state=" + state + ", role=" + role + '}' + super.toString();
+        return "Person{" + "username=" + username + ", password=" + password + ", state=" + state + ", role=" + role + ", dndStart=" + dndStart + ", dndEnd=" + dndEnd + ", awayStart=" + awayStart + ", lastPing=" + lastPing + '}' + super.toString();
     }
-
-    
 
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
+    </head>
+    <body>
+        <div id="main_container">
+            <div id="header" th:replace="fragments/header :: header"> (header) </div>
+            <div id="main_content">
+                <h3>
+                    What is the purpose of AnyOffice?
+                </h3>
+                <p>
+                    AnyOffice "defragments" time of engineers and makes them reachable more easily.
+                </p>
+                <h3>
+                    How does AnyOffice "defragment" time?
+                </h3>
+                <p>
+                    AnyOffice groups consultations together and thus the engineers are not distracted often, but rather in bulk.<br />
+                    Every engineer allowed to enter a Do Not Disturb state, but the state is only temporal - for 45 minutes. After this time, the engineer is automatically switched to an Available state, in which he/she has to remain for at least 15 minutes.
+                </p>
+                <h3>
+                    Why are engineers reachable more easily?
+                </h3>
+                <p>
+                    When an engineers leaves his/her workplace, state of the engineer is automatically switched to Away. Users can request to be notified as soon as the engineer returns to his/her place. The same applies to engineers in the Do Not Disturb state.
+                </p>
+                <h3>
+                    Is the teamwork not suppressed by the Do Not Disturb state? We do need to communicate instantly.
+                </h3>
+                <p>
+                    The 45 minutes for Do Not Disturb state are enough to get some work done, while not too much to kill agility of teams. Combined with notifications about user availability, you may even get your consultation even sooner than before.
+                </p>
+                <h3>
+                    What is the difference between AnyOffice and any other communicator we use?
+                </h3>
+                <p>
+                    AnyOffice is the only tool that enables DND state while keeping team work unharmed. It does that by making Available state the default state. In other tools users can be DND eternally.
+                </p>
+            </div>
+            <div id="footer" th:replace="fragments/footer :: footer"> (footer)
+            </div>
+        </div>
+    </body>
+</html>

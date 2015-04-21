@@ -1,5 +1,8 @@
 package eu.bato.anyoffice.frontend.web.controllers;
 
+import eu.bato.anyoffice.serviceapi.dto.PersonDto;
+import eu.bato.anyoffice.serviceapi.dto.PersonRole;
+import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,8 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,11 +28,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class MainController {
-    
+
     @Autowired
     Environment env;
-    
+
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
+
+    @Autowired
+    protected PersonService personService;
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public String logout(@ModelAttribute CsrfToken csrf) {
@@ -34,23 +44,34 @@ public class MainController {
 
     @RequestMapping(value = "/downloadClient", method = RequestMethod.GET)
     public void downloadClient(HttpServletResponse response) throws FileNotFoundException, IOException {
-            try (InputStream is = new FileInputStream(env.getProperty("client.path"))) {
-                response.setContentType("application/octet-stream");
-                response.setHeader("Content-Disposition", "attachment; filename=AnyOffice_client.zip");
-                try{
-                    org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-                } catch (IOException e) {
-                    log.info("User cancelled request to download client.");
-                } finally {
-                    response.flushBuffer();
-                    is.close();
-                }
+        try (InputStream is = new FileInputStream(env.getProperty("client.path"))) {
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=AnyOffice_client.zip");
+            try {
+                org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            } catch (IOException e) {
+                log.info("User cancelled request to download client.");
+            } finally {
+                response.flushBuffer();
+                is.close();
             }
+        }
     }
 //
 //    @RequestMapping("/error")
 //    public String notFound() {
 //        return "errors/404";
 //    }
+
+    @RequestMapping(value = "/faq", method = RequestMethod.GET)
+    public String loadItems(Model model) {
+        model.addAttribute("page", "faq");
+        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
+            Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+            PersonDto currentPerson = personService.findOneByUsername(auth.getName());
+            model.addAttribute("currentPerson", currentPerson);
+        }
+        return "faq";
+    }
 
 }

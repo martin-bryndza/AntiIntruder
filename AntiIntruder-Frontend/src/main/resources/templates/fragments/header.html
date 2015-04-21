@@ -64,6 +64,7 @@
                         <ul>
                             <li id="first" th:classappend="${page == 'index' ? 'current' : ''}"><a href="#" th:href="@{/}" th:text='#{Colleagues}'>Colleagues</a></li>
                             <li th:if="${#httpServletRequest.remoteUser != null}" th:classappend="${page == 'graph' ? 'current' : ''}"><a href="#" th:href="@{/graph}" th:text='#{Daily_graph}'>Daily graph</a></li>
+                            <li th:classappend="${page == 'faq' ? 'current' : ''}"><a href="#" th:href="@{/faq}" th:text='#{FAQ}'>FAQ</a></li>
                         </ul>
                     </div>
                 </div>
