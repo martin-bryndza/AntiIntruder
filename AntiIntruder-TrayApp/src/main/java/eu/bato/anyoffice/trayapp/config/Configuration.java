@@ -35,7 +35,6 @@ public class Configuration {
         File oldF = new File(CONFIG_FILE_NAME);
         File homedir = new File(System.getProperty("user.home") + "/anyoffice");
         File newF = new File(homedir.getPath() + "/" + CONFIG_FILE_NAME);
-        System.out.println(newF.getAbsolutePath());
         if (!newF.exists()) {
             homedir.mkdirs();
             if (oldF.exists()) {
@@ -151,7 +150,7 @@ public class Configuration {
     private void saveConfig() {
         OutputStream os = null;
         try {
-            File f = new File(System.getProperty("user.home.AppData") + "/anyoffice/" + CONFIG_FILE_NAME);
+            File f = new File(System.getProperty("user.home") + "/anyoffice/" + CONFIG_FILE_NAME);
             if (!f.exists()) {
                 f.createNewFile();
             }
@@ -160,6 +159,7 @@ public class Configuration {
             customProps.setProperty(Property.CURRENT_USER.name(), props.getProperty(Property.CURRENT_USER.name(), ""));
             customProps.setProperty(Property.GUID.name(), props.getProperty(Property.GUID.name(), ""));
             customProps.setProperty(Property.SERVER_ADDRESS.name(), props.getProperty(Property.SERVER_ADDRESS.name(), ""));
+            customProps.setProperty(Property.WEB_ADDRESS.name(), props.getProperty(Property.WEB_ADDRESS.name(), ""));
             customProps.setProperty(Property.RUN_AT_STARTUP.name(), props.getProperty(Property.RUN_AT_STARTUP.name(), "false"));
             customProps.store(os, "");
             log.debug("Saved new configuration.");

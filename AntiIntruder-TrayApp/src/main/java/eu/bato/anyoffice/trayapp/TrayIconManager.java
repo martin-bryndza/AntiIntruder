@@ -11,6 +11,7 @@ import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
 import eu.bato.anyoffice.trayapp.entities.PersonLocation;
 import java.awt.AWTException;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -27,6 +28,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -42,6 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -273,6 +279,22 @@ class TrayIconManager {
 //            });
             popup.add(locationMenuItem);
 
+            MenuItem browserMenuItem = new MenuItem("Go to web page...");
+
+            browserMenuItem.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        openWebpage(new URL(Configuration.getInstance().getProperty(Property.WEB_ADDRESS)));
+                    } catch (MalformedURLException ex) {
+                        log.error("Unable to open broser.", ex);
+                        showErrorBubble("Unable to open browser due to incorrect URL. Check your settings.");
+                    }
+                }
+            });
+            popup.add(browserMenuItem);
+
             popup.addSeparator();
 
             for (final PersonState state : PersonState.values()) {
@@ -308,6 +330,27 @@ class TrayIconManager {
             popup.add(item);
         }
         return popup;
+    }
+
+    private void openWebpage(URI uri) {
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+            try {
+                desktop.browse(uri);
+            } catch (IOException e) {
+                log.error("Unable to open browser.", e);
+                showErrorBubble("Unable to open browser.");
+            }
+        }
+    }
+
+    private void openWebpage(URL url) {
+        try {
+            openWebpage(url.toURI());
+        } catch (URISyntaxException e) {
+            log.error("Unable to open webpage.", e);
+            showErrorBubble("Unable to open browser due to incorrect URL. Check your settings.");
+        }
     }
 
     private void changeState(PersonState state) {
@@ -397,13 +440,12 @@ class TrayIconManager {
      */
     private void showSettings() {
         Configuration conf = Configuration.getInstance();
-        JLabel serverLabel = new JLabel("Server address");
-        JTextField serverField = new JTextField(conf.getProperty(Property.SERVER_ADDRESS));
+        JTextField webAddressField = new JTextField(conf.getProperty(Property.WEB_ADDRESS));
         JCheckBox rememberMeCheckBox = new JCheckBox("Remember me", !conf.getProperty(Property.GUID).isEmpty());
         JCheckBox runAtStratupCheckBox = new JCheckBox("Run at Windows startup", conf.getBooleanProperty(Property.RUN_AT_STARTUP));
         JPanel panel = new JPanel(new GridLayout(0, 2));
-        panel.add(serverLabel);
-        panel.add(serverField);
+        panel.add(new JLabel("Web page address"));
+        panel.add(webAddressField);
         if (rememberMeCheckBox.isSelected()) { //this property can only be turned off in settings
             panel.add(rememberMeCheckBox);
             panel.add(new JLabel());
@@ -416,16 +458,13 @@ class TrayIconManager {
         int result = JOptionPane.showConfirmDialog(frame, panel, "Settings",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
+            conf.setProperty(Property.WEB_ADDRESS, webAddressField.getText());
             if (!rememberMeCheckBox.isSelected()) {
                 conf.setProperty(Property.GUID, "");
             }
             if (!(runAtStratupCheckBox.isSelected() == conf.getBooleanProperty(Property.RUN_AT_STARTUP))) {
                 conf.setProperty(Property.RUN_AT_STARTUP, String.valueOf(runAtStratupCheckBox.isSelected()));
                 shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
-            }
-            if (!serverField.getText().isEmpty() && !serverField.getText().equals(conf.getProperty(Property.SERVER_ADDRESS))) {
-                conf.setProperty(Property.SERVER_ADDRESS, serverField.getText());
-                RestClient.setServerAddress(serverField.getText());
             }
         }
     }
