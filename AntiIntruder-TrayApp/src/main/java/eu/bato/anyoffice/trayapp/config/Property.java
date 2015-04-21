@@ -20,7 +20,8 @@ public enum Property {
     WEB_ADDRESS(PropertyType.STRING, "http://localhost:8080"),
     CURRENT_USER(PropertyType.STRING, ""),
     GUID(PropertyType.STRING, ""),
-    RUN_AT_STARTUP(PropertyType.BOOLEAN, "false");
+    RUN_AT_STARTUP(PropertyType.BOOLEAN, "false"),
+    POPUPS_ENABLED(PropertyType.BOOLEAN, "true");
 
     private final PropertyType type;
     private final String defaultValue;

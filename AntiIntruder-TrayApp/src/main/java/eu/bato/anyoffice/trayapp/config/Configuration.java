@@ -161,6 +161,7 @@ public class Configuration {
             customProps.setProperty(Property.SERVER_ADDRESS.name(), props.getProperty(Property.SERVER_ADDRESS.name(), ""));
             customProps.setProperty(Property.WEB_ADDRESS.name(), props.getProperty(Property.WEB_ADDRESS.name(), ""));
             customProps.setProperty(Property.RUN_AT_STARTUP.name(), props.getProperty(Property.RUN_AT_STARTUP.name(), "false"));
+            customProps.setProperty(Property.POPUPS_ENABLED.name(), props.getProperty(Property.POPUPS_ENABLED.name(), "true"));
             customProps.store(os, "");
             log.debug("Saved new configuration.");
         } catch (IOException e) {

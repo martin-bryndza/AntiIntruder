@@ -9,6 +9,7 @@ import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +58,8 @@ public class RestClient {
             {
                 String authHeader = "Basic " + credentials.getEncodedAuthenticationString();
                 set("Authorization", authHeader);
-                setContentType(MediaType.APPLICATION_JSON);
+                //setContentType(MediaType.APPLICATION_JSON);
+                setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
             }
         };
     }

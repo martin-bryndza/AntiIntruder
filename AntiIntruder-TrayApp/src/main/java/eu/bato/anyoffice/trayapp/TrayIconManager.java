@@ -373,16 +373,14 @@ class TrayIconManager {
     }
 
     private Image getTrayIconImage(Image image) {
-//        if (trayIconImage == null) {
-//            log.error("Unable to create tray icon");
-//            return new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-//        }
         int trayIconWidth = new TrayIcon(image).getSize().width;
         return image.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH);
     }
 
     private void showInfoBubble(String text) {
-        trayIcon.displayMessage("Any Office", text, TrayIcon.MessageType.INFO);
+        if (Configuration.getInstance().getBooleanProperty(Property.POPUPS_ENABLED)) {
+            trayIcon.displayMessage("Any Office", text, TrayIcon.MessageType.INFO);
+        }
     }
 
     private void showErrorBubble(String text) {
@@ -443,6 +441,7 @@ class TrayIconManager {
         JTextField webAddressField = new JTextField(conf.getProperty(Property.WEB_ADDRESS));
         JCheckBox rememberMeCheckBox = new JCheckBox("Remember me", !conf.getProperty(Property.GUID).isEmpty());
         JCheckBox runAtStratupCheckBox = new JCheckBox("Run at Windows startup", conf.getBooleanProperty(Property.RUN_AT_STARTUP));
+        JCheckBox popupMessagesCheckBox = new JCheckBox("Show popup messages", conf.getBooleanProperty(Property.POPUPS_ENABLED));
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Web page address"));
         panel.add(webAddressField);
@@ -451,6 +450,8 @@ class TrayIconManager {
             panel.add(new JLabel());
         }
         panel.add(runAtStratupCheckBox);
+        panel.add(new JLabel());
+        panel.add(popupMessagesCheckBox);
         JFrame frame = new JFrame();
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
@@ -466,6 +467,7 @@ class TrayIconManager {
                 conf.setProperty(Property.RUN_AT_STARTUP, String.valueOf(runAtStratupCheckBox.isSelected()));
                 shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
             }
+            conf.setProperty(Property.POPUPS_ENABLED, String.valueOf(popupMessagesCheckBox.isSelected()));
         }
     }
 
