@@ -1,5 +1,6 @@
 package eu.bato.anyoffice.serviceapi.service;
 
+import eu.bato.anyoffice.serviceapi.dto.DisturbanceDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
@@ -178,9 +179,11 @@ public interface PersonService extends Service<PersonDto> {
     void setLocation(String username, String location);
 
     String getLocation(String username);
-    
+
     void setLastPing(String username, Date lastPing);
-    
+
     List<StateSwitchDto> getStateSwitches(String username, Date from, Date to);
+
+    void noteDisturbance(String username, Boolean aoUser);
 
 }

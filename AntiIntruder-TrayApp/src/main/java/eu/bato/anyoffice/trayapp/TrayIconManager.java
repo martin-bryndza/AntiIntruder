@@ -15,6 +15,7 @@ import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -47,7 +48,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -266,6 +266,36 @@ class TrayIconManager {
         popup.addSeparator();
 
         if (RestClient.isServerOnline()) {
+            Menu disturbanceMenu = new Menu("Disturbed by");
+            MenuItem aoUserMenuItem = new MenuItem("AnyOffice user");
+            aoUserMenuItem.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    client.noteDisturbance(true);
+                }
+            });
+            disturbanceMenu.add(aoUserMenuItem);
+            MenuItem notAoUserMenuItem = new MenuItem("Not a user");
+            notAoUserMenuItem.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    client.noteDisturbance(false);
+                }
+            });
+            disturbanceMenu.add(notAoUserMenuItem);
+            MenuItem dkMenuItem = new MenuItem("Somebody (do not know)");
+            dkMenuItem.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    client.noteDisturbance(null);
+                }
+            });
+            disturbanceMenu.add(dkMenuItem);
+            popup.add(disturbanceMenu);
+
             MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
             locationMenuItem.addActionListener(new ActionListener() {
 

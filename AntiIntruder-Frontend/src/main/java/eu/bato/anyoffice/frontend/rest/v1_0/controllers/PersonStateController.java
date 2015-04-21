@@ -3,6 +3,7 @@ package eu.bato.anyoffice.frontend.rest.v1_0.controllers;
 import eu.bato.anyoffice.core.person.PersonInteractionsManager;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.rest.Versions;
+import eu.bato.anyoffice.serviceapi.dto.DisturbanceDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
@@ -52,7 +53,7 @@ public class PersonStateController {
         log.info("User " + authentication.getName() + " connected.");
         ping(authentication); // temporal, until all clients are updated
     }
-    
+
     @RequestMapping(value = "ping", method = PUT)
     public @ResponseBody
     String ping(Authentication authentication) {
@@ -132,7 +133,7 @@ public class PersonStateController {
         personInteractionsManager.seenInteractionEntities(authentication.getName(), interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return interactionPersons;
     }
-    
+
     @RequestMapping(value = "dndStart", method = GET)
     public @ResponseBody
     Long getdndStart(Authentication authentication) {
@@ -140,13 +141,20 @@ public class PersonStateController {
         log.debug("GET dndStart for user {}, response: {}", authentication.getName(), result);
         return result;
     }
-    
+
     @RequestMapping(value = "dndEnd", method = GET)
     public @ResponseBody
     Long getdndEnd(Authentication authentication) {
         long result = personStateManager.getDndEnd(authentication.getName());
         log.debug("GET dndEnd for user {}, response: {}", authentication.getName(), result);
         return result;
+    }
+
+    @RequestMapping(value = "disturbance", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void noteDisturbance(@RequestBody Boolean aoUser, Authentication authentication) {
+        log.info("Noting disturbance by AnyOffice user: " + aoUser + " to person " + authentication.getName());
+        personService.noteDisturbance(authentication.getName(), aoUser);
     }
 
 }

@@ -233,6 +233,22 @@ public class RestClient {
         }
     }
 
+    void noteDisturbance(Boolean aoUser) {
+        HttpEntity<String> entity = null;
+        try {
+            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(aoUser), headers);
+        } catch (IOException e) {
+            log.error(e.getMessage()); //TODO
+        }
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "disturbance", HttpMethod.PUT, entity, String.class);
+            log.info("Note disturbance of aoUser \"{}\" response: {}; body: {}", aoUser, response.getStatusCode().toString(), response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to note disturbance.");
+        }
+    }
+
     static boolean isServerOnline() {
         return serverOnline;
     }

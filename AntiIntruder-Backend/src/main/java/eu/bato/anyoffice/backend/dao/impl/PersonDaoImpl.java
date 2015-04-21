@@ -131,10 +131,6 @@ public class PersonDaoImpl implements PersonDao {
         return modelPerson;
     }
 
-    private void replaceIfEmpty() {
-
-    }
-
     private void noteStateSwitch(Long personId, PersonState state) {
         StateSwitch sSwitch = new StateSwitch();
         sSwitch.setPersonId(personId);

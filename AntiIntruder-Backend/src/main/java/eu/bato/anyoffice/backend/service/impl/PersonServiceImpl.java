@@ -5,12 +5,14 @@
  */
 package eu.bato.anyoffice.backend.service.impl;
 
+import eu.bato.anyoffice.backend.dao.DisturbanceDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.dao.StateSwitchDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionPersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionResourceConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.StateSwitchConvert;
+import eu.bato.anyoffice.backend.model.Disturbance;
 import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.Resource;
@@ -50,6 +52,8 @@ public class PersonServiceImpl implements PersonService {
     private PersonDao personDao;
     @Autowired
     private StateSwitchDao stateSwitchDao;
+    @Autowired
+    private DisturbanceDao disturbanceDao;
     @Autowired
     private PersonConvert personConvert;
 
@@ -458,6 +462,28 @@ public class PersonServiceImpl implements PersonService {
         Long id = getId(username);
         List<StateSwitch> switches = stateSwitchDao.findRangeForUser(id, from, to);
         return switches.stream().map(p -> StateSwitchConvert.fromEntityToDto(p)).collect(Collectors.toList());
+    }
+
+    @Override
+    public void noteDisturbance(String username, Boolean aoUser) {
+        new DataAccessExceptionNonVoidTemplate(username, aoUser) {
+            @Override
+            public Long doMethod() {
+                Optional<Person> person = findOnePersonByUsername((String) getU());
+                if (!person.isPresent()) {
+                    String msg = "Unable to note disturbance for nonexistend person.";
+                    log.error("{} Username: {}", msg, (String) getU());
+                    throw new IllegalArgumentException(msg);
+                }
+                Disturbance entity = new Disturbance();
+                entity.setPersonId(person.get().getId());
+                entity.setAoUser((Boolean) getV());
+                entity.setState(person.get().getState());
+                entity.setTime(new Date());
+                Disturbance savedEntity = disturbanceDao.save(entity);
+                return savedEntity.getId();
+            }
+        }.tryMethod();
     }
 
 }
