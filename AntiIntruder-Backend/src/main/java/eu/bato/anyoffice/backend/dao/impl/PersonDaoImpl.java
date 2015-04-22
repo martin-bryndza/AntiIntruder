@@ -1,6 +1,8 @@
 package eu.bato.anyoffice.backend.dao.impl;
 
+import eu.bato.anyoffice.backend.dao.ConsultationRequestDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
+import eu.bato.anyoffice.backend.model.ConsultationRequest;
 import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.StateSwitch;
@@ -15,6 +17,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +33,9 @@ public class PersonDaoImpl implements PersonDao {
 
     @PersistenceContext
     private EntityManager em;
+
+    @Autowired
+    ConsultationRequestDao consultationRequestDao;
 
     @Override
     public void delete(Long id) {
@@ -179,6 +185,12 @@ public class PersonDaoImpl implements PersonDao {
         Person p1 = findOneByUsername(username);
         Person p2 = findOne(interactionEntityId); //TODO should be Entity
         p1.addInteractionEntity(p2);
+        ConsultationRequest cr = new ConsultationRequest();
+        cr.setRequesterId(p1.getId());
+        cr.setTargetId(p2.getId());
+        cr.setTargetState(p2.getState());
+        cr.setTime(new Date());
+        consultationRequestDao.save(cr);
     }
 
     @Override

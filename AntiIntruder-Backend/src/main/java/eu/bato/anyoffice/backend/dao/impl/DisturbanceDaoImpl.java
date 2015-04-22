@@ -32,7 +32,7 @@ public class DisturbanceDaoImpl implements DisturbanceDao {
         }
         Person person = em.find(Person.class, id);
         if (person == null) {
-            log.error("Person with id " + id + " is not in DB");
+            log.error("Disturbance with id " + id + " is not in DB");
         }
         em.remove(person);
     }
