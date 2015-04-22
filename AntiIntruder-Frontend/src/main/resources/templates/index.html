@@ -95,28 +95,28 @@
         <script type="text/javascript" charset="utf-8" src="../static/js/jquery.datatables.min.js" th:src="@{/js/jquery.datatables.min.js}" ></script>
         <script type="text/javascript" charset="utf-8" src="../static/js/alt-string.js" th:src="@{/js/alt-string.js}" ></script>
         <script type="text/javascript" th:inline="javascript">
-            /*<![CDATA[*/
-            $(document).ready(function() {
-                var targets;
-                if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
-                    targets = [1, 5];
-                } else {
-                    targets = 1;
-                }
-                $.extend($.fn.dataTable.defaults, {
-                    stateSave: true,
-                    stateSaveCallback: function(settings, oData) {
-                        localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
-                    },
-                    stateLoadCallback: function(settings) {
-                        var data = localStorage.getItem('DataTables_' + window.location.pathname);
-                        return JSON.parse(data);
-                    },
-                    paging: true,
-                    lengthChange: true,
-                    pagingType: "simple_numbers",
-                    stripeClasses: ['row1', 'row2'],
-                    pageLength: 50
+                        /*<![CDATA[*/
+                        $(document).ready(function() {
+                            var targets;
+                            if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
+                                targets = [1, 5];
+                            } else {
+                                targets = 1;
+                            }
+                            $.extend($.fn.dataTable.defaults, {
+                                stateSave: true,
+                                stateSaveCallback: function(settings, oData) {
+                                    localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
+                                },
+                                stateLoadCallback: function(settings) {
+                                    var data = localStorage.getItem('DataTables_' + window.location.pathname);
+                                    return JSON.parse(data);
+                                },
+                                paging: true,
+                                lengthChange: true,
+                                pagingType: "simple_numbers",
+                                stripeClasses: ['row1', 'row2'],
+                                pageLength: 50
 //                    language: {
 //                        processing: "<p th:text='#{dataTables.processing}'/>",
 //                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",
@@ -138,13 +138,29 @@
 //                            sortDescending: "<p th:text='#{dataTables.sortDescending}'/>"
 //                        }
 //                    }
-                });
-                $('#persons').dataTable({
-                    sorting: [[0, "asc"]],
-                    columnDefs: [{type: 'alt-string', targets: targets}]
-                });
-            });
-            /*]]>*/
+                            });
+                            $('#persons').dataTable({
+                                sorting: [[0, "asc"]],
+                                columnDefs: [{
+                                        targets: [0],
+                                        orderData: [0, 1]
+                                    }, {
+                                        targets: [1],
+                                        orderData: [1, 0],
+                                        type: 'alt-string'
+                                    }, {
+                                        targets: [2],
+                                        orderData: [2, 0]
+                                    }, {
+                                        targets: [3],
+                                        orderData: [3, 0]
+                                    }, {
+                                        targets: [4],
+                                        orderData: [4, 0]
+                                    }]
+                            });
+                        });
+                        /*]]>*/
         </script>
     </body>
 </html>
