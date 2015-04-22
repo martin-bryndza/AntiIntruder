@@ -17,7 +17,7 @@ import java.awt.Toolkit;
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum PersonState {
 
-    DO_NOT_DISTURB("Do not disturb", "dnd.png", false), AVAILABLE("Available", "available.png", false), UNKNOWN("Unknown", "unknown.png", true), AWAY("Away", "unknown.png", true);
+    DO_NOT_DISTURB("Do Not Disturb", "dnd.png", false), AVAILABLE("Available", "available.png", false), UNKNOWN("Unknown", "unknown.png", true), AWAY("Away", "unknown.png", true);
 
     private static final String PREPOSITION = "Any Office - ";
     private static final String IMAGE_FOLDER = "images/";
@@ -45,7 +45,7 @@ public enum PersonState {
     }
 
     public Image getIcon() {
-        return Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource(IMAGE_FOLDER+icon));
+        return Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource(IMAGE_FOLDER + icon));
     }
 
     public boolean isAwayState() {

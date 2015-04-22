@@ -10,6 +10,7 @@ import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
 import eu.bato.anyoffice.trayapp.entities.PersonLocation;
 import java.awt.AWTException;
+import java.awt.CheckboxMenuItem;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
@@ -25,6 +26,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -68,10 +71,11 @@ class TrayIconManager {
     private static TrayIconManager instance;
 
     private TrayIcon trayIcon;
-    private Map<PersonState, MenuItem> stateItems;
+    private final Map<PersonState, MenuItem> stateItems;
+    CheckboxMenuItem dndChkboxMenuItem;
     private final UpdateIconMouseListener updateIconMouseListener;
 
-    private final SwitchToDndFrame switchToDndFrame;
+    private final SwitchToStateFrame switchToDndFrame;
     private final AvailableConsultersMessageFrame availableConsultersMessageFrame;
 
     private final RestClient client;
@@ -85,8 +89,9 @@ class TrayIconManager {
     private TrayIconManager() {
         icon = Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/logo.png"));
         updateIconMouseListener = new UpdateIconMouseListener();
-        switchToDndFrame = new SwitchToDndFrame();
+        switchToDndFrame = new SwitchToStateFrame();
         availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
+        stateItems = new HashMap<>();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
         if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))) {
             client = new RestClient(requestCredentials(false));
@@ -113,9 +118,12 @@ class TrayIconManager {
         return instance;
     }
 
-    private synchronized void initialize(final PersonState currentState, String currentLocation) {
+    private PersonState getCurrentState() {
+        return currentState;
+    }
+
+    private synchronized void initialize(PersonState currentState, String currentLocation) {
         log.debug("Initializing visual components with state {} and location {}", currentState, currentLocation);
-        stateItems = new HashMap<>();
         if (!SystemTray.isSupported()) {
             log.error("SystemTray is not supported on this system.");
             return;
@@ -128,10 +136,17 @@ class TrayIconManager {
             } catch (AWTException ex) {
                 log.error("Desktop system tray is missing", ex);
             }
-            showInfoBubble("Welcome!\nRight-click this icon to change your current state.");
+            if (Configuration.getInstance().getBooleanProperty(Property.FIRST_RUN)) {
+                showInfoBubble("Welcome!\nRight-click this icon to change your current state.");
+                Configuration.getInstance().setProperty(Property.FIRST_RUN, "false");
+            }
         } else {
             trayIcon.setImage(getTrayIconImage(currentState.getIcon()));
             trayIcon.setToolTip(currentState.getDescription());
+            ActionListener[] actionListeners = trayIcon.getActionListeners();
+            for (ActionListener a : actionListeners) {
+                trayIcon.removeActionListener(a);
+            }
         }
         trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
         trayIcon.addMouseListener(updateIconMouseListener);
@@ -139,8 +154,16 @@ class TrayIconManager {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (currentState.equals(PersonState.AVAILABLE) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
-                    switchToDndFrame.display();
+                if (getCurrentState().equals(PersonState.AVAILABLE)) {
+                    if (stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
+                        switchToDndFrame.display(PersonState.DO_NOT_DISTURB);
+                    } else {
+                        Long current = new Date().getTime();
+                        Long start = client.getDndStart();
+                        showInfoMessage("AnyOffice", "Do Not Disturb will be available in " + ((start - current) / 60000) + " minutes.");
+                    }
+                } else if (getCurrentState().equals(PersonState.DO_NOT_DISTURB)) {
+                    switchToDndFrame.display(PersonState.AVAILABLE);
                 }
             }
         });
@@ -169,8 +192,44 @@ class TrayIconManager {
                     }
                 });
             }
+            if (dndChkboxMenuItem != null) {
+                trayIcon.getPopupMenu().remove(dndChkboxMenuItem);
+            }
             log.debug("DND is now enabled");
-            showInfoBubble("Do not disturb state is possible. Click this bubble for further actions.");
+            if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
+                //show bubble, add action to dismiss, start timer to autoswitch
+                showInfoBubble("Do Not Disturb will be set in 20 seconds. Click this bubble to dismiss.");
+                final AutoDndSwitchWaitThread r = new AutoDndSwitchWaitThread();
+                new Thread(r).start();
+                final ActionListener[] actionListeners = trayIcon.getActionListeners();
+                for (ActionListener l : actionListeners) {
+                    trayIcon.removeActionListener(l);
+                }
+                trayIcon.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        r.setWait(true);
+                        int result = JOptionPane.showConfirmDialog(null, "Turn off automatic switching of states?", "AnyOffice - Dismiss autoswitch",
+                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                        if (result == JOptionPane.YES_OPTION) {
+                            Configuration.getInstance().setProperty(Property.STATE_AUTO_SWITCH, "false");
+                            trayIcon.removeActionListener(this);
+                            for (ActionListener l : actionListeners) {
+                                trayIcon.addActionListener(l);
+                            }
+                        }
+                        r.setWait(false);
+                    }
+                });
+            } else if (dndChkboxMenuItem != null && dndChkboxMenuItem.getState()) {
+                changeState(PersonState.DO_NOT_DISTURB);
+                showInfoBubble("You are in Do Not Disturb state now.");
+                dndChkboxMenuItem.setState(false);
+                return;
+            } else {
+                showInfoBubble("Do Not Disturb state is possible. Click this bubble for further actions.");
+            }
         }
         PersonState newState = client.getState();
         String newLocation = client.getLocation();
@@ -213,6 +272,34 @@ class TrayIconManager {
         }
     }
 
+    private class AutoDndSwitchWaitThread implements Runnable {
+
+        private boolean wait = false;
+
+        public void setWait(boolean wait) {
+            this.wait = wait;
+        }
+
+        @Override
+        public void run() {
+            Configuration conf = Configuration.getInstance();
+            for (int i = 0; i < 20; i++) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    //does not matter
+                }
+                if (wait) {
+                    i--;
+                }
+                if (!conf.getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
+                    return;
+                }
+            }
+            changeState(PersonState.DO_NOT_DISTURB);
+        }
+    }
+
     /**
      *
      * @param lock true to lock, false to unlock
@@ -220,8 +307,10 @@ class TrayIconManager {
     synchronized void lock(boolean lock) {
         if (lock) {
             client.goAway();
+            currentState = PersonState.AWAY;
         } else {
             client.returnFromAway();
+            update();
         }
         log.debug("Session {}locked", lock ? "" : "un");
     }
@@ -234,6 +323,25 @@ class TrayIconManager {
         client.setState(PersonState.UNKNOWN);
     }
 
+    /**
+     * Creates new menu for given state and location. <br />
+     * The menu contains: <br />
+     * - Exit button <br />
+     * - Settings... button <br />
+     * - "Disturbed by" menu <br />
+     * - Set location... button <br />
+     * - Go to web page ... button <br />
+     * - Buttons to switch to all states from PersonState enum <br />
+     * The button for current state is in bold. The buttons for currently
+     * unavailable states are disabled. For each disabled button there is a
+     * check box item to switch to the state as soon as possible. These switches
+     * have to be done elsewhere in code. States buttons are saved in map
+     * stateItems. Check box items are saved in map chkBoxStateItems.
+     *
+     * @param currentState
+     * @param currentLocation
+     * @return
+     */
     private PopupMenu createMenu(PersonState currentState, final String currentLocation) {
         PopupMenu popup = new PopupMenu("Any Office");
 
@@ -292,7 +400,10 @@ class TrayIconManager {
             disturbanceMenu.add(dkMenuItem);
             popup.add(disturbanceMenu);
 
-            MenuItem locationMenuItem = new MenuItem("Set location..." + (currentLocation == null || currentLocation.isEmpty() ? "" : (" (" + currentLocation + ")")));
+            String locationStr = (currentLocation == null || currentLocation.isEmpty()
+                    ? ""
+                    : (" (" + currentLocation.substring(0, currentLocation.length() > 15 ? 15 : currentLocation.length()) + ")"));
+            MenuItem locationMenuItem = new MenuItem("Set location " + locationStr + "...");
             locationMenuItem.addActionListener(new ActionListener() {
 
                 @Override
@@ -330,6 +441,11 @@ class TrayIconManager {
                     item.setLabel("-" + item.getLabel() + "-");
                 } else if (!client.isStateChangePossible(state)) {
                     item.setEnabled(false);
+                    if (state.equals(PersonState.DO_NOT_DISTURB)) {
+                        boolean chkBoxDndChecked = dndChkboxMenuItem != null && dndChkboxMenuItem.getState();
+                        dndChkboxMenuItem = new CheckboxMenuItem("Switch to " + state.getDisplayName(), chkBoxDndChecked);
+                        popup.add(dndChkboxMenuItem);
+                    }
                 } else {
                     item.addActionListener(new ActionListener() {
 
@@ -371,7 +487,7 @@ class TrayIconManager {
         }
     }
 
-    private void changeState(PersonState state) {
+    private synchronized void changeState(PersonState state) {
         log.info("State change request by user -> " + state);
         if (state.equals(currentState)) {
             return;
@@ -383,8 +499,8 @@ class TrayIconManager {
         }
         PersonState newStateByServer = client.setState(state);
         log.info("Server returned state " + newStateByServer + " after user switched state to " + state);
-        currentState = state;
-        initialize(state, currentLocation);
+        currentState = newStateByServer;
+        initialize(currentState, currentLocation);
     }
 
     private TrayIcon createIcon(Image image) {
@@ -459,6 +575,7 @@ class TrayIconManager {
         JCheckBox rememberMeCheckBox = new JCheckBox("Remember me", !conf.getProperty(Property.GUID).isEmpty());
         JCheckBox runAtStratupCheckBox = new JCheckBox("Run at Windows startup", conf.getBooleanProperty(Property.RUN_AT_STARTUP));
         JCheckBox popupMessagesCheckBox = new JCheckBox("Show popup messages", conf.getBooleanProperty(Property.POPUPS_ENABLED));
+        JCheckBox autoSwitchCheckBox = new JCheckBox("Switch to DND automatically (always)", conf.getBooleanProperty(Property.STATE_AUTO_SWITCH));
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Web page address"));
         panel.add(webAddressField);
@@ -469,6 +586,8 @@ class TrayIconManager {
         panel.add(runAtStratupCheckBox);
         panel.add(new JLabel());
         panel.add(popupMessagesCheckBox);
+        panel.add(new JLabel());
+        panel.add(autoSwitchCheckBox);
         JFrame frame = new JFrame();
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
@@ -485,6 +604,13 @@ class TrayIconManager {
                 shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
             }
             conf.setProperty(Property.POPUPS_ENABLED, String.valueOf(popupMessagesCheckBox.isSelected()));
+            if (!(autoSwitchCheckBox.isSelected() == conf.getBooleanProperty(Property.STATE_AUTO_SWITCH))) {
+                conf.setProperty(Property.STATE_AUTO_SWITCH, String.valueOf(autoSwitchCheckBox.isSelected()));
+                //switch right away if possible
+                if (autoSwitchCheckBox.isSelected() && currentState.equals(PersonState.AVAILABLE) && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+                    changeState(PersonState.DO_NOT_DISTURB);
+                }
+            }
         }
     }
 
@@ -847,21 +973,28 @@ class TrayIconManager {
         }
     }
 
-    private class SwitchToDndFrame extends javax.swing.JFrame {
+    private class SwitchToStateFrame extends javax.swing.JFrame {
+
+        private PersonState state;
 
         /**
          * Creates new form SwitchToDndFrame
          */
-        public SwitchToDndFrame() {
+        public SwitchToStateFrame() {
             initComponents();
             showOnTop(false);
             this.setLocationRelativeTo(null);
             setIconImage(icon);
         }
 
-        void display() {
+        void display(PersonState state) {
+            this.state = state;
+            this.jLabel1.setText("Would you like to switch to " + state.getDisplayName() + " now?");
+            getRootPane().setDefaultButton(jButtonYes);
+            jPanel1.setVisible(false);
+            jToggleButtonRemindLater.setSelected(false);
             showOnTop(true);
-            jButtonYes.setSelected(true);
+            pack();
         }
 
         private void showOnTop(boolean show) {
@@ -881,14 +1014,17 @@ class TrayIconManager {
             jLabel1 = new javax.swing.JLabel();
             jButtonYes = new javax.swing.JButton();
             jButtonNo = new javax.swing.JButton();
+            jToggleButtonRemindLater = new javax.swing.JToggleButton();
+            jPanel1 = new javax.swing.JPanel();
             jLabel2 = new javax.swing.JLabel();
             jTextFieldMinutes = new javax.swing.JTextField();
             jLabel3 = new javax.swing.JLabel();
             jButtonOk = new javax.swing.JButton();
+            jPanel2 = new javax.swing.JPanel();
 
-            setTitle("Switch to Do Not Disturb?");
+            setAlwaysOnTop(true);
             setResizable(false);
-            setType(java.awt.Window.Type.POPUP);
+            setTitle("AnyOffice");
             addKeyListener(new java.awt.event.KeyAdapter() {
                 @Override
                 public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -896,41 +1032,35 @@ class TrayIconManager {
                 }
             });
 
-            jLabel1.setText("Would you like to switch to Do Not Disturb state now?");
-
             jButtonYes.setText("Yes");
-            jButtonYes.addActionListener(new ActionListener() {
-
+            jButtonYes.addActionListener(new java.awt.event.ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    jButtonYesActionPerformed(e);
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButtonYesActionPerformed(evt);
                 }
             });
-//            jButtonYes.addActionListener((java.awt.event.ActionEvent evt) -> {
-//                jButtonYesActionPerformed(evt);
-//            });
 
             jButtonNo.setText("No");
-            jButtonNo.setMaximumSize(new java.awt.Dimension(49, 23));
-            jButtonNo.setMinimumSize(new java.awt.Dimension(49, 23));
-            jButtonNo.setPreferredSize(new java.awt.Dimension(49, 23));
-            jButtonNo.addActionListener(new ActionListener() {
-
+            jButtonNo.addActionListener(new java.awt.event.ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    jButtonNoActionPerformed(e);
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButtonNoActionPerformed(evt);
                 }
             });
-//            jButtonNo.addActionListener((java.awt.event.ActionEvent evt) -> {
-//                jButtonNoActionPerformed(evt);
-//            });
+
+            jToggleButtonRemindLater.setText("Remind later");
+            jToggleButtonRemindLater.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jPanel1.setVisible(jToggleButtonRemindLater.isSelected());
+                    pack();
+                }
+            });
 
             jLabel2.setText("Remind me in");
 
             jTextFieldMinutes.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
             jTextFieldMinutes.setText("15");
-            jTextFieldMinutes.setMaximumSize(new java.awt.Dimension(18, 20));
-            jTextFieldMinutes.setMinimumSize(new java.awt.Dimension(18, 20));
             jTextFieldMinutes.addKeyListener(new java.awt.event.KeyAdapter() {
                 @Override
                 public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -938,22 +1068,51 @@ class TrayIconManager {
                 }
             });
 
-            jLabel3.setText("minutes:");
+            jLabel3.setText("minutes");
 
             jButtonOk.setText("OK");
-            jButtonOk.setMaximumSize(new java.awt.Dimension(49, 23));
-            jButtonOk.setMinimumSize(new java.awt.Dimension(49, 23));
-            jButtonOk.setPreferredSize(new java.awt.Dimension(49, 23));
-            jButtonOk.addActionListener(new ActionListener() {
-
+            jButtonOk.addActionListener(new java.awt.event.ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    jButtonOkActionPerformed(e);
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButtonOkActionPerformed(evt);
                 }
             });
-//            jButtonOk.addActionListener((java.awt.event.ActionEvent evt) -> {
-//                jButtonOkActionPerformed(evt);
-//            });
+
+            javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+            jPanel1.setLayout(jPanel1Layout);
+            jPanel1Layout.setHorizontalGroup(
+                    jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addContainerGap(13, Short.MAX_VALUE)
+                            .addComponent(jLabel2)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jTextFieldMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel3)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+            );
+            jPanel1Layout.setVerticalGroup(
+                    jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(jTextFieldMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3)
+                            .addComponent(jButtonOk))
+            );
+
+            jPanel2.setOpaque(false);
+
+            javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+            jPanel2.setLayout(jPanel2Layout);
+            jPanel2Layout.setHorizontalGroup(
+                    jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGap(0, 219, Short.MAX_VALUE)
+            );
+            jPanel2Layout.setVerticalGroup(
+                    jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGap(0, 6, Short.MAX_VALUE)
+            );
 
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
@@ -962,42 +1121,42 @@ class TrayIconManager {
                     .addGroup(layout.createSequentialGroup()
                             .addContainerGap()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
+                                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                            .addGap(0, 0, Short.MAX_VALUE)
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addGroup(layout.createSequentialGroup()
+                                                            .addComponent(jToggleButtonRemindLater)
+                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                            .addComponent(jButtonNo, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                            .addComponent(jButtonYes, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                     .addGroup(layout.createSequentialGroup()
-                                            .addComponent(jButtonYes)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButtonNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(jLabel2)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jTextFieldMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jLabel3)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .addComponent(jLabel1)
+                                            .addGap(0, 0, Short.MAX_VALUE)))
+                            .addContainerGap())
             );
             layout.setVerticalGroup(
                     layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                             .addContainerGap()
                             .addComponent(jLabel1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGap(18, 18, 18)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jButtonYes)
-                                    .addComponent(jButtonNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jTextFieldMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(jButtonNo)
+                                    .addComponent(jToggleButtonRemindLater))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addContainerGap())
             );
-
-            pack();
         }// </editor-fold>
 
         private void jButtonYesActionPerformed(java.awt.event.ActionEvent evt) {
-            changeState(PersonState.DO_NOT_DISTURB);
+            changeState(state);
             showOnTop(false);
         }
 
@@ -1023,7 +1182,7 @@ class TrayIconManager {
 
         private void remindIn(JTextField jTextFieldMinutes) {
             try {
-                Thread t = new Thread(new RemindInThread(Integer.parseInt(jTextFieldMinutes.getText()), this));
+                Thread t = new Thread(new RemindInThread(Integer.parseInt(jTextFieldMinutes.getText()), this.state));
                 t.start();
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(rootPane, "Please use only numeric characters.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1033,11 +1192,11 @@ class TrayIconManager {
         private class RemindInThread implements Runnable {
 
             private final int minutes;
-            private final JFrame frame;
+            private final PersonState state;
 
-            public RemindInThread(int minutes, JFrame frame) {
+            public RemindInThread(int minutes, PersonState state) {
+                this.state = state;
                 this.minutes = minutes;
-                this.frame = frame;
             }
 
             @Override
@@ -1046,14 +1205,14 @@ class TrayIconManager {
                     JOptionPane.showMessageDialog(rootPane, "Please use positive number.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                frame.setVisible(false);
+                showOnTop(false);
                 try {
                     Thread.sleep(minutes * 60000);
                 } catch (InterruptedException ex) {
                     log.error("DND reminder sleep interrupted.", ex);
                 }
-                if (!currentState.equals(PersonState.DO_NOT_DISTURB)) {
-                    frame.setVisible(true);
+                if (!currentState.equals(state)) {
+                    display(state);
                 }
             }
 
@@ -1066,7 +1225,10 @@ class TrayIconManager {
         private javax.swing.JLabel jLabel1;
         private javax.swing.JLabel jLabel2;
         private javax.swing.JLabel jLabel3;
+        private javax.swing.JPanel jPanel1;
         private javax.swing.JTextField jTextFieldMinutes;
+        private javax.swing.JToggleButton jToggleButtonRemindLater;
+        private javax.swing.JPanel jPanel2;
         // End of variables declaration
     }
 }

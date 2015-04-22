@@ -60,6 +60,11 @@
                             </form>
                         </div>
                     </div>
+                    <div th:with="message=#{Special_message}">
+                    <div class="green_box" th:text="#{Special_message}" th:if="${!#strings.isEmpty(message)}">
+                        Special message
+                    </div>
+                    </div>
                     <div id="menu">
                         <ul>
                             <li id="first" th:classappend="${page == 'index' ? 'current' : ''}"><a href="#" th:href="@{/}" th:text='#{Colleagues}'>Colleagues</a></li>

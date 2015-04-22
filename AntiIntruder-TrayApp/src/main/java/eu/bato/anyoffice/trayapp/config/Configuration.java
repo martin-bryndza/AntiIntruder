@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.Date;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +163,9 @@ public class Configuration {
             customProps.setProperty(Property.WEB_ADDRESS.name(), props.getProperty(Property.WEB_ADDRESS.name(), ""));
             customProps.setProperty(Property.RUN_AT_STARTUP.name(), props.getProperty(Property.RUN_AT_STARTUP.name(), "false"));
             customProps.setProperty(Property.POPUPS_ENABLED.name(), props.getProperty(Property.POPUPS_ENABLED.name(), "true"));
-            customProps.store(os, "");
+            customProps.setProperty(Property.STATE_AUTO_SWITCH.name(), props.getProperty(Property.STATE_AUTO_SWITCH.name(), "false"));
+            customProps.setProperty(Property.FIRST_RUN.name(), props.getProperty(Property.FIRST_RUN.name(), "false"));
+            customProps.store(os, "Saved at " + new Date().toString());
             log.debug("Saved new configuration.");
         } catch (IOException e) {
             log.error("Unable to save new configuration.", e);

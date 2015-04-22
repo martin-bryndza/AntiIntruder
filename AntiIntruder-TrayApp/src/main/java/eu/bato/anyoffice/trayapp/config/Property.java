@@ -21,7 +21,9 @@ public enum Property {
     CURRENT_USER(PropertyType.STRING, ""),
     GUID(PropertyType.STRING, ""),
     RUN_AT_STARTUP(PropertyType.BOOLEAN, "false"),
-    POPUPS_ENABLED(PropertyType.BOOLEAN, "true");
+    POPUPS_ENABLED(PropertyType.BOOLEAN, "true"),
+    FIRST_RUN(PropertyType.BOOLEAN, "true"),
+    STATE_AUTO_SWITCH(PropertyType.BOOLEAN, "false");
 
     private final PropertyType type;
     private final String defaultValue;
