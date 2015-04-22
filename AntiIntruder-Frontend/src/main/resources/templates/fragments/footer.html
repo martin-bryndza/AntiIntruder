@@ -12,8 +12,10 @@
         <div id="main_container">
             <div id="footer" th:fragment="footer">
                 <div class="footer_links">
+                    <a href="mailto:martin.bryndza@ysoft.com?Subject=AnyOffice%20feedback" th:text="#{Give_feedback}" target="_top">Give feedback</a>
+                    <a href="https://docs.google.com/spreadsheets/d/1KBnO47-__GHa7FxmEUh5LD9qcuNt7khoX5y8gTpUmnY/edit?usp=sharing" th:text="#{Report_bug_feature}" target="_blank">Report bug/feature</a>
                     <a href="http://wiki.ysoft.local/x/GgMtAw" th:text="#{Wiki_manual}" target="_blank">Wiki (manual)</a>
-                    <a href='#' th:href='@{/downloadClient}' th:text='#{Download_client}'>Download client</a>
+                    <b><a href='#' th:href='@{/downloadClient}' th:text='#{Download_client}'>Download client</a></b>
                 </div>
                 <div class="copyright">
                     (c) Martin Bryndza

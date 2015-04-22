@@ -6,16 +6,11 @@
 package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.ConsultationRequestDao;
-import eu.bato.anyoffice.backend.dao.StateSwitchDao;
 import eu.bato.anyoffice.backend.model.ConsultationRequest;
-import eu.bato.anyoffice.backend.model.Disturbance;
 import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.backend.model.StateSwitch;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;

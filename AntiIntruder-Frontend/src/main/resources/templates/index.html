@@ -6,7 +6,6 @@
         <title th:text='#{Title}'>AntiIntruder</title>
         <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
         <meta charset="UTF-8" />
-        <meta th:if="${autorefresh} == true" http-equiv="refresh" content="2" />
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
         <!-- DataTables -->
         <link rel="stylesheet" type="text/css" href="../static/css/jquery.datatables.min.css" th:href="@{/css/jquery.datatables.min.css}" />
@@ -15,18 +14,9 @@
         <div id="main_container">
             <div id="header" th:replace="fragments/header :: header"> (header) </div>
             <div id="main_content">
-                <!--<a href="#" th:href="@{/autorefresh(to=true)}" th:text="#{Toggle autorefresh } + ${autorefresh}">Toggle autorefresh</a>-->
-<!--                <form th:action="@{/}" th:object="${personObject}" method="get">
-                    <div th:if="${autorefresh} == true">
-                        <input type="text" th:field="${autorefresh}" value="false"/>
-                        <button type="submit" th:text='#{Disable_autorefresh}'> Disable autorefresh </button>
-                    </div>
-                    <div th:if="${autorefresh} == false">
-                        <input type="text" th:field="${autorefresh}" value="true"/>
-                        <button type="submit" th:text='#{Enable_autorefresh}'> Enable autorefresh </button>
-                    </div>
-                </form>-->
-                <!--<span id="act_action5" class="" onclick="toggleAutoRefresh($(this))">Enable automatic refresh</span>-->
+                <form name="autorefresh" action="#" method="post">
+                    <input type="checkbox" name="dorefresh" onclick="autoRefresh()" th:text="#{Auto_refresh}"> Auto refresh every 10 seconds</input>
+                </form>
                 <div th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
                     <form data-th-action="@{/add}" data-th-object="${personObject}" method="post">
                         <table>
@@ -100,32 +90,33 @@
             </div>
             <div id="footer" th:replace="fragments/footer :: footer"> (footer) </div>
         </div>
+        <script type='text/javascript' src='../static/js/autorefresh.js' th:src="@{/js/autorefresh.js}" ></script>
         <script type='text/javascript' src='../static/js/jquery.min.js' th:src="@{/js/jquery.min.js}" ></script>
         <script type="text/javascript" charset="utf-8" src="../static/js/jquery.datatables.min.js" th:src="@{/js/jquery.datatables.min.js}" ></script>
         <script type="text/javascript" charset="utf-8" src="../static/js/alt-string.js" th:src="@{/js/alt-string.js}" ></script>
         <script type="text/javascript" th:inline="javascript">
-                        /*<![CDATA[*/
-                        $(document).ready(function() {
-                            var targets;
-                            if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
-                                targets = [1, 5];
-                            } else {
-                                targets = 1;
-                            }
-                            $.extend($.fn.dataTable.defaults, {
-                                stateSave: true,
-                                stateSaveCallback: function(settings, oData) {
-                                    localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
-                                },
-                                stateLoadCallback: function(settings) {
-                                    var data = localStorage.getItem('DataTables_' + window.location.pathname);
-                                    return JSON.parse(data);
-                                },
-                                paging: true,
-                                lengthChange: true,
-                                pagingType: "simple_numbers",
-                                stripeClasses: ['row1', 'row2'],
-                                pageLength: 50
+            /*<![CDATA[*/
+            $(document).ready(function() {
+                var targets;
+                if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
+                    targets = [1, 5];
+                } else {
+                    targets = 1;
+                }
+                $.extend($.fn.dataTable.defaults, {
+                    stateSave: true,
+                    stateSaveCallback: function(settings, oData) {
+                        localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
+                    },
+                    stateLoadCallback: function(settings) {
+                        var data = localStorage.getItem('DataTables_' + window.location.pathname);
+                        return JSON.parse(data);
+                    },
+                    paging: true,
+                    lengthChange: true,
+                    pagingType: "simple_numbers",
+                    stripeClasses: ['row1', 'row2'],
+                    pageLength: 50
 //                    language: {
 //                        processing: "<p th:text='#{dataTables.processing}'/>",
 //                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",
@@ -147,35 +138,13 @@
 //                            sortDescending: "<p th:text='#{dataTables.sortDescending}'/>"
 //                        }
 //                    }
-                            });
-                            $('#persons').dataTable({
-                                sorting: [[0, "asc"]],
-                                columnDefs: [{type: 'alt-string', targets: targets}]
-                            });
-                        });
-                        /*]]>*/
+                });
+                $('#persons').dataTable({
+                    sorting: [[0, "asc"]],
+                    columnDefs: [{type: 'alt-string', targets: targets}]
+                });
+            });
+            /*]]>*/
         </script>
-<!--        <script type="text/javascript">
-            var autoRefreshTimer;
-
-            function toggleAutoRefresh(link) {
-                if (autoRefreshTimer) {
-                    window.clearInterval(autoRefreshTimer);
-                    autoRefreshTimer = null;
-                    link.text("Enable automatic refresh");
-                } else {
-                    var timeout = 10;
-                    var autoRefreshIndex = timeout;
-                    autoRefreshTimer = window.setInterval(function() {
-                        if (autoRefreshIndex === 0) {
-                            autoRefreshIndex = timeout;
-                            $('#persons').reload();
-                        }
-                        link.text("Disable automatic refresh ($1 seconds)".replace('$1', autoRefreshIndex));
-                        autoRefreshIndex-;
-                    }, 1000);
-                }
-            }
-        </script>-->
     </body>
 </html>
