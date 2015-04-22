@@ -143,10 +143,6 @@ class TrayIconManager {
                     switchToDndFrame.display();
                 }
             }
-//                (ActionEvent) -> {
-//            if (currentState.equals(PersonState.AVAILABLE) && stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
-//                switchToDndFrame.display();
-//            }
         });
     }
 
@@ -165,6 +161,13 @@ class TrayIconManager {
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB) && currentState.equals(PersonState.AVAILABLE)) {
             if (dnd != null) {
                 dnd.setEnabled(true);
+                dnd.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        changeState(PersonState.DO_NOT_DISTURB);
+                    }
+                });
             }
             log.debug("DND is now enabled");
             showInfoBubble("Do not disturb state is possible. Click this bubble for further actions.");
@@ -242,10 +245,6 @@ class TrayIconManager {
                 Main.programFinish();
             }
         });
-
-//                (ActionEvent) -> {
-//            Main.programFinish();
-//        });
         popup.add(exitItem);
 
         popup.addSeparator();
@@ -258,9 +257,6 @@ class TrayIconManager {
                 showSettings();
             }
         });
-//        settingsItem.addActionListener((ActionEvent) -> {
-//            showSettings();
-//        });
         popup.add(settingsItem);
 
         popup.addSeparator();
@@ -304,9 +300,6 @@ class TrayIconManager {
                     requestNewLocation(currentLocation);
                 }
             });
-//            locationMenuItem.addActionListener((ActionEvent) -> {
-//                requestNewLocation(currentLocation);
-//            });
             popup.add(locationMenuItem);
 
             MenuItem browserMenuItem = new MenuItem("Go to web page...");
@@ -342,14 +335,9 @@ class TrayIconManager {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            log.info("State change by user -> " + state);
                             changeState(state);
                         }
                     });
-//                    item.addActionListener((ActionEvent) -> {
-//                        log.info("State change by user -> " + state);
-//                        changeState(state);
-//                    });
                 }
                 stateItems.put(state, item);
                 popup.add(item);
@@ -384,12 +372,14 @@ class TrayIconManager {
     }
 
     private void changeState(PersonState state) {
+        log.info("State change request by user -> " + state);
         if (state.equals(currentState)) {
             return;
         }
         log.debug("User switched state to " + state);
         if (!client.isStateChangePossible(state)) {
             showErrorBubble("Unable to switch to " + state.getDisplayName());
+            log.warn("Attempt to switch to state {} unsuccessfull.", state.getDisplayName());
         }
         PersonState newStateByServer = client.setState(state);
         log.info("Server returned state " + newStateByServer + " after user switched state to " + state);
@@ -427,9 +417,6 @@ class TrayIconManager {
                 JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE, new ImageIcon("images/logo.ico"));
             }
         });
-//        Thread t = new Thread(() -> {
-//            JOptionPane.showMessageDialog(f, text, title, JOptionPane.PLAIN_MESSAGE, new ImageIcon("images/logo.ico"));
-//        });
         t.start();
     }
 
@@ -733,7 +720,6 @@ class TrayIconManager {
             }
             List<String[]> consulters = new LinkedList<>();
             for (InteractionPerson p : availableConsulters) {
-//            availableConsulters.forEach((p) -> {
                 Long millis = p.getDndStart() - new Date().getTime();
                 Integer minutes = 0;
                 Integer seconds = 0;
@@ -752,13 +738,11 @@ class TrayIconManager {
 //                });
                 consulters.add(labels);
             }
-//            });
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             for (String[] s : consulters) {
                 model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/});
             }
-//            consulters.forEach((s) -> model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/}));
 
             jScrollPane1.setViewportView(jTable1);
 
@@ -818,9 +802,6 @@ class TrayIconManager {
                         fireEditingStopped();
                     }
                 });
-//                button.addActionListener((ActionEvent e) -> {
-//                    fireEditingStopped();
-//                });
             }
 
             @Override
