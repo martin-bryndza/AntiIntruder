@@ -165,7 +165,7 @@ public class Configuration {
             customProps.setProperty(Property.POPUPS_ENABLED.name(), props.getProperty(Property.POPUPS_ENABLED.name(), "true"));
             customProps.setProperty(Property.STATE_AUTO_SWITCH.name(), props.getProperty(Property.STATE_AUTO_SWITCH.name(), "false"));
             customProps.setProperty(Property.FIRST_RUN.name(), props.getProperty(Property.FIRST_RUN.name(), "false"));
-            customProps.store(os, "Saved at " + new Date().toString());
+            customProps.store(os, "Saved at ");
             log.debug("Saved new configuration.");
         } catch (IOException e) {
             log.error("Unable to save new configuration.", e);

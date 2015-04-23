@@ -105,6 +105,11 @@ class TrayIconManager {
             currentLocation = "-";
         }
         initialize(currentState, currentLocation);
+        if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)
+                && !currentState.equals(PersonState.DO_NOT_DISTURB)
+                && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+            dndStateAutoSwitchProcess();
+        }
     }
 
     static TrayIconManager initialize() {
@@ -197,31 +202,7 @@ class TrayIconManager {
             }
             log.debug("DND is now enabled");
             if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
-                //show bubble, add action to dismiss, start timer to autoswitch
-                showInfoBubble("Do Not Disturb will be set in 20 seconds. Click this bubble to dismiss.");
-                final AutoDndSwitchWaitThread r = new AutoDndSwitchWaitThread();
-                new Thread(r).start();
-                final ActionListener[] actionListeners = trayIcon.getActionListeners();
-                for (ActionListener l : actionListeners) {
-                    trayIcon.removeActionListener(l);
-                }
-                trayIcon.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        r.setWait(true);
-                        int result = JOptionPane.showConfirmDialog(null, "Turn off automatic switching of states?", "AnyOffice - Dismiss autoswitch",
-                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                        if (result == JOptionPane.YES_OPTION) {
-                            Configuration.getInstance().setProperty(Property.STATE_AUTO_SWITCH, "false");
-                            trayIcon.removeActionListener(this);
-                            for (ActionListener l : actionListeners) {
-                                trayIcon.addActionListener(l);
-                            }
-                        }
-                        r.setWait(false);
-                    }
-                });
+                dndStateAutoSwitchProcess();
             } else if (dndChkboxMenuItem != null && dndChkboxMenuItem.getState()) {
                 changeState(PersonState.DO_NOT_DISTURB);
                 showInfoBubble("You are in Do Not Disturb state now.");
@@ -270,6 +251,34 @@ class TrayIconManager {
             int requests = client.getNumberOfRequests();
             showInfoBubble("You have gone Available." + (requests == 0 ? "" : (" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.")));
         }
+    }
+
+    private void dndStateAutoSwitchProcess() {
+        //show bubble, add action to dismiss, start timer to autoswitch
+        showInfoBubble("Do Not Disturb will be set in 20 seconds. Click this bubble to dismiss.");
+        final AutoDndSwitchWaitThread r = new AutoDndSwitchWaitThread();
+        new Thread(r).start();
+        final ActionListener[] actionListeners = trayIcon.getActionListeners();
+        for (ActionListener l : actionListeners) {
+            trayIcon.removeActionListener(l);
+        }
+        trayIcon.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                r.setWait(true);
+                int result = JOptionPane.showConfirmDialog(null, "Turn off automatic switching of states?", "AnyOffice - Dismiss autoswitch",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (result == JOptionPane.YES_OPTION) {
+                    Configuration.getInstance().setProperty(Property.STATE_AUTO_SWITCH, "false");
+                    trayIcon.removeActionListener(this);
+                    for (ActionListener l : actionListeners) {
+                        trayIcon.addActionListener(l);
+                    }
+                }
+                r.setWait(false);
+            }
+        });
     }
 
     private class AutoDndSwitchWaitThread implements Runnable {
@@ -441,9 +450,9 @@ class TrayIconManager {
                     item.setLabel("-" + item.getLabel() + "-");
                 } else if (!client.isStateChangePossible(state)) {
                     item.setEnabled(false);
-                    if (state.equals(PersonState.DO_NOT_DISTURB)) {
+                    if (state.equals(PersonState.DO_NOT_DISTURB) && !Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
                         boolean chkBoxDndChecked = dndChkboxMenuItem != null && dndChkboxMenuItem.getState();
-                        dndChkboxMenuItem = new CheckboxMenuItem("Switch to " + state.getDisplayName(), chkBoxDndChecked);
+                        dndChkboxMenuItem = new CheckboxMenuItem("Switch to " + state.getDisplayName() + " (once)", chkBoxDndChecked);
                         popup.add(dndChkboxMenuItem);
                     }
                 } else {
@@ -609,6 +618,10 @@ class TrayIconManager {
                 //switch right away if possible
                 if (autoSwitchCheckBox.isSelected() && currentState.equals(PersonState.AVAILABLE) && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
                     changeState(PersonState.DO_NOT_DISTURB);
+                } else if (autoSwitchCheckBox.isSelected()) {
+                    trayIcon.getPopupMenu().remove(dndChkboxMenuItem);
+                } else {
+                    initialize(currentState, currentLocation);
                 }
             }
         }
