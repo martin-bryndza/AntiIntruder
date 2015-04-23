@@ -197,9 +197,6 @@ class TrayIconManager {
                     }
                 });
             }
-            if (dndChkboxMenuItem != null) {
-                trayIcon.getPopupMenu().remove(dndChkboxMenuItem);
-            }
             log.debug("DND is now enabled");
             if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
                 dndStateAutoSwitchProcess();
@@ -376,6 +373,49 @@ class TrayIconManager {
         });
         popup.add(settingsItem);
 
+        Menu dndSwitchMenu = new Menu("Automatically switch to " + PersonState.DO_NOT_DISTURB.getDisplayName());
+        boolean chkBoxDndChecked = dndChkboxMenuItem != null && dndChkboxMenuItem.getState() && !Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH);
+        dndChkboxMenuItem = new CheckboxMenuItem("next time when possible", chkBoxDndChecked);
+        dndSwitchMenu.add(dndChkboxMenuItem);
+        final CheckboxMenuItem dndAlwaysChkboxMenuItem = new CheckboxMenuItem("always when possible", Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH));
+        if (dndAlwaysChkboxMenuItem.getState()) {
+            dndChkboxMenuItem.setState(false);
+        }
+        dndChkboxMenuItem.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+                if (selected) {
+                    dndAlwaysChkboxMenuItem.setState(false);
+                    Configuration.getInstance().setProperty(Property.STATE_AUTO_SWITCH, "false");
+                }
+                if (selected
+                        && getCurrentState().equals(PersonState.AVAILABLE)
+                        && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+                    changeState(PersonState.DO_NOT_DISTURB);
+                }
+            }
+        });
+        dndAlwaysChkboxMenuItem.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+                if (selected) {
+                    dndChkboxMenuItem.setState(false);
+                }
+                Configuration.getInstance().setProperty(Property.STATE_AUTO_SWITCH, String.valueOf(selected));
+                //switch right away if possible
+                if (selected && getCurrentState().equals(PersonState.AVAILABLE) && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+                    changeState(PersonState.DO_NOT_DISTURB);
+                }
+            }
+        });
+        dndSwitchMenu.add(dndAlwaysChkboxMenuItem);
+
+        popup.add(dndSwitchMenu);
+
         popup.addSeparator();
 
         if (RestClient.isServerOnline()) {
@@ -450,11 +490,6 @@ class TrayIconManager {
                     item.setLabel("-" + item.getLabel() + "-");
                 } else if (!client.isStateChangePossible(state)) {
                     item.setEnabled(false);
-                    if (state.equals(PersonState.DO_NOT_DISTURB) && !Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
-                        boolean chkBoxDndChecked = dndChkboxMenuItem != null && dndChkboxMenuItem.getState();
-                        dndChkboxMenuItem = new CheckboxMenuItem("Switch to " + state.getDisplayName() + " (once)", chkBoxDndChecked);
-                        popup.add(dndChkboxMenuItem);
-                    }
                 } else {
                     item.addActionListener(new ActionListener() {
 
@@ -584,7 +619,6 @@ class TrayIconManager {
         JCheckBox rememberMeCheckBox = new JCheckBox("Remember me", !conf.getProperty(Property.GUID).isEmpty());
         JCheckBox runAtStratupCheckBox = new JCheckBox("Run at Windows startup", conf.getBooleanProperty(Property.RUN_AT_STARTUP));
         JCheckBox popupMessagesCheckBox = new JCheckBox("Show popup messages", conf.getBooleanProperty(Property.POPUPS_ENABLED));
-        JCheckBox autoSwitchCheckBox = new JCheckBox("Switch to DND automatically (always)", conf.getBooleanProperty(Property.STATE_AUTO_SWITCH));
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel("Web page address"));
         panel.add(webAddressField);
@@ -596,7 +630,6 @@ class TrayIconManager {
         panel.add(new JLabel());
         panel.add(popupMessagesCheckBox);
         panel.add(new JLabel());
-        panel.add(autoSwitchCheckBox);
         JFrame frame = new JFrame();
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
@@ -613,17 +646,6 @@ class TrayIconManager {
                 shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
             }
             conf.setProperty(Property.POPUPS_ENABLED, String.valueOf(popupMessagesCheckBox.isSelected()));
-            if (!(autoSwitchCheckBox.isSelected() == conf.getBooleanProperty(Property.STATE_AUTO_SWITCH))) {
-                conf.setProperty(Property.STATE_AUTO_SWITCH, String.valueOf(autoSwitchCheckBox.isSelected()));
-                //switch right away if possible
-                if (autoSwitchCheckBox.isSelected() && currentState.equals(PersonState.AVAILABLE) && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-                    changeState(PersonState.DO_NOT_DISTURB);
-                } else if (autoSwitchCheckBox.isSelected()) {
-                    trayIcon.getPopupMenu().remove(dndChkboxMenuItem);
-                } else {
-                    initialize(currentState, currentLocation);
-                }
-            }
         }
     }
 

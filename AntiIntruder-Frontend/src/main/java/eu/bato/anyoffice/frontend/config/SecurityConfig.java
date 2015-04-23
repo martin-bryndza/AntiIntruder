@@ -64,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/logout").authenticated()
                 .antMatchers(HttpMethod.GET, "/").permitAll()
                 .antMatchers(HttpMethod.GET, "/faq").permitAll()
+                .antMatchers(HttpMethod.GET, "/otherApp").permitAll()
                 .antMatchers("/downloadClient").permitAll()
                 .antMatchers(HttpMethod.GET, "/changeState").hasAuthority("ADMIN")
                 .antMatchers(HttpMethod.POST, "/").hasAuthority("ADMIN")

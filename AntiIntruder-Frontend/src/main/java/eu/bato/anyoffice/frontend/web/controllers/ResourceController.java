@@ -10,7 +10,6 @@ import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
-import eu.bato.anyoffice.serviceapi.service.PersonService;
 import eu.bato.anyoffice.serviceapi.service.StateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,10 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Bato
  */
 @Controller
-public class ResourceController {
+public class ResourceController extends CommonController {
 
-    @Autowired
-    protected PersonService personService;
     @Autowired
     protected ResourceService entityService;
     @Autowired

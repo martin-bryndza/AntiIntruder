@@ -9,13 +9,11 @@ import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
-import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,11 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author bryndza
  */
 @Controller
-public class GraphController {
+public class GraphController extends CommonController {
 
-    @Autowired
-    protected PersonService personService;
-    
     @ModelAttribute("page")
     public String module() {
         return "graph";
@@ -45,9 +40,9 @@ public class GraphController {
     public String loadItems(Model model, Authentication authentication, @RequestParam(required = false) String usernameGraph, @RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") Date from, @RequestParam(required = false) Integer next) {
         PersonDto currentPerson = personService.findOneByUsername(authentication.getName());
         model.addAttribute("currentPerson", currentPerson);
-        
+
         //check input and prepare attributes
-        if ((usernameGraph == null || usernameGraph.isEmpty()) || (!usernameGraph.equals(currentPerson.getUsername()) && !authentication.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ADMIN.name())))){
+        if ((usernameGraph == null || usernameGraph.isEmpty()) || (!usernameGraph.equals(currentPerson.getUsername()) && !authentication.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ADMIN.name())))) {
             usernameGraph = currentPerson.getUsername();
         }
         model.addAttribute("usernameGraph", usernameGraph);
@@ -58,41 +53,42 @@ public class GraphController {
         model.addAttribute("from", format.format(from));
         format = new SimpleDateFormat("H:mm");
         model.addAttribute("fromTime", format.format(from));
-        if (next == null || (next != 12 && next!=24)){
+        if (next == null || (next != 12 && next != 24)) {
             next = 12;
         }
         model.addAttribute("next", next);
-        
-        Date to = new Date(from.getTime()+(next==12?43200000:86400000));
+
+        Date to = new Date(from.getTime() + (next == 12 ? 43200000 : 86400000));
         Date now = new Date();
-        if (to.after(now)){
+        if (to.after(now)) {
             to = now;
         }
         Calendar cFrom = new GregorianCalendar();
         cFrom.setTime(from);
         Calendar cTo = new GregorianCalendar();
         cTo.setTime(to);
-        
+
         //get switches
         State[] computeStates = computeStates(usernameGraph, from, to);
         model.addAttribute("dailyStates", computeStates);
-                
+
         //set start angle
-        int startAngle = next==12? 30*cFrom.get(Calendar.HOUR) -1 /*the start line*/ : 15*cFrom.get(Calendar.HOUR_OF_DAY) ;
+        int startAngle = next == 12 ? 30 * cFrom.get(Calendar.HOUR) - 1 /*the start line*/ : 15 * cFrom.get(Calendar.HOUR_OF_DAY);
         model.addAttribute("startAngle", startAngle);
-        
-        model.addAttribute("total", next==24?86400000:43200000);
+
+        model.addAttribute("total", next == 24 ? 86400000 : 43200000);
 
         return "graph";
     }
 
     /**
-     * Computes series for chartist.
-     * Adds 1 minute long black field to the front of the series and the time from beginning until first switch is grey.
+     * Computes series for chartist. Adds 1 minute long black field to the front
+     * of the series and the time from beginning until first switch is grey.
+     *
      * @param username
      * @param from
      * @param to
-     * @return 
+     * @return
      */
     private State[] computeStates(String username, Date from, Date to) {
         List<StateSwitchDto> stateSwitches = personService.getStateSwitches(username, from, to);

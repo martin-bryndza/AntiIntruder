@@ -1,0 +1,29 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
+        <script type='text/javascript' src='../static/js/jquery.min.js' th:src="@{/js/jquery.min.js}" ></script>
+        <script type='text/javascript'>
+            function resizeFrame()
+            {
+                var height = $(window).height() - 90; 
+                $("#otherApp").height(height);
+            };
+        </script>
+    </head>
+    <body onload="resizeFrame()" onresize="resizeFrame()">
+        <div id="main_container">
+            <div id="header" th:replace="fragments/applicationsMenu :: applicationsMenu"> (otherAppsMenu) </div>
+            <div id="main_content">
+                <iframe id="otherApp" name="otherApp" class='otherapp' src="#" th:src="${appUrl}">
+                    404 Page not found.
+                </iframe>
+            </div>
+        </div>
+    </body>
+</html>

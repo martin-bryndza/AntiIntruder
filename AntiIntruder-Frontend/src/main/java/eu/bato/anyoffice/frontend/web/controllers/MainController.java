@@ -1,8 +1,6 @@
 package eu.bato.anyoffice.frontend.web.controllers;
 
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
-import eu.bato.anyoffice.serviceapi.dto.PersonRole;
-import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,10 +8,7 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
@@ -27,15 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Bato
  */
 @Controller
-public class MainController {
-
-    @Autowired
-    Environment env;
+public class MainController extends CommonController {
 
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
-
-    @Autowired
-    protected PersonService personService;
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public String logout(@ModelAttribute CsrfToken csrf) {
@@ -64,7 +53,7 @@ public class MainController {
 //    }
 
     @RequestMapping(value = "/faq", method = RequestMethod.GET)
-    public String loadItems(Model model) {
+    public String loadFaq(Model model) {
         model.addAttribute("page", "faq");
         if (!SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
             Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();

@@ -1,8 +1,6 @@
 package eu.bato.anyoffice.frontend.web.controllers;
 
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
-import eu.bato.anyoffice.serviceapi.service.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -16,11 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author bryndza
  */
 @Controller
-public class PersonController {
+public class PersonController extends CommonController {
 
-    @Autowired
-    protected PersonService personService;
-    
     @ModelAttribute("page")
     public String module() {
         return "personEdit";

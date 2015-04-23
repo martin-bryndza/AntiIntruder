@@ -11,7 +11,6 @@ import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
-import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -29,10 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Bato
  */
 @Controller
-public class IndexController {
+public class IndexController extends CommonController {
 
-    @Autowired
-    protected PersonService personService;
     @Autowired
     protected ResourceService entityService;
     @Autowired

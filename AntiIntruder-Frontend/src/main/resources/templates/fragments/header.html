@@ -10,7 +10,8 @@
     </head>
     <body>
         <div id="main_container">
-            <div th:fragment="header">
+            <div id="header" th:fragment="header">
+                <div th:replace="fragments/applicationsMenu :: applicationsMenu"> (otherAppsMenu) </div>
                 <div>
                     <div th:if="${param.error}" th:text='#{msg.invalid_credentials}' class="green_box">    
                         Invalid username and password.
@@ -19,7 +20,7 @@
                         You have been logged out.
                     </div>
                 </div>
-                <div id="header" th:fragment="header">
+                <div>
                     <div id="logo"><a href="/"><img src="../../static/images/logo.png" th:src="@{/images/logo.png}" alt="logo" th:title="#{Title}"/></a></div>
                     <h1 id="topTitle" th:text='#{Title}'>Any Office</h1>
                     <!--<h2 id="subTitle" th:text="#{Subtitle}">Time Defragmentation and Reservation</h2>-->

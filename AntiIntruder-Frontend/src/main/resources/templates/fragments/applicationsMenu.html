@@ -1,0 +1,27 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head lang="en">
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <link rel="icon" type="image/png" href="../../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../../static/css/style.css" th:href="@{/css/style.css}" />
+    </head>
+    <body>
+        <div id="main_container">
+            <div th:fragment="applicationsMenu">
+                    <div id="applicationsmenu">
+                        <ul>
+                            <li id="first" th:classappend="${app == 'anyoffice' ? 'current' : ''}"><a href="#" th:href="@{/}" th:text='#{Title}'>AnyOffice</a></li>
+                            <li th:each='a : ${otherApps}' th:classappend="${app} == ${a.name} ? 'current' : ''">
+                                <a href="#" th:href="@{/otherApp(url=${a.url}, app=${a.name}, inframe=${a.loadsInFrame})}" th:target="${a.loadsInFrame}?'_top':'_blank'">
+                                    <span th:text='#{${a.name}}'>Booking</span>
+                                    <img th:if="!${a.loadsInFrame}" src="../../static/images/external_link.png" th:src="@{/images/external_link.png}" alt=""></img>
+                                </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+    </body>
+</html>
