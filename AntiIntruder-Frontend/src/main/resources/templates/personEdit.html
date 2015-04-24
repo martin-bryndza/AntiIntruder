@@ -12,6 +12,9 @@
         <div id="main_container">
             <div id="header" th:replace="fragments/header :: header"> (header) </div>
             <div id="main_content">
+                <div th:if="${hcError}" th:text='#{msg.invalid_hipchat_credentials}' class="green_box">    
+                        Invalid HipChat email and token.
+                </div>
                 <form data-th-action="@{/personEdit/save}" data-th-object="${currentPerson}" method="post">
                     <table>
                         <tbody>
@@ -30,6 +33,17 @@
                                         <option th:each="sopt:${T(eu.bato.anyoffice.frontend.web.data.PersonLocation).values()}" th:value="${sopt}" th:text="${sopt.name}" th:selected="*{location}==${sopt}" />
                                     </select>
                                     <input id="other_location" type="text" data-th-field="*{location}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="hcEmail" th:text='#{HipChat_email}'>HipChat email</label></td>
+                                <td><input id="hcEmail" type="text" data-th-field="*{hipChatEmail}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="hcToken" th:text='#{HipChat_token}'>HipChat token</label></td>
+                                <td>
+                                    <input id="hcToken" type="text" data-th-field="*{hipChatToken}"/>
+                                    <a href="https://ysoft.hipchat.com/account/confirm_password?redirect_to=/account/api" th:text="#{Get_token}" target="_blank">Get token</a>
                                 </td>
                             </tr>
                             <tr>

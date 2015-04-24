@@ -7,6 +7,8 @@ package eu.bato.anyoffice.core.person;
 
 import eu.bato.anyoffice.core.config.Configuration;
 import eu.bato.anyoffice.core.config.Property;
+import eu.bato.anyoffice.core.integration.hipchat.HipChatClient;
+import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
@@ -26,9 +28,12 @@ import org.springframework.stereotype.Service;
 public class PersonStateManager {
 
     private final static Logger log = LoggerFactory.getLogger(PersonStateManager.class);
-    
+
     @Autowired
     PersonService personService;
+
+    @Autowired
+    HipChatClient hipChatClient;
 
     public PersonState setState(String username, PersonState state, boolean force) {
         PersonState current = getCurrentState(username);
@@ -85,6 +90,7 @@ public class PersonStateManager {
             }));
             personService.setTimers(username, Optional.of(new Date(newDndStart)), Optional.empty(), Optional.empty());
             personService.setState(username, PersonState.AVAILABLE);
+            setHipChatState(username, PersonState.AVAILABLE);
             return PersonState.AVAILABLE;
         } else if (p.getDndStart().compareTo(p.getDndEnd()) < 0 && p.getDndEnd().compareTo(now) <= 0) {
             // previous state was DND but it's already over
@@ -93,6 +99,7 @@ public class PersonStateManager {
         } else {
             // previous state was DND and it's still valid
             personService.setState(username, PersonState.DO_NOT_DISTURB);
+            setHipChatState(username, PersonState.DO_NOT_DISTURB);
             return PersonState.DO_NOT_DISTURB;
         }
     }
@@ -101,9 +108,18 @@ public class PersonStateManager {
         return returnFromAwayState(username);
     }
 
-    public PersonState getCurrentState(String username) {
+    public final PersonState getCurrentState(String username) {
         checkCurrentStateValidity(username);
         return personService.getState(username);
+    }
+
+    public void updateHipChatStatuses() {
+        log.info("Updating statuses on HipChat...");
+        List<String> allUsernames = personService.findAllUsernames();
+        if (allUsernames != null) {
+            allUsernames.forEach(p -> setHipChatState(p, getCurrentState(p)));
+        }
+        log.info("Updating statuses finished.");
     }
 
     public void checkCurrentStatesValidity() {
@@ -118,11 +134,12 @@ public class PersonStateManager {
         if (person.getState().equals(PersonState.DO_NOT_DISTURB) && person.getDndEnd().compareTo(new Date().getTime()) <= 0) {
             // current state is DND and it should have ended
             personService.setState(username, PersonState.AVAILABLE);
+            setHipChatState(username, PersonState.AVAILABLE);
         } else if (!person.getState().equals(PersonState.UNKNOWN)) {
             long fromLastPing = new Date().getTime() - person.getLastPing().orElse(0L);
-            if (!person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_PING_DELAY)){
+            if (!person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_PING_DELAY)) {
                 setUnknownAwayState(username, PersonState.UNKNOWN);
-            } else if (person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_AWAY_PING_DELAY)){
+            } else if (person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_AWAY_PING_DELAY)) {
                 setUnknownAwayState(username, PersonState.UNKNOWN);
             }
         }
@@ -136,13 +153,13 @@ public class PersonStateManager {
             return true;
         }
     }
-    
-    public long getDndStart(String username){
+
+    public long getDndStart(String username) {
         //TODO make more effective
         return personService.findOneByUsername(username).getDndStart();
     }
-    
-    public long getDndEnd(String username){
+
+    public long getDndEnd(String username) {
         //TODO make more effective
         return personService.findOneByUsername(username).getDndEnd();
     }
@@ -153,6 +170,7 @@ public class PersonStateManager {
         Optional<Date> dndStart = Optional.of(new Date(now.getTime() + minAvailableTime));
         personService.setTimers(username, dndStart, Optional.of(now), Optional.empty());
         personService.setState(username, PersonState.AVAILABLE);
+        setHipChatState(username, PersonState.AVAILABLE);
     }
 
     private void setDndState(String username) {
@@ -161,11 +179,20 @@ public class PersonStateManager {
         Optional<Date> dndEnd = Optional.of(new Date(now.getTime() + maxDndTime));
         personService.setTimers(username, Optional.of(now), dndEnd, Optional.empty());
         personService.setState(username, PersonState.DO_NOT_DISTURB);
+        setHipChatState(username, PersonState.DO_NOT_DISTURB);
     }
 
     private void setUnknownAwayState(String username, PersonState state) {
         personService.setTimers(username, Optional.empty(), Optional.empty(), Optional.of(new Date()));
         personService.setState(username, state);
+        setHipChatState(username, state);
+    }
+
+    private void setHipChatState(String username, PersonState state) {
+        HipChatCredentials hcc = personService.getHipChatCredentials(username);
+        if (hcc.getEmail().isPresent() && hcc.getToken().isPresent()) {
+            hipChatClient.setState(hcc.getToken().get(), hcc.getEmail().get(), state, "AnyOffice");
+        }
     }
 
 }

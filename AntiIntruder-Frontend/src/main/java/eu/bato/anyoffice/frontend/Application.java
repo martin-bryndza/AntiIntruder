@@ -1,7 +1,10 @@
 package eu.bato.anyoffice.frontend;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bato.anyoffice.core.integration.hipchat.HipChatClient;
+import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.core.scheduler.SchedulerService;
+import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -35,6 +38,9 @@ public class Application extends WebMvcConfigurerAdapter {
     @Autowired
     SchedulerService scheduler;
 
+    @Autowired
+    PersonStateManager personStateManager;
+
     public static void main(String[] args) {
         log.info("Any Office web aplication is starting...");
         SpringApplication.run(Application.class, args);
@@ -42,6 +48,7 @@ public class Application extends WebMvcConfigurerAdapter {
 
     @PostConstruct
     protected void startScheduler() {
+        personStateManager.updateHipChatStatuses();
         scheduler.start();
     }
 
@@ -77,13 +84,13 @@ public class Application extends WebMvcConfigurerAdapter {
     public Validator getValidator() {
         return validator();
     }
-    
-//    @Bean 
+
+//    @Bean
 //    public ITemplateResolver templateResolver(){
 //        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
 //        return resolver;
 //    }
-//    
+//
 //    @Bean
 //    public SpringTemplateEngine templateEngine() {
 //        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
@@ -92,5 +99,4 @@ public class Application extends WebMvcConfigurerAdapter {
 //        templateEngine.addDialect(new LayoutDialect());
 //        return templateEngine;
 //    }
-
 }

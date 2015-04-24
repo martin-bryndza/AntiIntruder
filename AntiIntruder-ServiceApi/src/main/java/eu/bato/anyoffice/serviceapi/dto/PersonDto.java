@@ -18,6 +18,24 @@ public class PersonDto extends EntityDto {
     private Optional<Long> awayStart = Optional.empty();
     private Optional<Long> lastPing = Optional.empty();
     private List<Long> interactionEntitiesIds;
+    private String hipChatToken;
+    private String hipChatEmail;
+
+    public String getHipChatToken() {
+        return hipChatToken;
+    }
+
+    public void setHipChatToken(String hipChatToken) {
+        this.hipChatToken = hipChatToken;
+    }
+
+    public String getHipChatEmail() {
+        return hipChatEmail;
+    }
+
+    public void setHipChatEmail(String hipChatEmail) {
+        this.hipChatEmail = hipChatEmail;
+    }
 
     public PersonState getState() {
         return state;
@@ -66,7 +84,7 @@ public class PersonDto extends EntityDto {
     public void setAwayStart(Optional<Long> awayStart) {
         this.awayStart = awayStart;
     }
-    
+
     public Optional<Long> getLastPing() {
         return lastPing;
     }

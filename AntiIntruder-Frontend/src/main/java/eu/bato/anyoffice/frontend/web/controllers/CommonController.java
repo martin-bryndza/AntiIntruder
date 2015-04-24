@@ -43,10 +43,10 @@ public class CommonController {
         List<OtherPageObject> apps = new LinkedList<>();
         apps.add(new OtherPageObject("Booking", "https://booking.ysoft.local/", false));
         apps.add(new OtherPageObject("Download Manager", "http://bamboo.ysoft.local/dm", false));
-        apps.add(new OtherPageObject("Licence Tool", "http://license.ysoft.local/", true));
-        apps.add(new OtherPageObject("Bamboo", "http://bamboo/allPlans.action", true));
+        apps.add(new OtherPageObject("Licence Tool", "https://license.ysoft.local/", true));
+        apps.add(new OtherPageObject("Bamboo", "http://bamboo.ysoft.local/allPlans.action", false));
         apps.add(new OtherPageObject("Jira", "http://jira.ysoft.local", false));
-        apps.add(new OtherPageObject("Intranet", "http://intranet.ysoft.local", true));
+        apps.add(new OtherPageObject("Intranet", "http://intranet.ysoft.local", false));
         apps.add(new OtherPageObject("10.0.10.150", "http://10.0.10.150", false));
         return apps;
     }

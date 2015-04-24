@@ -26,6 +26,6 @@
     <logger name="org.hibernate" level="warn"/>
     <logger name="org.springframework" level="warn"/>
     <logger name="org.springframework.web.context.ContextLoader" level="warn"/>
-    <logger name="eu.bato" level="info"/>
+    <logger name="eu.bato" level="debug"/>
 
 </configuration>

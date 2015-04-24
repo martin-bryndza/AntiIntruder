@@ -19,6 +19,7 @@ import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.backend.model.StateSwitch;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
+import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
@@ -484,6 +485,18 @@ public class PersonServiceImpl implements PersonService {
                 return savedEntity.getId();
             }
         }.tryMethod();
+    }
+
+    @Override
+    public HipChatCredentials getHipChatCredentials(String username) {
+        Optional<Person> p = findOnePersonByUsername(username);
+        if (!p.isPresent()) {
+            return new HipChatCredentials();
+        }
+        HipChatCredentials hcc = new HipChatCredentials();
+        hcc.setEmail(p.get().getHipChatEmail());
+        hcc.setToken(p.get().getHipChatToken());
+        return hcc;
     }
 
 }

@@ -61,6 +61,26 @@ public class Person extends Entity {
     @Cascade(CascadeType.ALL)
     @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<Entity> interactionEntities;
+    @Column(columnDefinition = "VARCHAR(100)", nullable = true)
+    private String hipChatToken;
+    @Column(columnDefinition = "VARCHAR(100)", nullable = true)
+    private String hipChatEmail;
+
+    public String getHipChatToken() {
+        return hipChatToken;
+    }
+
+    public void setHipChatToken(String hipChatToken) {
+        this.hipChatToken = hipChatToken;
+    }
+
+    public String getHipChatEmail() {
+        return hipChatEmail;
+    }
+
+    public void setHipChatEmail(String hipChatEmail) {
+        this.hipChatEmail = hipChatEmail;
+    }
 
     public Date getLastPing() {
         return lastPing;
