@@ -52,6 +52,9 @@ public class PersonController extends CommonController {
                 model.addAttribute("hcError", true);
                 return "personEdit";
             }
+        } else {
+            currentPerson.setHipChatEmail(null);
+            currentPerson.setHipChatToken(null);
         }
         personService.save(currentPerson);
         return "redirect:/";

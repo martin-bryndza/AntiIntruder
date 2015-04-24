@@ -72,8 +72,8 @@ img.box_img{
 }
 #main_container{
     width:100%;
-    max-width: 1500px;
-    min-width: 950px;
+    max-width: 1100px;
+    min-width: 810px;
     height:auto;
     margin:auto;
     background-color:#FFFFFF;
@@ -111,6 +111,10 @@ img.box_img{
 
 iframe.otherapp{
     width:100%;
+}
+
+.extLinkImage{
+    height: 10px;
 }
 
 /*----------------------menu-------------------------*/
@@ -153,7 +157,7 @@ iframe.otherapp{
     list-style:none;padding:0 0 0 20px;margin: auto;display:block;float:bottom;
 }
 #applicationsmenu ul li{
-    list-style:none;display:inline;float:bottom;width:auto;height:25px;margin: 0 0 0 25px;line-height:25px; font-family:Arial, Helvetica, sans-serif; font-size:13px;
+    list-style:none;display:inline;float:bottom;width:auto;height:25px;line-height:25px; font-family:Arial, Helvetica, sans-serif; font-size:13px;
 }
 #applicationsmenu ul li#first{
     margin:0;
@@ -162,7 +166,7 @@ iframe.otherapp{
     height:25px; 
     width: auto;
     text-decoration:none;color:#fff;text-align:center;
-    padding: 2px 10px 5px 10px;
+    padding: 2px 7px 5px 7px;
 }
 #applicationsmenu ul li :hover{
     color: #C3C1BD; 
@@ -172,9 +176,6 @@ iframe.otherapp{
     color: black;
     font-weight: bold;
     background:white;
-}
-#applicationsmenu ul li a img{
-    height: 10px;
 }
 
 /*----------------states----------------------*/

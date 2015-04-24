@@ -17,7 +17,7 @@
                             <li th:each='a : ${otherApps}' th:classappend="${app} == ${a.name} ? 'current' : ''">
                                 <a href="#" th:href="@{/otherApp(url=${a.url}, app=${a.name}, inframe=${a.loadsInFrame})}" th:target="${a.loadsInFrame}?'_top':'_blank'">
                                     <span th:text='#{${a.name}}'>Booking</span>
-                                    <img th:if="!${a.loadsInFrame}" src="../../static/images/external_link.png" th:src="@{/images/external_link.png}" alt=""></img>
+                                    <img class="extLinkImage" th:if="!${a.loadsInFrame}" src="../../static/images/external_link.png" th:src="@{/images/external_link.png}" alt=""></img>
                                 </a></li>
                         </ul>
                     </div>

@@ -112,7 +112,7 @@ public class HipChatClient {
             log.debug("Person's {} replaced state: {}", email, replaced);
         } else {
             int start = person.indexOf("\"presence\": {") + 13;
-            replaced = person.substring(0, start + 1) + "\"show\": \"" + getStateString(state) + "\"" + person.substring(start + 2);
+            replaced = person.substring(0, start) + "\"show\": \"" + getStateString(state) + "\", " + person.substring(start);
         }
         if (status != null && replaced.contains("\"status\":")) {
             int start = replaced.indexOf("\"status\":") + 11; // index of status
@@ -122,8 +122,8 @@ public class HipChatClient {
             replaced = replaced.replace(currentStatus, status);
             log.debug("Person's {} replaced status: {}", email, replaced);
         } else if (status != null) {
-            int start = person.indexOf("\"presence\": {") + 13;
-            replaced = replaced.substring(0, start + 1) + "\"status\": \"" + status + "\"" + replaced.substring(start + 2);
+            int start = replaced.indexOf("\"presence\": {") + 13;
+            replaced = replaced.substring(0, start) + "\"status\": \"" + status + "\", " + replaced.substring(start);
         }
         HttpEntity<String> entity = new HttpEntity<>(replaced, headers);
         ResponseEntity<String> response;

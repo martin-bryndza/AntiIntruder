@@ -43,7 +43,10 @@
                                 <td><label for="hcToken" th:text='#{HipChat_token}'>HipChat token</label></td>
                                 <td>
                                     <input id="hcToken" type="text" data-th-field="*{hipChatToken}"/>
-                                    <a href="https://ysoft.hipchat.com/account/confirm_password?redirect_to=/account/api" th:text="#{Get_token}" target="_blank">Get token</a>
+                                    <a href="https://ysoft.hipchat.com/account/confirm_password?redirect_to=/account/api" target="_blank">
+                                        <span th:text="#{Get_token}">Get token</span>
+                                        <img class="extLinkImage" src="../static/images/external_link_black.png" th:src="@{/images/external_link_black.png}" alt=""></img>
+                                    </a>
                                 </td>
                             </tr>
                             <tr>
