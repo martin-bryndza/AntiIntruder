@@ -131,7 +131,7 @@ public class HipChatClient {
             response = exchange(PATH + "user/" + email + "?auth_token=" + token, HttpMethod.PUT, entity, String.class);
             log.info("Set state and status for person {} \"{}\" response: {}; body: {}", email, state, response.getStatusCode().toString(), response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to set state and status for person {}.", email);
+            log.error("Unable to set state and status for person {}. Outgoing message: {}", email, replaced);
         }
     }
 

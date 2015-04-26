@@ -46,7 +46,7 @@
                     </form>
                 </div>    
                 <br/>
-                <table th:if="${not #lists.isEmpty(persons)}" id="persons">
+                <table th:if="${not #lists.isEmpty(persons)}" id="persons" class="hover compact">
                     <thead>
                         <tr>
                             <th th:text='#{Display_Name}'>Display Name</th>
@@ -61,13 +61,14 @@
                     <tbody>
                         <tr th:each="ent, stat: ${persons}">
                             <td data-th-text="${ent.displayName}">Entity display name</td>
-                            <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}" style="text-align: center;">
+                            <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}" th:class="'state_' + ${ent.state.name}" style="text-align: center;">
                                 <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
-                                    <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}"/>
+                                    <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}" th:class="'tableimg state_' + ${ent.state.name}"/>
                                 </select>
-                                <img th:title='${ent.state.name}' th:case="false" class="tableimg" th:class="'tableimg state_' + ${ent.state.name}" src='../static/images/UNKNOWN.png' th:src="@{'/images/' + ${ent.state.name} + '.png'}" alt="" th:alt="${ent.state.name}" />
+                                <img th:title='${ent.state.name}' th:case="false" class="tableimg" src='../static/images/UNKNOWN.png' th:src="@{'/images/' + ${ent.state.name} + '.png'}" alt="" th:alt="#{${ent.state.name}}" />
+                                <span th:text="#{${ent.state.name}}" style="bottom: 4px; position: relative">UNKNOWN</span>
                             </td>
-                            <td data-th-text="${#dates.format(ent.dndEnd, 'dd.M. HH:mm')}"  style="text-align: center;">N/A</td>
+                            <td data-th-text="${#dates.format(ent.dndEnd, 'yyyy-MM-dd')} + 'T' +  ${#dates.format(ent.dndEnd, 'HH:mm:ss')}" id='dndend0' th:id="'dndend'+${stat.index}"  style="text-align: center;">2015-04-17T05:10:00</td>
                             <td data-th-text="${ent.location}">Unknown</td>
                             <td data-th-text="${ent.description}"></td>
                             <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
@@ -78,10 +79,10 @@
                             </td>
                             <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}" style="text-align: center;">
                                 <a th:case="true" href="#" data-th-href="@{/cancelinteract(id=${ent.id})}">
-                                    <img title="Do not notify me when person becomes available" th:title="'Do not notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='remove' th:alt="#{Remove_consultation}" src='../static/images/requested.png' th:src="@{/images/requested.png}"/>
+                                    <img title="Do not notify me when person becomes available" th:title="'Do not notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='remove' th:alt="#{Remove_consultation}" src='../static/images/binoculars-on.png' th:src="@{/images/binoculars-on.png}"/>
                                 </a>
                                 <a th:case="false" href="#" data-th-href="@{/interact(id=${ent.id})}">
-                                    <img title="Notify me when person becomes available" th:title="'Notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='request' th:alt="#{Request_consultation}" src='../static/images/removed.png' th:src="@{/images/removed.png}"/>
+                                    <img title="Notify me when person becomes available" th:title="'Notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='request' th:alt="#{Request_consultation}" src='../static/images/binoculars-off.png' th:src="@{/images/binoculars-off.png}"/>
                                 </a>
                             </td>
                         </tr>
@@ -116,7 +117,8 @@
                                 lengthChange: true,
                                 pagingType: "simple_numbers",
                                 stripeClasses: ['row1', 'row2'],
-                                pageLength: 50
+                                pageLength: 50,
+                                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]]
 //                    language: {
 //                        processing: "<p th:text='#{dataTables.processing}'/>",
 //                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",
@@ -157,10 +159,24 @@
                                     }, {
                                         targets: [4],
                                         orderData: [4, 0]
-                                    }]
+                                    }],
+                                dom: '<"dt_search"f><"dt_length"l><t><ip>'
                             });
                         });
                         /*]]>*/
+        </script>
+        <script type="text/javascript">
+            var i=0;
+            while (document.getElementById("dndend"+i) !== null){
+                var elem = document.getElementById("dndend"+i);
+                var text = Date.parse(elem.textContent);
+                text = new Date() - text;
+                var days = Math.abs(Math.floor(text/86400000));
+                var days = days===0?'':days + 'd ';
+                var mins = Math.abs(Math.floor(text/86400000)) + 'm';                
+                elem.textContent = (text/Math.abs(text) === 1?'-':'') + days+mins;
+                i++;
+            }
         </script>
     </body>
 </html>

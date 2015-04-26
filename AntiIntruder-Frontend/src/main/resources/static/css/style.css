@@ -6,7 +6,7 @@ body {
     color: #416271;
 }
 h1#topTitle{
-    margin: 35px 20px 20px 20px;
+    margin: 37px 20px;
     float: left;
 }
 h1#topTitle a{
@@ -16,7 +16,7 @@ h1#topTitle a{
 }
 h1{
     margin:10px 5px;
-    font-size:20px;
+    font-size:25px;
     color:#E6D35E;
 }
 h2{
@@ -117,6 +117,50 @@ iframe.otherapp{
     height: 10px;
 }
 
+/*--------------------download client button------------*/
+
+.btn-download {
+  cursor: pointer;
+  border: 1px solid #0f9b0f;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  font: normal 20px/40px Arial, Helvetica, sans-serif;
+  color: rgb(255, 255, 255);
+  -o-text-overflow: clip;
+  text-overflow: clip;
+  background: -webkit-linear-gradient(-90deg, rgb(90,190,87) 0, rgb(53,146,56) 100%), rgb(90, 190, 87);
+  background: -moz-linear-gradient(180deg, rgb(90,190,87) 0, rgb(53,146,56) 100%), rgb(90, 190, 87);
+  background: linear-gradient(180deg, rgb(90,190,87) 0, rgb(53,146,56) 100%), rgb(90, 190, 87);
+  -webkit-background-origin: padding-box;
+  background-origin: padding-box;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-background-size: auto auto;
+  background-size: auto auto;
+}
+
+.btn-download span{
+  padding: 0 15px;
+}
+
+.btn-download img{
+    height: 20px;
+    margin: 0px 10px 0px 10px;
+}
+
+.btn-download:hover {
+  background: rgb(90, 190, 87);
+  -webkit-transition: all 150ms cubic-bezier(0.42, 0, 0.58, 1);
+  -moz-transition: all 150ms cubic-bezier(0.42, 0, 0.58, 1);
+  -o-transition: all 150ms cubic-bezier(0.42, 0, 0.58, 1);
+  transition: all 150ms cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+.btn-download:active {
+  border: 1px solid rgba(180,180,180,0.2);
+  background: rgba(77,168,74,1);
+}
+
 /*----------------------menu-------------------------*/
 #menu{
     width:100%;
@@ -197,21 +241,23 @@ iframe.otherapp{
 
 .tableimg{
     height: 20px;
-    width: 20px;
 }
 
 /*----------------middle green box-----------*/
 .green_box{
     clear:both;
-    background:url(/images/green_box_bg.gif) no-repeat left #50a842;
+    background:#50a842;
     background-position:50px 0px;
     padding:5px 0 5px 20px;
     color: #FFFFFF;
 }
-.text_content{
-    width:350px;
-    float:left;
-    padding:20px 0 0 0;
+
+.red_box{
+    clear:both;
+    background:red;
+    background-position:50px 0px;
+    padding:5px 0 5px 20px;
+    color: #FFFFFF;
 }
 /*----------------------left navigation-------------------------*/
 #left_nav{
@@ -482,6 +528,14 @@ div.dataTables_filter {
     float: left;
 }
 
+.dt_search {
+    float: left;
+}
+
+.dt_length {
+    float: right;
+}
+
 /*******chartist*******/
 .graphred {
   stroke: red;
@@ -505,4 +559,38 @@ div.dataTables_filter {
 
 .graphblack {
     stroke: black;
+}
+
+.graph{
+    float: left;
+    width: 80%
+    /*display: inline-block;*/
+}
+
+.legend{
+    float: right;
+    margin-top: 200px;
+    margin-right: 50px;
+    display: inline-block;
+}
+
+/*-------datetimepicker--------*/
+.ui-datepicker-trigger{
+    height: 23px;
+    position: relative;
+    top: 6px;
+    left: 5px;
+}
+
+/*----------clock-----------*/
+.clock12{
+    background: url("../images/clockface12.png") no-repeat center;
+    background-size: 510px 510px;
+    background-position: center 43px;
+}
+
+.clock24{
+    background: url("../images/clockface24.png") no-repeat center;
+    background-size: 510px 510px;
+    background-position: center 43px;
 }

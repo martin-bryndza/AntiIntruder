@@ -17,7 +17,7 @@
         <div id="main_container">
             <div id="header" th:replace="fragments/header :: header"> (header) </div>
             <div id="main_content">
-                <form name="graphForm" th:action="@{/graph}" method="get">
+                <form id ="graphForm" name="graphForm" th:action="@{/graph}" method="get">
                     <table>
                         <tbody>
                             <tr th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
@@ -29,23 +29,36 @@
                                 <td><input type="datetime" id="from" name="from" th:value="${from}"/></td>
                             </tr>
                             <tr>
-                                <td><label for="next" th:text='#{Next}'>Next</label></td>
-                                <td><select id="next" name="next">
-                                    <option value="12" th:selected="${next == 12}">12</option>
-                                    <option value="24" th:selected="${next == 24}">24</option>
-                                </select>
-                                hours</td>
+                                <td><label for="next12" th:text='#{Show}'>Show</label></td>
+                                <td>
+                                    <input type="radio" onchange="this.form.submit()" id="next12" name="next" value="12" th:checked="${next == 12}" checked="" />12 hours
+                                    <input type="radio" onchange="this.form.submit()" id="next24" name="next" value="24" th:checked="${next == 24}" />24 hours
+                                </td>
                             </tr>
-                            <tr>
+                            <tr th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
                                 <td></td>
                                 <td><button type="submit" class="btn-submit" th:text='#{Get_graph}'>Get graph</button></td>
-                            </tr>  
+                            </tr>
                         </tbody>
                     </table>
                 </form>
-                <div th:switch="${#arrays.isEmpty(dailyStates)}">
-                    <div th:case="false" class="ct-chart"></div>
+                <div class="graph" th:switch="${#arrays.isEmpty(dailyStates)}">
+                    <div th:case="false" class="ct-chart clock12" th:class="'ct-chart clock' + ${next}"></div>
                     <p th:case="true" th:text='#{No_data}'>No data</p>
+                </div>
+                <div class='legend' th:if="${not #arrays.isEmpty(dailyStates)}">
+                    <table>
+                        <tbody>
+                            <tr th:each="state : ${T(eu.bato.anyoffice.serviceapi.dto.PersonState).values()}">
+                                <td>
+                                    <img th:title='#{${state.name}}' class="tableimg" src='../static/images/UNKNOWN.png' th:src="@{'/images/' + ${state.name} + '.png'}" alt="" th:alt="#{${state.name}}" />
+                                </td>
+                                <td>
+                                    <span th:text="#{${state.name}}">UNKNOWN</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div id="footer" th:replace="fragments/footer :: footer"> (footer)
@@ -54,52 +67,52 @@
         <!--Chartist-->
         <script type="text/javascript" charset="utf-8" src="../static/js/chartist.min.js" th:src="@{/js/chartist.min.js}" ></script>
         <script type="text/javascript" th:inline="javascript">
-            /*<![CDATA[*/
-            var staticData = [{
-                    data: 120000,
-                    className: "graphblack"
-                }, {
-                    data: 120000,
-                    className: "graphempty"
-                }, {
-                    data: 620005,
-                    className: "graphgrey"
-                }, {
-                    data: 8200000,
-                    className: "graphgreen"
-                }, {
-                    data: 500000,
-                    className: "graphyellow"
-                }, {
-                    data: 490000,
-                    className: "graphred"
-                }];
-            var staticLabels = [];
-            var firstLabel = true;
-            new Chartist.Pie('.ct-chart', {
-                series: /*[[${dailyStates}]]*/ staticData
-            }, {
-                donut: true,
-                donutWidth: 20,
-                startAngle: /*[[${startAngle}]]*/ 90,
-                total: /*[[${total}]]*/ 43200000,
-                showLabel: true,
-                labelDirection: 'explode',
-                labelOffset: 25,
-                height: 600,
-                chartPadding: {top: 30, right: 30, bottom: 30, left: 30},
-                labelInterpolationFnc: function(value) {
-                    if (firstLabel) {
-                        firstLabel = false;
-                        return /*[[${fromTime}]]*/ '3 am';
-                    }
-                    if (value < 600000) {
-                        return '';
-                    }
-                    return Math.floor(value / 3600000) + 'h ' + Math.floor(value % 3600000 / 60000) + 'm';
-                }
-            });
-            /*]]>*/
+                                        /*<![CDATA[*/
+                                        var staticData = [{
+                                                data: 120000,
+                                                className: "graphblack"
+                                            }, {
+                                                data: 120000,
+                                                className: "graphempty"
+                                            }, {
+                                                data: 620005,
+                                                className: "graphgrey"
+                                            }, {
+                                                data: 8200000,
+                                                className: "graphgreen"
+                                            }, {
+                                                data: 500000,
+                                                className: "graphyellow"
+                                            }, {
+                                                data: 490000,
+                                                className: "graphred"
+                                            }];
+                                        var staticLabels = [];
+                                        var firstLabel = true;
+                                        new Chartist.Pie('.ct-chart', {
+                                            series: /*[[${dailyStates}]]*/ staticData
+                                        }, {
+                                            donut: true,
+                                            donutWidth: 20,
+                                            startAngle: /*[[${startAngle}]]*/ 90,
+                                            total: /*[[${total}]]*/ 43200000,
+                                            showLabel: true,
+                                            labelDirection: 'explode',
+                                            labelOffset: 25,
+                                            height: 600,
+                                            chartPadding: {top: 30, right: 30, bottom: 30, left: 30},
+                                            labelInterpolationFnc: function(value) {
+                                                if (firstLabel) {
+                                                    firstLabel = false;
+                                                    return /*[[${fromTime}]]*/ '14.4. 3 am';
+                                                }
+                                                if (value < 600000) {
+                                                    return '';
+                                                }
+                                                return Math.floor(value / 3600000) + 'h ' + Math.floor(value % 3600000 / 60000) + 'm';
+                                            }
+                                        });
+                                        /*]]>*/
         </script>
         <!--Timepicker-->
         <script type='text/javascript' src='https://code.jquery.com/jquery.min.js'></script>
@@ -107,15 +120,24 @@
         <script type='text/javascript' src="../static/js/jquery-ui-timepicker-addon.min.js" th:src="@{/js/jquery-ui-timepicker-addon.min.js}"></script>
         <script type='text/javascript' src="../static/js/jquery-ui-slider-access-addon.js" th:src="@{/js/jquery-ui-slider-access-addon.js}"></script>
         <script type="text/javascript">
-            $(function() {
-                $('#from').datetimepicker({
-                    dateFormat: 'dd.mm.yy',
-                    timeFormat: 'H:mm',
-                    addSliderAccess: true,
-                    sliderAccessArgs: {touchonly: false}
-                });
-            });
+                                        $(function() {
+                                            $('#from').datetimepicker({
+                                                dateFormat: 'dd.mm.yy',
+                                                timeFormat: 'H:mm',
+                                                addSliderAccess: true,
+                                                sliderAccessArgs: {touchonly: false},
+                                                onClose: function() {
+                                                    $('#graphForm').submit();
+                                                },
+                                                showOn: "both",
+                                                buttonImageOnly: true,
+                                                buttonImage: "../images/calendar-icon.png",
+                                                buttonText: "Choose...",
+                                                maxDate: '0'
+                                            });
+                                        });
         </script>
+
     </body>
 
 </html>

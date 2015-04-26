@@ -12,7 +12,7 @@
         <div id="main_container">
             <div id="header" th:replace="fragments/header :: header"> (header) </div>
             <div id="main_content">
-                <div th:if="${hcError}" th:text='#{msg.invalid_hipchat_credentials}' class="green_box">    
+                <div th:if="${hcError}" th:text='#{msg.invalid_hipchat_credentials}' class="red_box">    
                         Invalid HipChat email and token.
                 </div>
                 <form data-th-action="@{/personEdit/save}" data-th-object="${currentPerson}" method="post">
@@ -37,7 +37,7 @@
                             </tr>
                             <tr>
                                 <td><label for="hcEmail" th:text='#{HipChat_email}'>HipChat email</label></td>
-                                <td><input id="hcEmail" type="text" data-th-field="*{hipChatEmail}"/></td>
+                                <td><input id="hcEmail" type="email" data-th-field="*{hipChatEmail}"/></td>
                             </tr>
                             <tr>
                                 <td><label for="hcToken" th:text='#{HipChat_token}'>HipChat token</label></td>

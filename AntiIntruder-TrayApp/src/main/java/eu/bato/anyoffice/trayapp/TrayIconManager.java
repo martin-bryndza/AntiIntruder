@@ -37,6 +37,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -125,6 +126,10 @@ class TrayIconManager {
 
     private PersonState getCurrentState() {
         return currentState;
+    }
+
+    private void setCurrentLocation(String location) {
+        this.currentLocation = location;
     }
 
     private synchronized void initialize(PersonState currentState, String currentLocation) {
@@ -449,19 +454,6 @@ class TrayIconManager {
             disturbanceMenu.add(dkMenuItem);
             popup.add(disturbanceMenu);
 
-            String locationStr = (currentLocation == null || currentLocation.isEmpty()
-                    ? ""
-                    : (" (" + currentLocation.substring(0, currentLocation.length() > 15 ? 15 : currentLocation.length()) + ")"));
-            MenuItem locationMenuItem = new MenuItem("Set location " + locationStr + "...");
-            locationMenuItem.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    requestNewLocation(currentLocation);
-                }
-            });
-            popup.add(locationMenuItem);
-
             MenuItem browserMenuItem = new MenuItem("Go to web page...");
 
             browserMenuItem.addActionListener(new ActionListener() {
@@ -480,21 +472,67 @@ class TrayIconManager {
 
             popup.addSeparator();
 
+            int i = 1;
+            boolean checked = false;
+            for (final PersonLocation location : PersonLocation.values()) {
+                CheckboxMenuItem loc = new CheckboxMenuItem(location.getName(), location.getName().equals(currentLocation));
+                checked = location.getName().equals(currentLocation) ? true : checked;
+                popup.add(loc);
+                loc.addItemListener(new ItemListener() {
+
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        if (client.setLocation(location.getName())) {
+                            setCurrentLocation(location.getName());
+                            trayIcon.setPopupMenu(createMenu(getCurrentState(), location.getName()));
+                        }
+                    }
+                });
+                if (i++ > 4) {
+                    break;
+                }
+            }
+            String locationStr = (currentLocation == null || currentLocation.isEmpty()
+                    ? ""
+                    : (" (" + currentLocation.substring(0, currentLocation.length() > 15 ? 15 : currentLocation.length()) + ")"));
+            final CheckboxMenuItem locationMenuItem = new CheckboxMenuItem("Other location " + (checked ? "" : locationStr) + "...", !checked);
+            locationMenuItem.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    locationMenuItem.setState(e.getStateChange() == ItemEvent.DESELECTED);
+                    requestNewLocation(currentLocation);
+                }
+            });
+            popup.add(locationMenuItem);
+
+            popup.addSeparator();
+
             for (final PersonState state : PersonState.values()) {
                 if (state.isAwayState()) {
                     continue;
                 }
-                MenuItem item = new MenuItem(state.getDisplayName());
+                final CheckboxMenuItem item = new CheckboxMenuItem(state.getDisplayName());
                 if (state.equals(currentState)) {
+                    item.setState(true);
                     item.setFont(BOLD_FONT);
                     item.setLabel("-" + item.getLabel() + "-");
-                } else if (!client.isStateChangePossible(state)) {
-                    item.setEnabled(false);
-                } else {
-                    item.addActionListener(new ActionListener() {
+                    item.addItemListener(new ItemListener() {
 
                         @Override
-                        public void actionPerformed(ActionEvent e) {
+                        public void itemStateChanged(ItemEvent e) {
+                            item.setState(true);
+                        }
+                    });
+                } else if (!client.isStateChangePossible(state)) {
+                    item.setEnabled(false);
+                    Long current = new Date().getTime();
+                    Long start = client.getDndStart();
+                    item.setLabel(item.getLabel() + " (in " + ((start - current) / 60000) + " min.)");
+                } else {
+                    item.addItemListener(new ItemListener() {
+
+                        @Override
+                        public void itemStateChanged(ItemEvent e) {
                             changeState(state);
                         }
                     });

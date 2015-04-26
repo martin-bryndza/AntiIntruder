@@ -47,11 +47,11 @@ public class GraphController extends CommonController {
         }
         model.addAttribute("usernameGraph", usernameGraph);
         if (from == null) {
-            from = to7AM(new Date());
+            from = getStartDate();
         }
         SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy H:mm");
         model.addAttribute("from", format.format(from));
-        format = new SimpleDateFormat("H:mm");
+        format = new SimpleDateFormat("dd.MM. H:mm");
         model.addAttribute("fromTime", format.format(from));
         if (next == null || (next != 12 && next != 24)) {
             next = 12;
@@ -111,14 +111,18 @@ public class GraphController extends CommonController {
         return states;
     }
 
-    private static Date to7AM(Date d) {
-        Calendar c = new GregorianCalendar();
-        c.setTime(d);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.HOUR, 7);
-        c.set(Calendar.AM_PM, Calendar.AM);
-        return c.getTime();
+    private static Date getStartDate() {
+        Calendar now = new GregorianCalendar();
+        if (now.get(Calendar.HOUR_OF_DAY) > 19 || now.get(Calendar.HOUR_OF_DAY) < 7) { //if it's after 7PM or before 7AM, start 11 hours before now
+            now.add(Calendar.HOUR, -11);
+            now.set(Calendar.MINUTE, 0);
+            now.set(Calendar.SECOND, 0);
+        } else { //else start at 7AM
+            now.set(Calendar.MINUTE, 0);
+            now.set(Calendar.SECOND, 0);
+            now.set(Calendar.HOUR_OF_DAY, 7);
+        }
+        return now.getTime();
     }
 
     public class State {

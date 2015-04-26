@@ -35,7 +35,7 @@ public class MainController extends CommonController {
     public void downloadClient(HttpServletResponse response) throws FileNotFoundException, IOException {
         try (InputStream is = new FileInputStream(env.getProperty("client.path"))) {
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=AnyOffice_client.zip");
+            response.setHeader("Content-Disposition", "attachment; filename=anyoffice_client.jar");
             try {
                 org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
             } catch (IOException e) {

@@ -1,4 +1,5 @@
 var thetime = 10; // this is the time you want in seconds for the page to reload in
+var startRefresh;
 function createCookie(name, value, days)
 {
     if (days)
@@ -34,17 +35,17 @@ function autoRefresh()
 {
     if (document.autorefresh.dorefresh.checked === true)
     {
-        createCookie('isChecked', 'true', 9999);
-        var startRefresh = setTimeout("window.location.reload()", thetime * 1000);
+        eraseCookie('isChecked');
+        startRefresh = setTimeout("window.location.reload()", thetime * 1000);
     }
     else
     {
-        eraseCookie('isChecked');
+        createCookie('isChecked', 'false', 9999);
         clearTimeout(startRefresh);
     }
 }
 window.onload = function()
 {
-    document.autorefresh.dorefresh.checked = (readCookie('isChecked') === 'true') ? 1 : 0;
+    document.autorefresh.dorefresh.checked = (readCookie('isChecked') === 'false') ? 0 : 1;
     autoRefresh();
 };

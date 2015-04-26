@@ -13,58 +13,85 @@
             <div id="header" th:fragment="header">
                 <div th:replace="fragments/applicationsMenu :: applicationsMenu"> (otherAppsMenu) </div>
                 <div>
-                    <div th:if="${param.error}" th:text='#{msg.invalid_credentials}' class="green_box">    
-                        Invalid username and password.
-                    </div>
-                    <div th:if="${param.logout}" th:text='#{msg.logged_out}' class="green_box"> 
-                        You have been logged out.
-                    </div>
-                </div>
-                <div>
-                    <div id="logo"><a href="/"><img src="../../static/images/logo.png" th:src="@{/images/logo.png}" alt="logo" th:title="#{Title}"/></a></div>
-                    <h1 id="topTitle" th:text='#{Title}'>Any Office</h1>
-                    <!--<h2 id="subTitle" th:text="#{Subtitle}">Time Defragmentation and Reservation</h2>-->
-                    <div id="profile">
-                        <div th:if="${#httpServletRequest.remoteUser != null}">
-                            <a class="username" href="#" data-th-href="@{/personEdit}" th:text="${currentPerson.displayName}">
-                                Username 
-                            </a>
-                            <a href="#" data-th-href="@{/personEdit}">
-                                <img class="usernameIcon" src="../../static/images/gear.png" th:src="@{/images/gear.png}" alt="" />
-                            </a>
-                            <div th:text="#{Current_state}+ ': ' + ${currentPerson.state.name}">Current state: UNKNOWN</div>
-                            <div th:text="#{Job_title}+ ': ' + ${currentPerson.description}">Description: UNKNOWN</div>
-                            <div th:text="#{Location}+ ': ' + ${currentPerson.location}">Location: UNKNOWN</div>
-                            <!--<p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>-->
-                            <form th:action="@{/logout}" method="post">
-                                <input type="submit" value="Log out" />
-                            </form>
-                        </div>
-                        <div th:if="${#httpServletRequest.remoteUser == null}">
-                            <form name="f" th:action="@{/login}" method="post">               
-                                <table>
-                                    <tr>
-                                        <td> <label for="username" th:text='#{Username}'>Username</label> </td>
-                                        <td> <input type="text" id="username" name="username"/> </td>
-                                    </tr>
-                                    <tr>
-                                        <td> <label for="password" th:text='#{Password}'>Password</label> </td>
-                                        <td> <input type="password" id="password" name="password"/> </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td align="right">
-                                            <button type="submit" class="btn" th:text='#{Log_In}'>Log In</button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </form>
-                        </div>
-                    </div>
+                    <table style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div id="logo"><a href="/"><img src="../../static/images/logo.png" th:src="@{/images/logo.png}" alt="logo" th:title="#{Title}"/></a></div>
+                                    <h1 id="topTitle" th:text='#{Title}'>AnyOffice</h1>
+                                </td>
+                                <td style="text-align: center;">
+                                    <form  th:action="@{/downloadClient}">
+                                        <button class="btn-download" type="submit">
+                                            <span th:text='#{Download_client}'>Download client</span>
+                                            <img src="../../static/images/download.png" th:src="@{/images/download.png}" alt=""/>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <div id="profile">
+                                        <div th:if="${#httpServletRequest.remoteUser != null}">
+                                            <a class="username" href="#" data-th-href="@{/personEdit}" th:text="${currentPerson.displayName}">
+                                                Username 
+                                            </a>
+                                            <a href="#" data-th-href="@{/personEdit}">
+                                                <img class="usernameIcon" src="../../static/images/gear.png" th:src="@{/images/gear.png}" alt="" />
+                                            </a>
+                                            <div>
+                                                <span th:text="#{Current_state}+ ': '">Current state: </span>
+                                                <span th:text="#{${currentPerson.state.name}}">UNKNOWN</span>
+                                            </div>
+                                            <div>
+                                                <span th:text="#{Job_title}+ ': '">Description: </span>
+                                                <span th:text="${currentPerson.description}">UNKNOWN</span>
+                                            </div>
+                                            <div>
+                                                <span th:text="#{Location}+ ': '">Location: </span> 
+                                                <span th:text="${currentPerson.location}">UNKNOWN</span>
+                                            </div>
+                                            <p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>
+                                            <form th:action="@{/logout}" method="post">
+                                                <input type="submit" value="Log out" />
+                                            </form>
+                                        </div>
+                                        <div th:if="${#httpServletRequest.remoteUser == null}">
+                                            <div>
+                                                <div th:if="${param.error}" th:text='#{msg.invalid_credentials}' class="red_box">    
+                                                    Invalid username and password.
+                                                </div>
+                                                <div th:if="${param.logout}" th:text='#{msg.logged_out}' class="red_box"> 
+                                                    You have been logged out.
+                                                </div>
+                                            </div>
+                                            <form name="f" th:action="@{/login}" method="post">               
+                                                <table>
+                                                    <tr>
+                                                        <td> <label for="username" th:text='#{Username}'>Username</label> </td>
+                                                        <td> <input type="text" id="username" name="username"/> </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td> <label for="password" th:text='#{Password}'>Password</label> </td>
+                                                        <td> <input type="password" id="password" name="password"/> </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td align="right">
+                                                            <button type="submit" class="btn" th:text='#{Log_In}'>Log In</button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <div th:with="message=#{Special_message}">
-                    <div class="green_box" th:text="#{Special_message}" th:if="${!#strings.isEmpty(message)}">
-                        Special message
-                    </div>
+                        <div class="green_box" th:text="#{Special_message}" th:if="${!#strings.isEmpty(message)}">
+                            Special message
+                        </div>
                     </div>
                     <div id="menu">
                         <ul>
