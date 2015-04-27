@@ -243,6 +243,19 @@ iframe.otherapp{
     height: 20px;
 }
 
+.faq{
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.faq p,h3{
+    line-height: 180%;
+}
+
+.faq p {
+    text-align: justify;
+}
+
 /*----------------middle green box-----------*/
 .green_box{
     clear:both;

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,15 +35,15 @@ public class MainController extends CommonController {
     @RequestMapping(value = "/downloadClient", method = RequestMethod.GET)
     public void downloadClient(HttpServletResponse response) throws FileNotFoundException, IOException {
         try (InputStream is = new FileInputStream(env.getProperty("client.path"))) {
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=anyoffice_client.jar");
-            try {
-                org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-            } catch (IOException e) {
-                log.info("User cancelled request to download client.");
-            } finally {
-                response.flushBuffer();
-                is.close();
+            response.setContentType("application/jar");
+            response.setHeader("Content-disposition", "attachment;filename=anyoffice-client.jar");
+            int read;
+            byte[] bytes = new byte[1024];
+            try (OutputStream os = response.getOutputStream()) {
+                while ((read = is.read(bytes)) != -1) {
+                    os.write(bytes, 0, read);
+                }
+                os.flush();
             }
         }
     }

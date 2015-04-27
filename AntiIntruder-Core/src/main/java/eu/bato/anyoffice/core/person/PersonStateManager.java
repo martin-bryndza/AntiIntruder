@@ -190,7 +190,7 @@ public class PersonStateManager {
 
     private void setHipChatState(String username, PersonState state) {
         HipChatCredentials hcc = personService.getHipChatCredentials(username);
-        if (hcc.getEmail().isPresent() && hcc.getToken().isPresent()) {
+        if (hcc.getEmail().isPresent() && hcc.getToken().isPresent() && !state.equals(PersonState.UNKNOWN)) {
             hipChatClient.setState(hcc.getToken().get(), hcc.getEmail().get(), state, "AnyOffice");
         }
     }

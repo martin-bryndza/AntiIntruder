@@ -89,8 +89,10 @@
                     </table>
 
                     <div th:with="message=#{Special_message}">
-                        <div class="green_box" th:text="#{Special_message}" th:if="${!#strings.isEmpty(message)}">
-                            Special message
+                        <div class="green_box" th:if="${!#strings.isEmpty(message)}">
+                            <span th:text="#{Special_message}"> message</span><br />
+                            <span th:text="#{Special_message1}"> message</span><br />
+                            <span th:text="#{Special_message2}"> message</span>
                         </div>
                     </div>
                     <div id="menu">

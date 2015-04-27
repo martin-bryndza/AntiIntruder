@@ -112,6 +112,12 @@ public class HipChatClient {
             log.debug("Person's {} replaced state: {}", email, replaced);
         } else {
             int start = person.indexOf("\"presence\": {") + 13;
+            if (start == -1) {
+                log.info("Unable to set state and status for person {} because there is no \"presence\":{ string in the message {}", email, person);
+                return;
+            } else {
+                start += 13;
+            }
             replaced = person.substring(0, start) + "\"show\": \"" + getStateString(state) + "\", " + person.substring(start);
         }
         if (status != null && replaced.contains("\"status\":")) {

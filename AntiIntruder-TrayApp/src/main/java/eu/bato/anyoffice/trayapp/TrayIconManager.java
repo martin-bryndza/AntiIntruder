@@ -31,7 +31,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,6 +44,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -681,7 +684,12 @@ class TrayIconManager {
             }
             if (!(runAtStratupCheckBox.isSelected() == conf.getBooleanProperty(Property.RUN_AT_STARTUP))) {
                 conf.setProperty(Property.RUN_AT_STARTUP, String.valueOf(runAtStratupCheckBox.isSelected()));
-                shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
+                try {
+                    shortcutInStartupFolder(runAtStratupCheckBox.isSelected());
+                } catch (IOException ex) {
+                    log.error("Unable to turn on/off RUN_AT_STARTUP", ex);
+                    conf.setProperty(Property.RUN_AT_STARTUP, String.valueOf(!runAtStratupCheckBox.isSelected()));
+                }
             }
             conf.setProperty(Property.POPUPS_ENABLED, String.valueOf(popupMessagesCheckBox.isSelected()));
         }
@@ -729,7 +737,12 @@ class TrayIconManager {
             Credentials c;
             if (Configuration.getInstance().getBooleanProperty(Property.RUN_AT_STARTUP) != runAtStartupCheckBox.isSelected()) {
                 Configuration.getInstance().setProperty(Property.RUN_AT_STARTUP, String.valueOf(runAtStartupCheckBox.isSelected()));
-                shortcutInStartupFolder(runAtStartupCheckBox.isSelected());
+                try {
+                    shortcutInStartupFolder(runAtStartupCheckBox.isSelected());
+                } catch (IOException ex) {
+                    log.error("Unable to turn on/off RUN_AT_STARTUP", ex);
+                    Configuration.getInstance().setProperty(Property.RUN_AT_STARTUP, String.valueOf(!runAtStartupCheckBox.isSelected()));
+                }
             }
             try {
                 c = new Credentials(field1.getText(), field2.getPassword());
@@ -761,16 +774,52 @@ class TrayIconManager {
         }
     }
 
-    private void shortcutInStartupFolder(boolean create) {
-        if (create) {
-            runScript("startAtLogon.cmd");
-        } else {
-            runScript("notStartAtLogon.cmd");
+    private void shortcutInStartupFolder(boolean create) throws IOException {
+        File f = new File("tmp.cmd");
+        f.createNewFile();
+        f.deleteOnExit();
+        try (PrintWriter writer = new PrintWriter("tmp.cmd", "UTF-8")) {
+            StringBuilder sb = new StringBuilder();
+            String currentPath = TrayIconManager.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            if (currentPath.startsWith("/")) {
+                currentPath = currentPath.substring(1);
+            } else if (currentPath.startsWith("file")) {
+                currentPath = currentPath.substring(6);
+            }
+            System.out.println(currentPath);
+            if (create) {
+                sb.append("@echo off \n");
+                sb.append("echo Set oWS = WScript.CreateObject(\"WScript.Shell\") > CreateShortcut.vbs\n");
+                sb.append("echo IF EXISTS \"%USERPROFILE%\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\" GOTO WIN7\n");
+                sb.append("echo sLinkFile = \"%USERPROFILE%\\Start Menu\\Programs\\Startup\\AnyOffice-client.lnk\" >> CreateShortcut.vbs\n");
+                sb.append("echo GOTO CONT\n");
+                sb.append("echo :WIN7\n");
+                sb.append("echo sLinkFile = \"%USERPROFILE%\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\AnyOffice-client.lnk\" >> CreateShortcut.vbs\n");
+                sb.append("echo :CONT\n");
+                sb.append("echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs\n");
+                sb.append("echo oLink.TargetPath = \"");
+                sb.append(currentPath);
+                sb.append("\" >> CreateShortcut.vbs\n");
+                sb.append("echo oLink.Save >> CreateShortcut.vbs\n");
+                sb.append("cscript CreateShortcut.vbs\n");
+                sb.append("del CreateShortcut.vbs");
+            } else {
+                sb.append("@echo off\n");
+                sb.append("IF EXIST \"%USERPROFILE%\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" GOTO WIN7\n");
+                sb.append("del \"%USERPROFILE%\\Start Menu\\Programs\\Startup\\AnyOffice-client.lnk\"\n");
+                sb.append("GOTO END\n");
+                sb.append(":WIN7\n");
+                sb.append("del \"%USERPROFILE%\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\AnyOffice-client.lnk\"\n");
+                sb.append(":END");
+            }
+            writer.write(sb.toString());
+            writer.close();
         }
+        runScript("tmp.cmd");
     }
 
     private void runScript(String script) {
-        String commandString = "cmd /c " + this.getClass().getClassLoader().getResource(script).getPath().substring(1);
+        String commandString = "cmd /c " + script;
         Runtime run = Runtime.getRuntime();
         log.debug("Executing: " + commandString);
         Process p;

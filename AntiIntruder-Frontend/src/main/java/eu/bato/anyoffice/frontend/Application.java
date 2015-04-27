@@ -1,10 +1,8 @@
 package eu.bato.anyoffice.frontend;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bato.anyoffice.core.integration.hipchat.HipChatClient;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.core.scheduler.SchedulerService;
-import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;

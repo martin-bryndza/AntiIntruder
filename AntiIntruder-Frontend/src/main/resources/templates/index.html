@@ -61,20 +61,20 @@
                     <tbody>
                         <tr th:each="ent, stat: ${persons}">
                             <td data-th-text="${ent.displayName}">Entity display name</td>
-                            <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}" th:class="'state_' + ${ent.state.name}" style="text-align: center;">
+                            <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}" th:class="'state_' + ${ent.state.name}" style="text-align: left;">
                                 <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
                                     <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}" th:class="'tableimg state_' + ${ent.state.name}"/>
                                 </select>
                                 <img th:title='${ent.state.name}' th:case="false" class="tableimg" src='../static/images/UNKNOWN.png' th:src="@{'/images/' + ${ent.state.name} + '.png'}" alt="" th:alt="#{${ent.state.name}}" />
                                 <span th:text="#{${ent.state.name}}" style="bottom: 4px; position: relative">UNKNOWN</span>
                             </td>
-                            <td data-th-text="${#dates.format(ent.dndEnd, 'yyyy-MM-dd')} + 'T' +  ${#dates.format(ent.dndEnd, 'HH:mm:ss')}" id='dndend0' th:id="'dndend'+${stat.index}"  style="text-align: center;">2015-04-17T05:10:00</td>
+                            <td data-th-text="${#dates.format(ent.dndEnd, 'yyyy-MM-dd')} + 'T' +  ${#dates.format(ent.dndEnd, 'HH:mm:ss')}" id='dndend0' th:id="'dndend'+${stat.index}"  style="text-align: center;">2015-04-26T22:35:00</td>
                             <td data-th-text="${ent.location}">Unknown</td>
                             <td data-th-text="${ent.description}"></td>
                             <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
                                 <form data-th-action="@{/delete}" th:object="${ent}" method="post">
                                     <input type="hidden" name="id" th:value="${ent.id}"/>
-                                    <button type="submit" class="btn btn-primary" th:text='#{Delete}'>Delete</button>
+                                    <button type="submit" th:text='#{Delete}'>Delete</button>
                                 </form>
                             </td>
                             <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}" style="text-align: center;">
@@ -169,13 +169,26 @@
             var i=0;
             while (document.getElementById("dndend"+i) !== null){
                 var elem = document.getElementById("dndend"+i);
+                i++;
                 var text = Date.parse(elem.textContent);
                 text = new Date() - text;
-                var days = Math.abs(Math.floor(text/86400000));
-                var days = days===0?'':days + 'd ';
-                var mins = Math.abs(Math.floor(text/86400000)) + 'm';                
-                elem.textContent = (text/Math.abs(text) === 1?'-':'') + days+mins;
-                i++;
+                var pre = text/Math.abs(text) === 1?'for ':'in ';
+                text = Math.abs(text);
+                var days = Math.floor(text/86400000);
+                if (days>0){
+                    elem.textContent = 'for days';
+                    continue;
+                }
+                var hours = Math.floor(text/3600000);
+                text = text - (hours*3600000);
+                hours = hours!==0 ? hours+'h ' : '';
+                var mins = Math.ceil(text/60000);
+                if (hours.length === 0){
+                    mins = mins===1 ? mins + ' minute' : mins + ' minutes';
+                } else {
+                    mins = mins + 'm';
+                }
+                elem.textContent = pre + hours+mins;
             }
         </script>
     </body>
