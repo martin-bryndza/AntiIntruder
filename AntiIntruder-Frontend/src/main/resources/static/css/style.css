@@ -113,8 +113,18 @@ iframe.otherapp{
     width:100%;
 }
 
+
+iframe.colleagues{
+    width: 100%;
+    /*border: 0;*/
+}
+
 .extLinkImage{
     height: 10px;
+}
+
+.clickable{
+    cursor: pointer;
 }
 
 /*--------------------download client button------------*/

@@ -22,6 +22,10 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.header.writers.frameoptions.AllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.RegExpAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
 @Configuration
 @ComponentScan(value = {"eu.bato.anyoffice"})
@@ -51,6 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .headers().frameOptions().addHeaderWriter(new XFrameOptionsHeaderWriter(new RegExpAllowFromStrategy("/.*/"))).and()
                 .addFilterBefore(authenticationFilter(), LogoutFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
@@ -63,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers("/logout").authenticated()
                 .antMatchers(HttpMethod.GET, "/").permitAll()
+                .antMatchers(HttpMethod.GET, "/colleagues").permitAll()
                 .antMatchers(HttpMethod.GET, "/faq").permitAll()
                 .antMatchers(HttpMethod.GET, "/otherApp").permitAll()
                 .antMatchers("/downloadClient").permitAll()

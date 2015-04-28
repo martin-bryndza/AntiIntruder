@@ -49,7 +49,6 @@
                                                 <span th:text="#{Location}+ ': '">Location: </span> 
                                                 <span th:text="${currentPerson.location}">UNKNOWN</span>
                                             </div>
-                                            <p th:text="${#strings.listJoin(#messages.listMsg(currentPerson.interactionEntitiesIds), ',')}"></p>
                                             <form th:action="@{/logout}" method="post">
                                                 <input type="submit" value="Log out" />
                                             </form>

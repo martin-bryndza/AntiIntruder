@@ -36,12 +36,12 @@ function autoRefresh()
     if (document.autorefresh.dorefresh.checked === true)
     {
         eraseCookie('isChecked');
-        startRefresh = setTimeout("window.location.reload()", thetime * 1000);
+        startRefresh = setInterval("retrieveColleagues()", thetime * 1000);
     }
     else
     {
         createCookie('isChecked', 'false', 9999);
-        clearTimeout(startRefresh);
+        clearInterval(startRefresh);
     }
 }
 window.onload = function()

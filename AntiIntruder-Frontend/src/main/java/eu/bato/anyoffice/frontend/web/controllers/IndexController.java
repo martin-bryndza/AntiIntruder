@@ -11,6 +11,7 @@ import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  *
@@ -47,6 +49,19 @@ public class IndexController extends CommonController {
         model.addAttribute("personObject", new PersonDto());
         model.addAttribute("password", new PasswordObject());
         model.addAttribute("states", PersonState.values());
+        addCurrentAndPersons(model);
+        return "index";
+    }
+
+    @RequestMapping(value = "/colleagues", method = RequestMethod.GET)
+    public String loadColleagues(Model model, Authentication authentication) {
+        model.addAttribute("states", PersonState.values());
+        addCurrentAndPersons(model);
+        model.addAttribute("now", new Date().getTime());
+        return "fragments/colleagues :: colleagues";
+    }
+
+    private void addCurrentAndPersons(Model model) {
         List<PersonDto> otherPersons = personService.findAll();
         if (adminPerson == null) {
             adminPerson = personService.findOneByUsername("adminAnyOffice");
@@ -61,7 +76,6 @@ public class IndexController extends CommonController {
             }
         }
         model.addAttribute("persons", otherPersons);
-        return "index";
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -78,26 +92,26 @@ public class IndexController extends CommonController {
         return "redirect:";
     }
 
-    @RequestMapping(value = "/interact", method = RequestMethod.GET)
-    public String interact(@RequestParam Long id) {
+    @RequestMapping(value = "/interact", method = RequestMethod.POST)
+    @ResponseBody
+    public void interact(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
                 personService.addInteractionEntity(auth.getName(), id);
             }
         }
-        return "redirect:";
     }
 
-    @RequestMapping(value = "/cancelinteract", method = RequestMethod.GET)
-    public String cancelInteract(@RequestParam Long id) {
+    @RequestMapping(value = "/cancelinteract", method = RequestMethod.POST)
+    @ResponseBody
+    public void cancelInteract(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
                 personService.removeInteractionEntity(auth.getName(), id);
             }
         }
-        return "redirect:";
     }
 
     @RequestMapping(value = "/changeState", method = RequestMethod.GET)

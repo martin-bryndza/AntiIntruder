@@ -9,8 +9,132 @@
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
         <!-- DataTables -->
         <link rel="stylesheet" type="text/css" href="../static/css/jquery.datatables.min.css" th:href="@{/css/jquery.datatables.min.css}" />
+        <script type='text/javascript' src='../static/js/jquery.min.js' th:src="@{/js/jquery.min.js}" ></script>
+        <script type='text/javascript'>
+            function resizeFrame() {
+                var newheight = document.getElementById("colleaguesFrame").contentWindow.document.body.scrollHeight;
+                $("#colleaguesFrame").height(newheight);
+            }
+            /*<![CDATA[*/
+            function countAvailability() {
+                var i = 0;
+                while (document.getElementById("dndend" + i) !== null) {
+                    var elem = document.getElementById("dndend" + i);
+                    i++;
+                    var text = elem.textContent;
+                    var now = /*[[${now}]]*/ new Date();
+                    text = now - text;
+                    var pre = text / Math.abs(text) === 1 ? 'for ' : 'in ';
+                    text = Math.abs(text);
+                    var days = Math.floor(text / 86400000);
+                    if (days > 0) {
+                        elem.textContent = 'for days';
+                        continue;
+                    }
+                    var hours = Math.floor(text / 3600000);
+                    text = text - (hours * 3600000);
+                    hours = hours !== 0 ? hours + 'h ' : '';
+                    var mins = Math.ceil(text / 60000);
+                    if (hours.length === 0) {
+                        mins = mins === 1 ? mins + ' minute' : mins + ' minutes';
+                    } else {
+                        mins = mins + 'm';
+                    }
+                    elem.textContent = pre + hours + mins;
+                }
+            }
+            function applyDataTables() {
+                var targets;
+                if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
+                    targets = [1, 5];
+                } else {
+                    targets = 1;
+                }
+                $.extend($.fn.dataTable.defaults, {
+                    stateSave: true,
+                    stateSaveCallback: function(settings, oData) {
+                        localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
+                    },
+                    stateLoadCallback: function(settings) {
+                        var data = localStorage.getItem('DataTables_' + window.location.pathname);
+                        return JSON.parse(data);
+                    },
+                    paging: true,
+                    lengthChange: true,
+                    pagingType: "simple_numbers",
+                    stripeClasses: ['row1', 'row2'],
+                    pageLength: 50,
+                    "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]]
+//                    language: {
+//                        processing: "<p th:text='#{dataTables.processing}'/>",
+//                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",
+//                        zeroRecords: "<p th:text='#{dataTables.zeroRecords}'/>",
+//                        info: "<p th:text='#{dataTables.info}'/>",
+//                        infoEmpty: "<p th:text='#{dataTables.infoEmpty}'/>",
+//                        infoFiltered: "<p th:text='#{dataTables.infoFiltered}'/>",
+//                        infoPostFix: "",
+//                        search: "<p th:text='#{dataTables.search}'/>",
+//                        url: "",
+//                        paginate: {
+//                            first: "<p th:text='#{dataTables.first}'/>",
+//                            previous: "<p th:text='#{dataTables.previous}'/>",
+//                            next: "<p th:text='#{dataTables.next}'/>",
+//                            last: "<p th:text='#{dataTables.laset}'/>"
+//                        },
+//                        aria: {
+//                            sortAscending: "<p th:text='#{dataTables.sortAscending}'/>",
+//                            sortDescending: "<p th:text='#{dataTables.sortDescending}'/>"
+//                        }
+//                    }
+                });
+                $('#persons').dataTable({
+                    sorting: [[0, "asc"]],
+                    columnDefs: [{
+                            targets: [0],
+                            orderData: [0, 1]
+                        }, {
+                            targets: [1],
+                            orderData: [1, 0],
+                            type: 'alt-string'
+                        }, {
+                            targets: [2],
+                            orderData: [2, 0]
+                        }, {
+                            targets: [3],
+                            orderData: [3, 0]
+                        }, {
+                            targets: [4],
+                            orderData: [4, 0]
+                        }],
+                    dom: '<"dt_search"f><"dt_length"l><t><ip>'
+                });
+            }
+            ;
+            /*]]>*/
+            function retrieveColleaguesUrl(url) {
+                $("#colleaguesBlock").load(url, function() {
+                    countAvailability();
+                    applyDataTables();
+                });
+            }
+            function retrieveColleagues() {
+                retrieveColleaguesUrl("/colleagues");
+            }
+            function interact(id) {
+                var url = '/interact?id=' + id;
+                $.post(url, function() {
+                    retrieveColleagues();
+                });
+            }
+            function cancelinteract(id) {
+                var url = '/cancelinteract?id=' + id;
+                $.post(url, function() {
+                    retrieveColleagues();
+                });
+            }
+        </script>
     </head>
-    <body>
+    <body onresize="resizeFrame()">
         <div id="main_container">
             <div id="header" th:replace="fragments/header :: header"> (header) </div>
             <div id="main_content">
@@ -46,150 +170,16 @@
                     </form>
                 </div>    
                 <br/>
-                <table th:if="${not #lists.isEmpty(persons)}" id="persons" class="hover compact">
-                    <thead>
-                        <tr>
-                            <th th:text='#{Display_Name}'>Display Name</th>
-                            <th th:text='#{Current_state}'>State</th>
-                            <th th:text='#{DND_end}'>DND end</th>
-                            <th th:text='#{Location}'>Location</th>
-                            <th th:text='#{Job_title}'>Job title</th>
-                            <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
-                            <th th:if="${#httpServletRequest.isUserInRole('USER')}" th:text='#{Watch}'>Watch</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="ent, stat: ${persons}">
-                            <td data-th-text="${ent.displayName}">Entity display name</td>
-                            <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}" th:class="'state_' + ${ent.state.name}" style="text-align: left;">
-                                <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
-                                    <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}" th:class="'tableimg state_' + ${ent.state.name}"/>
-                                </select>
-                                <img th:title='${ent.state.name}' th:case="false" class="tableimg" src='../static/images/UNKNOWN.png' th:src="@{'/images/' + ${ent.state.name} + '.png'}" alt="" th:alt="#{${ent.state.name}}" />
-                                <span th:text="#{${ent.state.name}}" style="bottom: 4px; position: relative">UNKNOWN</span>
-                            </td>
-                            <td data-th-text="${#dates.format(ent.dndEnd, 'yyyy-MM-dd')} + 'T' +  ${#dates.format(ent.dndEnd, 'HH:mm:ss')}" id='dndend0' th:id="'dndend'+${stat.index}"  style="text-align: center;">2015-04-26T22:35:00</td>
-                            <td data-th-text="${ent.location}">Unknown</td>
-                            <td data-th-text="${ent.description}"></td>
-                            <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
-                                <form data-th-action="@{/delete}" th:object="${ent}" method="post">
-                                    <input type="hidden" name="id" th:value="${ent.id}"/>
-                                    <button type="submit" th:text='#{Delete}'>Delete</button>
-                                </form>
-                            </td>
-                            <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}" style="text-align: center;">
-                                <a th:case="true" href="#" data-th-href="@{/cancelinteract(id=${ent.id})}">
-                                    <img title="Do not notify me when person becomes available" th:title="'Do not notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='remove' th:alt="#{Remove_consultation}" src='../static/images/binoculars-on.png' th:src="@{/images/binoculars-on.png}"/>
-                                </a>
-                                <a th:case="false" href="#" data-th-href="@{/interact(id=${ent.id})}">
-                                    <img title="Notify me when person becomes available" th:title="'Notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='request' th:alt="#{Request_consultation}" src='../static/images/binoculars-off.png' th:src="@{/images/binoculars-off.png}"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div id = "colleaguesBlock" />
+
             </div>
             <div id="footer" th:replace="fragments/footer :: footer"> (footer) </div>
         </div>
         <script type='text/javascript' src='../static/js/autorefresh.js' th:src="@{/js/autorefresh.js}" ></script>
-        <script type='text/javascript' src='../static/js/jquery.min.js' th:src="@{/js/jquery.min.js}" ></script>
         <script type="text/javascript" charset="utf-8" src="../static/js/jquery.datatables.min.js" th:src="@{/js/jquery.datatables.min.js}" ></script>
         <script type="text/javascript" charset="utf-8" src="../static/js/alt-string.js" th:src="@{/js/alt-string.js}" ></script>
         <script type="text/javascript" th:inline="javascript">
-                        /*<![CDATA[*/
-                        $(document).ready(function() {
-                            var targets;
-                            if (/*[[${#httpServletRequest.isUserInRole('USER')}]]*/ true) {
-                                targets = [1, 5];
-                            } else {
-                                targets = 1;
-                            }
-                            $.extend($.fn.dataTable.defaults, {
-                                stateSave: true,
-                                stateSaveCallback: function(settings, oData) {
-                                    localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
-                                },
-                                stateLoadCallback: function(settings) {
-                                    var data = localStorage.getItem('DataTables_' + window.location.pathname);
-                                    return JSON.parse(data);
-                                },
-                                paging: true,
-                                lengthChange: true,
-                                pagingType: "simple_numbers",
-                                stripeClasses: ['row1', 'row2'],
-                                pageLength: 50,
-                                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]]
-//                    language: {
-//                        processing: "<p th:text='#{dataTables.processing}'/>",
-//                        lengthMenu: "<p th:text='#{dataTables.lengthMenu}'/>",
-//                        zeroRecords: "<p th:text='#{dataTables.zeroRecords}'/>",
-//                        info: "<p th:text='#{dataTables.info}'/>",
-//                        infoEmpty: "<p th:text='#{dataTables.infoEmpty}'/>",
-//                        infoFiltered: "<p th:text='#{dataTables.infoFiltered}'/>",
-//                        infoPostFix: "",
-//                        search: "<p th:text='#{dataTables.search}'/>",
-//                        url: "",
-//                        paginate: {
-//                            first: "<p th:text='#{dataTables.first}'/>",
-//                            previous: "<p th:text='#{dataTables.previous}'/>",
-//                            next: "<p th:text='#{dataTables.next}'/>",
-//                            last: "<p th:text='#{dataTables.laset}'/>"
-//                        },
-//                        aria: {
-//                            sortAscending: "<p th:text='#{dataTables.sortAscending}'/>",
-//                            sortDescending: "<p th:text='#{dataTables.sortDescending}'/>"
-//                        }
-//                    }
-                            });
-                            $('#persons').dataTable({
-                                sorting: [[0, "asc"]],
-                                columnDefs: [{
-                                        targets: [0],
-                                        orderData: [0, 1]
-                                    }, {
-                                        targets: [1],
-                                        orderData: [1, 0],
-                                        type: 'alt-string'
-                                    }, {
-                                        targets: [2],
-                                        orderData: [2, 0]
-                                    }, {
-                                        targets: [3],
-                                        orderData: [3, 0]
-                                    }, {
-                                        targets: [4],
-                                        orderData: [4, 0]
-                                    }],
-                                dom: '<"dt_search"f><"dt_length"l><t><ip>'
-                            });
-                        });
-                        /*]]>*/
-        </script>
-        <script type="text/javascript">
-            var i=0;
-            while (document.getElementById("dndend"+i) !== null){
-                var elem = document.getElementById("dndend"+i);
-                i++;
-                var text = Date.parse(elem.textContent);
-                text = new Date() - text;
-                var pre = text/Math.abs(text) === 1?'for ':'in ';
-                text = Math.abs(text);
-                var days = Math.floor(text/86400000);
-                if (days>0){
-                    elem.textContent = 'for days';
-                    continue;
-                }
-                var hours = Math.floor(text/3600000);
-                text = text - (hours*3600000);
-                hours = hours!==0 ? hours+'h ' : '';
-                var mins = Math.ceil(text/60000);
-                if (hours.length === 0){
-                    mins = mins===1 ? mins + ' minute' : mins + ' minutes';
-                } else {
-                    mins = mins + 'm';
-                }
-                elem.textContent = pre + hours+mins;
-            }
+                        retrieveColleagues();
         </script>
     </body>
 </html>

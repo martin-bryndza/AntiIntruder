@@ -1,0 +1,61 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head lang="en">
+        <title th:text='#{Title}'>AntiIntruder</title>
+        <link rel="icon" type="image/png" href="../static/images/logo.png" th:href="@{/images/logo.png}" />
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{/css/style.css}" />
+    </head>
+    <body>
+        <div id='main_container'>
+            <div id='main_content'>
+                <div th:fragment="colleagues">
+                    <table th:if="${not #lists.isEmpty(persons)}" id="persons" class="hover compact" onloadeddata="countAvailability()">
+                        <thead>
+                            <tr>
+                                <th th:text='#{Display_Name}'>Display Name</th>
+                                <th th:text='#{Current_state}'>State</th>
+                                <th th:text='#{DND_end}'>DND end</th>
+                                <th th:text='#{Location}'>Location</th>
+                                <th th:text='#{Job_title}'>Job title</th>
+                                <th th:if="${#httpServletRequest.isUserInRole('ADMIN')}"></th>
+                                <th th:if="${#httpServletRequest.isUserInRole('USER')}" th:text='#{Watch}'>Watch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="ent, stat: ${persons}">
+                                <td data-th-text="${ent.displayName}">Entity display name</td>
+                                <td th:switch="${#httpServletRequest.isUserInRole('ADMIN')}" th:class="'state_' + ${ent.state.name}" style="text-align: left;">
+                                    <select th:case="true" name="selectState" th:onchange="'window.location = \'     ' + @{/changeState(id=${ent.id}, state='')} + '\'+this.value;'"> 
+                                        <option th:each="sopt:${states}" th:value="${sopt}" th:text="${sopt.name}" th:selected="${ent.state}==${sopt}" th:class="'tableimg state_' + ${ent.state.name}"/>
+                                    </select>
+                                    <img th:title='${ent.state.name}' th:case="false" class="tableimg" src='../static/images/UNKNOWN.png' th:src="@{'/images/' + ${ent.state.name} + '.png'}" alt="" th:alt="#{${ent.state.name}}" />
+                                    <span th:text="#{${ent.state.name}}" style="bottom: 4px; position: relative">UNKNOWN</span>
+                                </td>
+                                <td data-th-text="${ent.dndEnd}" id='dndend0' th:id="'dndend'+${stat.index}"  style="text-align: center;">1430241054018</td>
+                                <td data-th-text="${ent.location}">Unknown</td>
+                                <td data-th-text="${ent.description}"></td>
+                                <td th:if="${#httpServletRequest.isUserInRole('ADMIN')}">
+                                    <form data-th-action="@{/delete}" th:object="${ent}" method="post">
+                                        <input type="hidden" name="id" th:value="${ent.id}"/>
+                                        <button type="submit" th:text='#{Delete}'>Delete</button>
+                                    </form>
+                                </td>
+                                <td th:if="${#httpServletRequest.isUserInRole('USER')}" th:switch="${#lists.contains(currentPerson.interactionEntitiesIds, ent.id)}" style="text-align: center;">
+                                    <a th:case="true" class='clickable' th:onclick="'javascipt:cancelinteract('+${ent.id}+');'">
+                                        <img title="Do not notify me when person becomes available" th:title="'Do not notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='remove' th:alt="#{Remove_consultation}" src='../static/images/binoculars-on.png' th:src="@{/images/binoculars-on.png}"/>
+                                    </a>
+                                    <a th:case="false" class='clickable' th:onclick="'javascipt:interact('+${ent.id}+');'">
+                                        <img title="Notify me when person becomes available" th:title="'Notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='request' th:alt="#{Request_consultation}" src='../static/images/binoculars-off.png' th:src="@{/images/binoculars-off.png}"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>                
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
