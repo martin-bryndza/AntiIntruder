@@ -39,17 +39,18 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.Objects;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -63,6 +64,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestClientException;
 
 /**
  *
@@ -81,11 +83,13 @@ class TrayIconManager {
 
     private final SwitchToStateFrame switchToDndFrame;
     private final AvailableConsultersMessageFrame availableConsultersMessageFrame;
+    private final DndCustomPeriodFrame dndCustomPeriodFrame;
 
     private final RestClient client;
 
     private PersonState currentState;
     private String currentLocation;
+    private boolean locked;
 
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
     private Image icon = null;
@@ -95,6 +99,7 @@ class TrayIconManager {
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToStateFrame();
         availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
+        dndCustomPeriodFrame = new DndCustomPeriodFrame();
         stateItems = new HashMap<>();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
         if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))) {
@@ -195,16 +200,7 @@ class TrayIconManager {
         MenuItem dnd = stateItems.get(PersonState.DO_NOT_DISTURB);
         boolean wasDndAvailable = dnd != null && dnd.isEnabled();
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB) && currentState.equals(PersonState.AVAILABLE)) {
-            if (dnd != null) {
-                dnd.setEnabled(true);
-                dnd.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        changeState(PersonState.DO_NOT_DISTURB);
-                    }
-                });
-            }
+            initialize(currentState, currentLocation);
             log.debug("DND is now enabled");
             if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
                 dndStateAutoSwitchProcess();
@@ -255,6 +251,11 @@ class TrayIconManager {
         if (showAvailableBubble) {
             int requests = client.getNumberOfRequests();
             showInfoBubble("You have gone Available." + (requests == 0 ? "" : (" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.")));
+        }
+        // keep this last to prevent freeze of icon
+        if (newState.equals(PersonState.AWAY) && !locked) {
+            // if the machine is not locked but the server thinks so (unlock message probably failed)
+            lock(false);
         }
     }
 
@@ -315,6 +316,7 @@ class TrayIconManager {
     }
 
     /**
+     * Sends info about machine lock/unlock and updates the current state.
      *
      * @param lock true to lock, false to unlock
      */
@@ -322,8 +324,31 @@ class TrayIconManager {
         if (lock) {
             client.goAway();
             currentState = PersonState.AWAY;
+            locked = true;
         } else {
-            client.returnFromAway();
+            Runnable r = new Runnable() {
+
+                @Override
+                public void run() {
+                    while (true) {
+                        try {
+                            client.returnFromAway(true);
+                            break;
+                        } catch (RestClientException e) {
+                            log.warn("Server is offline. Send machine unlock notification failed.");
+                            try {
+                                Thread.sleep(3000);
+                            } catch (InterruptedException ex) {
+                                //OK
+                            }
+                            log.info("Retry send machine unlock notification.");
+                        }
+                    }
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
+            locked = false;
             update();
         }
         log.debug("Session {}locked", lock ? "" : "un");
@@ -510,45 +535,103 @@ class TrayIconManager {
 
             popup.addSeparator();
 
-            for (final PersonState state : PersonState.values()) {
-                if (state.isAwayState()) {
-                    continue;
-                }
-                final CheckboxMenuItem item = new CheckboxMenuItem(state.getDisplayName());
-                if (state.equals(currentState)) {
-                    item.setState(true);
-                    item.setFont(BOLD_FONT);
-                    item.setLabel("-" + item.getLabel() + "-");
-                    item.addItemListener(new ItemListener() {
+            Configuration conf = Configuration.getInstance();
+            final Long dndMaxTime = client.getDndMax();
+            final Long dndDefaultTime = conf.getLongProperty(Property.DND_DEFAULT_PERIOD);
+            final Long dndLastTime = conf.getLongProperty(Property.DND_LAST_PERIOD);
+            final CheckboxMenuItem availableItem = new CheckboxMenuItem(PersonState.AVAILABLE.getDisplayName());
+            final CheckboxMenuItem dndDefaultItem = new CheckboxMenuItem(PersonState.DO_NOT_DISTURB.getDisplayName());
+            if (currentState.equals(PersonState.AVAILABLE)) {
+                makeStateItemChosen(availableItem);
+                if (client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+                    MenuItem dndCustomItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for...");
+                    dndCustomItem.addActionListener(new ActionListener() {
 
                         @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            item.setState(true);
+                        public void actionPerformed(ActionEvent e) {
+                            dndCustomPeriodFrame.requestPeriodAndSwitchToDnd(dndDefaultTime, dndMaxTime);
                         }
                     });
-                } else if (!client.isStateChangePossible(state)) {
-                    item.setEnabled(false);
+                    dndDefaultItem.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            changeToDndState(dndDefaultTime);
+                            Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, dndDefaultTime.toString());
+                        }
+                    });
+                    popup.add(dndCustomItem);
+                    if (!Objects.equals(dndDefaultTime, dndLastTime)) {
+                        MenuItem dndLastItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + dndLastTime / 60000 + " min.");
+
+                        dndLastItem.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                changeToDndState(dndLastTime);
+                                Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, dndLastTime.toString());
+                            }
+                        });
+                        popup.add(dndLastItem);
+                    }
+                    dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + dndDefaultTime / 60000 + " min.");
+                } else {
+                    dndDefaultItem.setEnabled(false);
                     Long current = new Date().getTime();
                     Long start = client.getDndStart();
-                    item.setLabel(item.getLabel() + " (in " + ((start - current) / 60000) + " min.)");
-                } else {
-                    item.addItemListener(new ItemListener() {
+                    dndDefaultItem.setLabel(dndDefaultItem.getLabel() + " (in " + ((start - current) / 60000) + " min.)");
+                }
+            } else if (currentState.equals(PersonState.DO_NOT_DISTURB)) {
+                makeStateItemChosen(dndDefaultItem);
+                Long current = new Date().getTime();
+                Long end = client.getDndEnd();
+                dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + ((end - current) / 60000) + " min.)");
+                Long diff = (dndMaxTime - dndLastTime) / 60000; //in minutes
+                if (diff > 0) {
+                    MenuItem addDndTimeMenuItem = new MenuItem("Add " + (diff > 10 ? "10" : diff) + " min. to " + PersonState.DO_NOT_DISTURB.getDisplayName());
+                    addDndTimeMenuItem.addActionListener(new ActionListener() {
 
                         @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            changeState(state);
+                        public void actionPerformed(ActionEvent e) {
+                            long extraTime = dndMaxTime - dndLastTime;
+                            //TODO
+                            conf.setProperty(Property.DND_LAST_PERIOD, String.valueOf(dndLastTime + extraTime));
+
                         }
                     });
+                    popup.add(addDndTimeMenuItem);
                 }
-                stateItems.put(state, item);
-                popup.add(item);
+                availableItem.addItemListener(new ItemListener() {
+
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        changeState(PersonState.AVAILABLE);
+                    }
+                });
             }
+            stateItems.put(PersonState.DO_NOT_DISTURB, dndDefaultItem);
+            stateItems.put(PersonState.AVAILABLE, availableItem);
+            popup.add(dndDefaultItem);
+            popup.add(availableItem);
         } else {
             MenuItem item = new MenuItem("Server is unreachable");
             item.setEnabled(false);
             popup.add(item);
         }
         return popup;
+    }
+
+    private void makeStateItemChosen(final CheckboxMenuItem item) {
+        item.setState(true);
+        item.setFont(BOLD_FONT);
+        item.setLabel("-" + item.getLabel() + "-");
+        item.addItemListener(new ItemListener() { // to prevent the item to be unchecked
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                item.setState(true);
+            }
+        });
     }
 
     private void openWebpage(URI uri) {
@@ -584,6 +667,22 @@ class TrayIconManager {
         }
         PersonState newStateByServer = client.setState(state);
         log.info("Server returned state " + newStateByServer + " after user switched state to " + state);
+        currentState = newStateByServer;
+        initialize(currentState, currentLocation);
+    }
+
+    private synchronized void changeToDndState(Long period) {
+        log.info("State change request by user -> DND {}", period);
+        if (PersonState.DO_NOT_DISTURB.equals(currentState)) {
+            return;
+        }
+        log.debug("User switched state to DND for {}.", period);
+        if (!client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+            showErrorBubble("Unable to switch to " + PersonState.DO_NOT_DISTURB.getDisplayName());
+            log.warn("Attempt to switch to state {} unsuccessfull.", PersonState.DO_NOT_DISTURB.getDisplayName());
+        }
+        PersonState newStateByServer = client.setDndState(period);
+        log.info("Server returned state " + newStateByServer + " after user switched state to " + PersonState.DO_NOT_DISTURB);
         currentState = newStateByServer;
         initialize(currentState, currentLocation);
     }
@@ -830,6 +929,224 @@ class TrayIconManager {
             String msg = "Unable to execute command " + commandString;
             log.error(msg, e1);
         }
+    }
+
+    private class DndCustomPeriodFrame extends javax.swing.JFrame {
+
+        private Long maxDndPeriod;
+        private Long maxDndPeriodInMillis;
+        private Long currentValue;
+        private Long currentValueInMillis;
+
+        private Long getMaxDndPeriod() {
+            return maxDndPeriod;
+        }
+
+        private Long getMaxDndPeriodInMillis() {
+            return maxDndPeriodInMillis;
+        }
+
+        private void setMaxDndPeriodInMillis(Long maxDndPeriodInMillis) {
+            this.maxDndPeriodInMillis = maxDndPeriodInMillis;
+            this.maxDndPeriod = maxDndPeriodInMillis / 60000;
+        }
+
+        private Long getCurrentValue() {
+            return currentValue;
+        }
+
+        private void setCurrentValue(Long currentValue) {
+            this.currentValue = currentValue;
+            this.currentValueInMillis = currentValue * 60000;
+            periodTextField.setText(String.valueOf(currentValue));
+            minusButton.setEnabled(true);
+            plusButton.setEnabled(true);
+            if (currentValue >= getMaxDndPeriod()) {
+                plusButton.setEnabled(false);
+            } else if (currentValue <= 1) {
+                minusButton.setEnabled(false);
+            }
+        }
+
+        private Long getCurrentValueInMillis() {
+            return currentValueInMillis;
+        }
+
+        /**
+         * Creates new form NewJFrame
+         */
+        public DndCustomPeriodFrame() {
+            initComponents();
+        }
+
+        public void requestPeriodAndSwitchToDnd(Long defaultPeriod, Long maxDndPeriod) {
+            this.setMaxDndPeriodInMillis(maxDndPeriod);
+            setCurrentValue(defaultPeriod / 60000);
+            this.setLocationRelativeTo(null);
+            this.setVisible(true);
+        }
+
+        @SuppressWarnings("unchecked")
+        // <editor-fold defaultstate="collapsed" desc="Generated Code">
+        private void initComponents() {
+
+            jLabel1 = new javax.swing.JLabel();
+            periodTextField = new javax.swing.JTextField();
+            jLabel2 = new javax.swing.JLabel();
+            minusButton = new javax.swing.JButton();
+            plusButton = new javax.swing.JButton();
+            saveAsDefaultCheckBox = new javax.swing.JCheckBox();
+            okButton = new javax.swing.JButton();
+            cancelButton = new javax.swing.JButton();
+
+            setTitle("Go to " + PersonState.DO_NOT_DISTURB.getDisplayName());
+            setAlwaysOnTop(true);
+            setResizable(false);
+
+            jLabel1.setText("How long would you like to be in " + PersonState.DO_NOT_DISTURB.getDisplayName() + " for?");
+
+            periodTextField.setInputVerifier(new InputVerifier() {
+
+                @Override
+                public boolean verify(JComponent input) {
+                    Long value = getCurrentValue();
+                    try {
+                        value = Long.parseUnsignedLong(((JTextField) input).getText());
+                        boolean result = value <= getMaxDndPeriod() && value > 0;
+                        if (!result) {
+                            System.out.println(value);
+                            periodTextField.setText(getCurrentValue().toString());
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(e.getMessage());
+                        periodTextField.setText(getCurrentValue().toString());
+                    }
+                    setCurrentValue(value);
+                    return true;
+                }
+            });
+
+            jLabel2.setText("minutes");
+
+            minusButton.setText("-");
+
+            plusButton.setText("+");
+
+            plusButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (getMaxDndPeriod() > getCurrentValue()) {
+                        setCurrentValue(getCurrentValue() + 1);
+                    }
+                    if (Objects.equals(getMaxDndPeriod(), getCurrentValue())) {
+                        plusButton.setEnabled(false);
+                    }
+                    minusButton.setEnabled(true);
+                }
+            });
+            minusButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (1 < getCurrentValue()) {
+                        setCurrentValue(getCurrentValue() - 1);
+                    }
+                    if (1 == getCurrentValue()) {
+                        minusButton.setEnabled(false);
+                    }
+                    plusButton.setEnabled(true);
+                }
+            });
+
+            saveAsDefaultCheckBox.setText("Save as default period");
+
+            okButton.setText("OK");
+
+            okButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (getCurrentValueInMillis() > getMaxDndPeriodInMillis()) {
+                        showInfoMessage("Invalid period", "Maximum possible period is " + getMaxDndPeriod());
+                        return;
+                    }
+                    changeToDndState(getCurrentValueInMillis());
+                    if (saveAsDefaultCheckBox.isSelected()) {
+                        Configuration.getInstance().setProperty(Property.DND_DEFAULT_PERIOD, getCurrentValueInMillis().toString());
+                    }
+                    Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, getCurrentValueInMillis().toString());
+                    setVisible(false);
+                }
+            });
+
+            cancelButton.setText("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                }
+            });
+
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+            getContentPane().setLayout(layout);
+            layout.setHorizontalGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                    .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel1)
+                                                    .addGroup(layout.createSequentialGroup()
+                                                            .addComponent(periodTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                            .addComponent(jLabel2)
+                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                            .addComponent(minusButton)
+                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                            .addComponent(plusButton))))
+                                    .addComponent(saveAsDefaultCheckBox))
+                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
+            layout.setVerticalGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(jLabel1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(periodTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(minusButton)
+                                    .addComponent(plusButton))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(saveAsDefaultCheckBox)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(okButton)
+                                    .addComponent(cancelButton))
+                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
+
+            pack();
+        }// </editor-fold>
+
+        // Variables declaration - do not modify
+        private javax.swing.JButton cancelButton;
+        private javax.swing.JLabel jLabel1;
+        private javax.swing.JLabel jLabel2;
+        private javax.swing.JButton minusButton;
+        private javax.swing.JButton okButton;
+        private javax.swing.JTextField periodTextField;
+        private javax.swing.JButton plusButton;
+        private javax.swing.JCheckBox saveAsDefaultCheckBox;
+        // End of variables declaration
     }
 
     private class UpdateIconMouseListener extends MouseAdapter {

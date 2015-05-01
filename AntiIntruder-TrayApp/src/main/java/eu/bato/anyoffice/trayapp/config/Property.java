@@ -23,7 +23,9 @@ public enum Property {
     RUN_AT_STARTUP(PropertyType.BOOLEAN, "false"),
     POPUPS_ENABLED(PropertyType.BOOLEAN, "true"),
     FIRST_RUN(PropertyType.BOOLEAN, "true"),
-    STATE_AUTO_SWITCH(PropertyType.BOOLEAN, "false");
+    STATE_AUTO_SWITCH(PropertyType.BOOLEAN, "false"),
+    DND_DEFAULT_PERIOD(PropertyType.LONG, "2700000"),
+    DND_LAST_PERIOD(PropertyType.LONG, "2700000");
 
     private final PropertyType type;
     private final String defaultValue;

@@ -75,6 +75,19 @@ public class PersonStateController {
         return personStateManager.setState(authentication.getName(), newState, false);
     }
 
+    @RequestMapping(value = "statednd", method = PUT)
+    @ResponseBody
+    public PersonState setDndState(@RequestBody Long period, Authentication authentication) {
+        log.info("Setting new state: {} to person {}", PersonState.DO_NOT_DISTURB, authentication.getName());
+        return personStateManager.setDndState(authentication.getName(), false, period);
+    }
+
+    @RequestMapping(value = "dndmax", method = GET)
+    public @ResponseBody
+    Long getDndMaxTime() {
+        return personStateManager.getDndMaxTime();
+    }
+
     @RequestMapping(value = "locked", method = PUT)
     @ResponseBody
     public PersonState setSessionLocked(@RequestBody Boolean locked, Authentication authentication) {

@@ -130,6 +130,24 @@ public class RestClient {
         }
     }
 
+    PersonState setDndState(Long period) {
+        HttpEntity<String> entity = null;
+        try {
+            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(period), headers);
+        } catch (IOException e) {
+            log.error(e.getMessage()); //TODO
+        }
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "statednd", HttpMethod.PUT, entity, String.class);
+            log.info("Set DND state for period \"{}\" response: {}; body: {}", period, response.getStatusCode().toString(), response.getBody());
+            return parseState(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to set dnd state.");
+            return PersonState.UNKNOWN;
+        }
+    }
+
     boolean isStateChangePossible(PersonState toState) {
         ResponseEntity<String> response;
         try {
@@ -142,12 +160,22 @@ public class RestClient {
         }
     }
 
+    /**
+     * Sends info to server info about machine unlock.
+     *
+     * @return Current state of person after machine unlock
+     * @throws RestClientException
+     */
     PersonState returnFromAway() {
-        return lock(false);
+        return lock(false, false);
+    }
+
+    PersonState returnFromAway(boolean throwOnFailure) throws RestClientException {
+        return lock(false, throwOnFailure);
     }
 
     PersonState goAway() {
-        return lock(true);
+        return lock(true, false);
     }
 
     String getLocation() {
@@ -233,6 +261,18 @@ public class RestClient {
         }
     }
 
+    long getDndMax() {
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "dndmax", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET dndmax response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseLong(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET dndmax.");
+            return 0;
+        }
+    }
+
     void noteDisturbance(Boolean aoUser) {
         HttpEntity<String> entity = null;
         try {
@@ -253,7 +293,14 @@ public class RestClient {
         return serverOnline;
     }
 
-    private PersonState lock(boolean lock) {
+    /**
+     * Sends info to server info about machine lock/unlock.
+     *
+     * @param lock
+     * @return
+     * @throws RestClientException
+     */
+    private PersonState lock(boolean lock, boolean throwOnFailure) throws RestClientException {
         HttpEntity<String> entity;
         try {
             entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(lock), headers);
@@ -268,7 +315,11 @@ public class RestClient {
             return parseState(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to send info about machine " + (lock ? "" : "un") + "lock.");
-            return PersonState.UNKNOWN;
+            if (throwOnFailure) {
+                throw e;
+            } else {
+                return PersonState.UNKNOWN;
+            }
         }
     }
 

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.Date;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +164,8 @@ public class Configuration {
             customProps.setProperty(Property.POPUPS_ENABLED.name(), props.getProperty(Property.POPUPS_ENABLED.name(), "true"));
             customProps.setProperty(Property.STATE_AUTO_SWITCH.name(), props.getProperty(Property.STATE_AUTO_SWITCH.name(), "false"));
             customProps.setProperty(Property.FIRST_RUN.name(), props.getProperty(Property.FIRST_RUN.name(), "false"));
+            customProps.setProperty(Property.DND_DEFAULT_PERIOD.name(), props.getProperty(Property.DND_DEFAULT_PERIOD.name(), "2700000"));
+            customProps.setProperty(Property.DND_LAST_PERIOD.name(), props.getProperty(Property.DND_LAST_PERIOD.name(), "2700000"));
             customProps.store(os, "Saved at ");
             log.debug("Saved new configuration.");
         } catch (IOException e) {

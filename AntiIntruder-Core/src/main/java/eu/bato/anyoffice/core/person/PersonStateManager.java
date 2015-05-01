@@ -36,25 +36,10 @@ public class PersonStateManager {
     HipChatClient hipChatClient;
 
     public PersonState setState(String username, PersonState state, boolean force) {
-        PersonState current = getCurrentState(username);
-        if (current.equals(state)) {
-            log.info("Attempt to change state of user " + username + " to the currently set state " + current + " => no action.");
-            return state;
+        PersonState checkState = beforeSwitchCheck(username, state, force);
+        if (checkState != null) {
+            return checkState;
         }
-        if (current.equals(PersonState.AWAY) && !state.equals(PersonState.UNKNOWN)) {
-            log.warn("Attemp to change state while AWAY. Returning from AWAY state first.");
-            current = returnFromAwayState(username);
-        }
-        if (current.equals(PersonState.UNKNOWN) && !state.equals(PersonState.AWAY)) {
-            log.warn("Attemp to change state while the state is UNKNOWN. Returning from UNKNOWN state first.");
-            current = returnFromUnknownState(username);
-        }
-        //now the current is DND or AVAILABLE
-        if (!force && !isStateChangePossible(username, state)) {
-            log.warn("Unable to switch from state {} to state {} at the moment.", current, state);
-            return current;
-        }
-
         switch (state) {
             case AWAY:
             case UNKNOWN: // * -> AWAY/UNKNOWN
@@ -73,6 +58,49 @@ public class PersonStateManager {
 
     public PersonState setState(Long id, PersonState state, boolean force) {
         return setState(personService.getUsername(id), state, force);
+    }
+
+    public PersonState setDndState(String username, boolean force, Long period) {
+        PersonState checkState = beforeSwitchCheck(username, PersonState.DO_NOT_DISTURB, force);
+        if (checkState != null) {
+            return checkState;
+        }
+        setDndState(username, period);
+        return PersonState.DO_NOT_DISTURB;
+    }
+
+    public PersonState setDndState(Long id, boolean force, Long period) {
+        return setDndState(personService.getUsername(id), force, period);
+    }
+
+    /**
+     *
+     * @param username
+     * @param state
+     * @param force
+     * @return the state that should be returned to user or null if everything
+     * is OK
+     */
+    private PersonState beforeSwitchCheck(String username, PersonState state, boolean force) {
+        PersonState current = getCurrentState(username);
+        if (current.equals(state)) {
+            log.info("Attempt to change state of user " + username + " to the currently set state " + current + " => no action.");
+            return state;
+        }
+        if (current.equals(PersonState.AWAY) && !state.equals(PersonState.UNKNOWN)) {
+            log.warn("Attemp to change state while AWAY. Returning from AWAY state first.");
+            current = returnFromAwayState(username);
+        }
+        if (current.equals(PersonState.UNKNOWN) && !state.equals(PersonState.AWAY)) {
+            log.warn("Attemp to change state while the state is UNKNOWN. Returning from UNKNOWN state first.");
+            current = returnFromUnknownState(username);
+        }
+        //now the current is DND or AVAILABLE
+        if (!force && !isStateChangePossible(username, state)) {
+            log.warn("Unable to switch from state {} to state {} at the moment.", current, state);
+            return current;
+        }
+        return null;
     }
 
     public PersonState returnFromAwayState(String username) {
@@ -133,13 +161,15 @@ public class PersonStateManager {
         PersonDto person = personService.findOneByUsername(username);
         if (person.getState().equals(PersonState.DO_NOT_DISTURB) && person.getDndEnd().compareTo(new Date().getTime()) <= 0) {
             // current state is DND and it should have ended
-            personService.setState(username, PersonState.AVAILABLE);
-            setHipChatState(username, PersonState.AVAILABLE);
+            log.info("Setting state AVAILABLE by state validity check for user {}", username);
+            setAvailableState(username);
         } else if (!person.getState().equals(PersonState.UNKNOWN)) {
             long fromLastPing = new Date().getTime() - person.getLastPing().orElse(0L);
             if (!person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_PING_DELAY)) {
+                log.info("Setting state UNKNOWN by state validity check for user {} - MAXIMUM_PING_DELAY has been reached.", username);
                 setUnknownAwayState(username, PersonState.UNKNOWN);
             } else if (person.getState().equals(PersonState.AWAY) && fromLastPing > Configuration.getInstance().getLongProperty(Property.MAXIMUM_AWAY_PING_DELAY)) {
+                log.info("Setting state UNKNOWN by state validity check for user {} - MAXIMUM_AWAY_PING_DELAY has been reached.", username);
                 setUnknownAwayState(username, PersonState.UNKNOWN);
             }
         }
@@ -164,6 +194,10 @@ public class PersonStateManager {
         return personService.findOneByUsername(username).getDndEnd();
     }
 
+    public long getDndMaxTime() {
+        return Configuration.getInstance().getLongProperty(Property.MAX_DND_TIME);
+    }
+
     private void setAvailableState(String username) {
         Date now = new Date();
         Long minAvailableTime = Configuration.getInstance().getLongProperty(Property.MIN_AVAILABLE_TIME);
@@ -173,13 +207,21 @@ public class PersonStateManager {
         setHipChatState(username, PersonState.AVAILABLE);
     }
 
-    private void setDndState(String username) {
+    private void setDndState(String username, Long period) {
         Date now = new Date();
         Long maxDndTime = Configuration.getInstance().getLongProperty(Property.MAX_DND_TIME);
-        Optional<Date> dndEnd = Optional.of(new Date(now.getTime() + maxDndTime));
+        if (period > maxDndTime) {
+            throw new IllegalArgumentException("DND for user " + username + " can not be set for more than " + maxDndTime + ". Got: " + period);
+        }
+        Optional<Date> dndEnd = Optional.of(new Date(now.getTime() + period));
         personService.setTimers(username, Optional.of(now), dndEnd, Optional.empty());
         personService.setState(username, PersonState.DO_NOT_DISTURB);
         setHipChatState(username, PersonState.DO_NOT_DISTURB);
+    }
+
+    private void setDndState(String username) {
+        Long maxDndTime = Configuration.getInstance().getLongProperty(Property.MAX_DND_TIME);
+        setDndState(username, maxDndTime);
     }
 
     private void setUnknownAwayState(String username, PersonState state) {
