@@ -148,6 +148,24 @@ public class RestClient {
         }
     }
 
+    Long addDndTime(Long millisToAdd) {
+        HttpEntity<String> entity = null;
+        try {
+            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(millisToAdd), headers);
+        } catch (IOException e) {
+            log.error(e.getMessage()); //TODO
+        }
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "adddnd", HttpMethod.PUT, entity, String.class);
+            log.info("Add DND time {} millis response: {}; body: {}", millisToAdd, response.getStatusCode().toString(), response.getBody());
+            return parseLong(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to add dnd time {} millis.", millisToAdd);
+            return null;
+        }
+    }
+
     boolean isStateChangePossible(PersonState toState) {
         ResponseEntity<String> response;
         try {

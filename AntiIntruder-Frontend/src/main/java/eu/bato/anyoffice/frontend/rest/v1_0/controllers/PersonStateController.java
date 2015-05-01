@@ -82,6 +82,13 @@ public class PersonStateController {
         return personStateManager.setDndState(authentication.getName(), false, period);
     }
 
+    @RequestMapping(value = "adddnd", method = PUT)
+    @ResponseBody
+    public Long addDndStateTime(@RequestBody Long millisToAdd, Authentication authentication) {
+        log.info("Adding {} DND millis to person {}", millisToAdd.toString(), authentication.getName());
+        return personStateManager.addDndTime(authentication.getName(), millisToAdd);
+    }
+
     @RequestMapping(value = "dndmax", method = GET)
     public @ResponseBody
     Long getDndMaxTime() {

@@ -136,6 +136,10 @@ class TrayIconManager {
         return currentState;
     }
 
+    private String getCurrentLocation() {
+        return currentLocation;
+    }
+
     private void setCurrentLocation(String location) {
         this.currentLocation = location;
     }
@@ -230,10 +234,12 @@ class TrayIconManager {
         if (newState.equals(PersonState.DO_NOT_DISTURB)) {
             Long end = client.getDndEnd() - current;
             trayIcon.setToolTip("Do not disturb will end in " + (end / 60000) + " minutes.");
+            stateItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + (end / 60000) + " min.)");
         } else if (newState.equals(PersonState.AVAILABLE)) {
             Long start = client.getDndStart();
             if (start > current) {
                 trayIcon.setToolTip("Do not disturb will be available in " + ((start - current) / 60000) + " minutes.");
+                stateItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (in " + ((start - current) / 60000) + " min.)");
             } else {
                 trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
             }
@@ -552,15 +558,20 @@ class TrayIconManager {
                             dndCustomPeriodFrame.requestPeriodAndSwitchToDnd(dndDefaultTime, dndMaxTime);
                         }
                     });
-                    dndDefaultItem.addActionListener(new ActionListener() {
+                    popup.add(dndCustomItem);
+                    dndDefaultItem.addItemListener(new ItemListener() {
 
                         @Override
-                        public void actionPerformed(ActionEvent e) {
-                            changeToDndState(dndDefaultTime);
+                        public void itemStateChanged(ItemEvent e) {
+                            if (e.getStateChange() == ItemEvent.DESELECTED) {
+                                dndDefaultItem.setState(true);
+                                return;
+                            }
+                            // the order is important here
                             Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, dndDefaultTime.toString());
+                            changeToDndState(dndDefaultTime);
                         }
                     });
-                    popup.add(dndCustomItem);
                     if (!Objects.equals(dndDefaultTime, dndLastTime)) {
                         MenuItem dndLastItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + dndLastTime / 60000 + " min.");
 
@@ -568,8 +579,8 @@ class TrayIconManager {
 
                             @Override
                             public void actionPerformed(ActionEvent e) {
+                                // the order is important here
                                 changeToDndState(dndLastTime);
-                                Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, dndLastTime.toString());
                             }
                         });
                         popup.add(dndLastItem);
@@ -588,15 +599,21 @@ class TrayIconManager {
                 dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + ((end - current) / 60000) + " min.)");
                 Long diff = (dndMaxTime - dndLastTime) / 60000; //in minutes
                 if (diff > 0) {
-                    MenuItem addDndTimeMenuItem = new MenuItem("Add " + (diff > 10 ? "10" : diff) + " min. to " + PersonState.DO_NOT_DISTURB.getDisplayName());
+                    final MenuItem addDndTimeMenuItem = new MenuItem("Add " + (diff > 10 ? "10" : diff) + " min. to " + PersonState.DO_NOT_DISTURB.getDisplayName());
                     addDndTimeMenuItem.addActionListener(new ActionListener() {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
+                            long dndLastTime = Configuration.getInstance().getLongProperty(Property.DND_LAST_PERIOD);
                             long extraTime = dndMaxTime - dndLastTime;
-                            //TODO
-                            conf.setProperty(Property.DND_LAST_PERIOD, String.valueOf(dndLastTime + extraTime));
-
+                            long addTime = extraTime > 600000 ? 600000 : extraTime;
+                            Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, String.valueOf(dndLastTime + addTime));
+                            client.addDndTime(addTime);
+                            extraTime = extraTime - addTime;
+                            if (extraTime < 600000) {
+                                // we need to refresh the menu to get the new period into the label and ActionEvent
+                                trayIcon.setPopupMenu(createMenu(getCurrentState(), getCurrentLocation()));
+                            }
                         }
                     });
                     popup.add(addDndTimeMenuItem);
@@ -1071,11 +1088,12 @@ class TrayIconManager {
                         showInfoMessage("Invalid period", "Maximum possible period is " + getMaxDndPeriod());
                         return;
                     }
+                    // the order is important here
+                    Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, getCurrentValueInMillis().toString());
                     changeToDndState(getCurrentValueInMillis());
                     if (saveAsDefaultCheckBox.isSelected()) {
                         Configuration.getInstance().setProperty(Property.DND_DEFAULT_PERIOD, getCurrentValueInMillis().toString());
                     }
-                    Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, getCurrentValueInMillis().toString());
                     setVisible(false);
                 }
             });

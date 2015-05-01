@@ -198,6 +198,26 @@ public class PersonStateManager {
         return Configuration.getInstance().getLongProperty(Property.MAX_DND_TIME);
     }
 
+    /**
+     *
+     * @param username
+     * @param millisToAdd
+     * @return the new dndEnd in milliseconds
+     */
+    public long addDndTime(String username, long millisToAdd) {
+        PersonState state = getCurrentState(username);
+        if (!state.equals(PersonState.DO_NOT_DISTURB)) {
+            throw new IllegalStateException("Unable to add time to DND state for person " + username + ". Person is in state " + state);
+        }
+        long dndStart = getDndStart(username);
+        long dndEnd = getDndEnd(username) + millisToAdd;
+        if (dndEnd - dndStart > getDndMaxTime()) {
+            throw new IllegalArgumentException("Unable to add " + millisToAdd + " millis to DND state of " + username + ". It would exceed MAX_DND_TIME");
+        }
+        personService.setTimers(username, Optional.empty(), Optional.of(new Date(dndEnd)), Optional.empty());
+        return dndEnd;
+    }
+
     private void setAvailableState(String username) {
         Date now = new Date();
         Long minAvailableTime = Configuration.getInstance().getLongProperty(Property.MIN_AVAILABLE_TIME);
@@ -231,10 +251,12 @@ public class PersonStateManager {
     }
 
     private void setHipChatState(String username, PersonState state) {
-        HipChatCredentials hcc = personService.getHipChatCredentials(username);
-        if (hcc.getEmail().isPresent() && hcc.getToken().isPresent() && !state.equals(PersonState.UNKNOWN)) {
-            hipChatClient.setState(hcc.getToken().get(), hcc.getEmail().get(), state, "AnyOffice");
-        }
+        new Thread(() -> {
+            HipChatCredentials hcc = personService.getHipChatCredentials(username);
+            if (hcc.getEmail().isPresent() && hcc.getToken().isPresent() && !state.equals(PersonState.UNKNOWN)) {
+                hipChatClient.setState(hcc.getToken().get(), hcc.getEmail().get(), state, "AnyOffice");
+            }
+        }).start();
     }
 
 }
