@@ -5,6 +5,7 @@
         <file>anyoffice-client\${CONTEXT_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>anyoffice-client\${CONTEXT_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>14</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d [%thread] %-5level %logger{15} - %msg%n</pattern>

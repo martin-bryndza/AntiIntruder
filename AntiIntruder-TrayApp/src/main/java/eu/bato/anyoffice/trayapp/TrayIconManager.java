@@ -132,7 +132,7 @@ class TrayIconManager {
         return instance;
     }
 
-    private PersonState getCurrentState() {
+    public PersonState getCurrentState() {
         return currentState;
     }
 
@@ -218,6 +218,11 @@ class TrayIconManager {
             }
         }
         PersonState newState = client.getState();
+        if (newState.equals(PersonState.UNKNOWN) || (newState.equals(PersonState.AWAY) && !locked)) {
+            log.warn("Server returned {} state and the machine is {}locked. Sending machine unlock message...", newState, locked ? "" : "not ");
+            lock(locked);
+            return; // update is called again in the lock method
+        }
         String newLocation = client.getLocation();
         if (!newState.isAwayState()) {
             List<InteractionPerson> availableConsulters = client.getNewAvailableConsulters();
@@ -257,11 +262,6 @@ class TrayIconManager {
         if (showAvailableBubble) {
             int requests = client.getNumberOfRequests();
             showInfoBubble("You have gone Available." + (requests == 0 ? "" : (" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.")));
-        }
-        // keep this last to prevent freeze of icon
-        if (newState.equals(PersonState.AWAY) && !locked) {
-            // if the machine is not locked but the server thinks so (unlock message probably failed)
-            lock(false);
         }
     }
 
