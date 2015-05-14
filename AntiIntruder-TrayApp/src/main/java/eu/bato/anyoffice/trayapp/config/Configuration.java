@@ -31,7 +31,8 @@ public class Configuration {
     private static final String CONFIG_FILE_NAME = "anyoffice-client.properties";
 
     private Configuration() {
-        //temporary part to convert from old client and keep settings
+        //temporary part to convert from old tray app and keep settings
+        //old versions of tray app stored properties file in the current folder
         File oldF = new File(CONFIG_FILE_NAME);
         File homedir = new File(System.getProperty("user.home") + "/anyoffice");
         File newF = new File(homedir.getPath() + "/" + CONFIG_FILE_NAME);

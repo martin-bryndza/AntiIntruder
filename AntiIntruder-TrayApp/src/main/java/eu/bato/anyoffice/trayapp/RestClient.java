@@ -77,6 +77,11 @@ public class RestClient {
         return rest;
     }
 
+    /**
+     * Sends a request to login to server.
+     * @param credentials
+     * @return true, if the authentication succeeded, false otherwise
+     */
     static boolean isCorrectCredentials(Credentials credentials) {
         ResponseEntity<String> response;
         try {
@@ -89,6 +94,9 @@ public class RestClient {
         }
     }
 
+    /**
+     * Tries to send ping message to server. Does nothing, if an error occurs.
+     */
     void ping() {
         ResponseEntity<String> response;
         try {
@@ -100,6 +108,10 @@ public class RestClient {
         }
     }
 
+    /**
+     * Gets the current state set on server.
+     * @return PersonState returned by server or PersonState.UNKNOWN if an error occured
+     */
     PersonState getState() {
         ResponseEntity<String> response;
         try {
@@ -112,13 +124,14 @@ public class RestClient {
         }
     }
 
+    /**
+     * Sends a request to change state to server.
+     * The returned state may be different, because the server may reject the change.
+     * @param state PersonState to set
+     * @return the PersonState returned by server
+     */
     PersonState setState(PersonState state) {
-        HttpEntity<String> entity = null;
-        try {
-            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(state), headers);
-        } catch (IOException e) {
-            log.error(e.getMessage()); //TODO
-        }
+        HttpEntity<String> entity = createEntity(state);
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "state", HttpMethod.PUT, entity, String.class);
@@ -130,13 +143,15 @@ public class RestClient {
         }
     }
 
+    /**
+     * Sends a request to change state to server. The returned state may be
+     * different, because the server may reject the change.
+     *
+     * @param state PersonState to set
+     * @return the PersonState returned by server
+     */
     PersonState setDndState(Long period) {
-        HttpEntity<String> entity = null;
-        try {
-            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(period), headers);
-        } catch (IOException e) {
-            log.error(e.getMessage()); //TODO
-        }
+        HttpEntity<String> entity = createEntity(period);
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "statednd", HttpMethod.PUT, entity, String.class);
@@ -148,13 +163,13 @@ public class RestClient {
         }
     }
 
+    /**
+     * Sends request to server to prolong DND period.
+     * @param millisToAdd milliseconds to add
+     * @return new end of DND period in milliseconds or null if an error occurred
+     */
     Long addDndTime(Long millisToAdd) {
-        HttpEntity<String> entity = null;
-        try {
-            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(millisToAdd), headers);
-        } catch (IOException e) {
-            log.error(e.getMessage()); //TODO
-        }
+        HttpEntity<String> entity = createEntity(millisToAdd);        
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "adddnd", HttpMethod.PUT, entity, String.class);
@@ -166,6 +181,11 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @param toState
+     * @return possibility to switch to state or false, if an error occurred
+     */
     boolean isStateChangePossible(PersonState toState) {
         ResponseEntity<String> response;
         try {
@@ -180,9 +200,8 @@ public class RestClient {
 
     /**
      * Sends info to server info about machine unlock.
-     *
-     * @return Current state of person after machine unlock
-     * @throws RestClientException
+     * @return Current state of person after machine unlock or 
+     * PersonState.UNKNOWN, if an error occurred
      */
     PersonState returnFromAway() {
         return lock(false, false);
@@ -192,10 +211,20 @@ public class RestClient {
         return lock(false, throwOnFailure);
     }
 
+    /**
+     * Sends info to server info about machine lock.
+     *
+     * @return Current state of person after machine unlock or
+     * PersonState.UNKNOWN, if an error occurred
+     */
     PersonState goAway() {
         return lock(true, false);
     }
 
+    /**
+     * Gets location set on server.
+     * @return location returned by server or an empty string, if an error occurred
+     */
     String getLocation() {
         ResponseEntity<String> response;
         try {
@@ -209,17 +238,12 @@ public class RestClient {
     }
 
     /**
-     *
+     * Sends a request to server to set location.
      * @param location
      * @return true, if location was set successfully, false otherwise
      */
     boolean setLocation(String location) {
-        HttpEntity<String> entity = null;
-        try {
-            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(location), headers);
-        } catch (IOException e) {
-            log.error(e.getMessage()); //TODO
-        }
+        HttpEntity<String> entity = createEntity(location);
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "location", HttpMethod.PUT, entity, String.class);
@@ -231,6 +255,10 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @return number of newly requested consultations or zero, if an error occurred
+     */
     int getNumberOfRequests() {
         ResponseEntity<String> response;
         try {
@@ -243,6 +271,10 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @return number of people newly available for consultation
+     */
     List<InteractionPerson> getNewAvailableConsulters() {
         ResponseEntity<String> response;
         try {
@@ -255,6 +287,10 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @return time when next DND period will be available or 0, if an error occurred
+     */
     long getDndStart() {
         ResponseEntity<String> response;
         try {
@@ -267,6 +303,10 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @return time, when the current DND period will end or the last DND period has ended, or 0, if an error occurred
+     */
     long getDndEnd() {
         ResponseEntity<String> response;
         try {
@@ -279,6 +319,10 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @return maximum time possible for a DND period or 0, if an error occurred
+     */
     long getDndMax() {
         ResponseEntity<String> response;
         try {
@@ -291,13 +335,12 @@ public class RestClient {
         }
     }
 
+    /**
+     * Sends request to server to note disturbance of the user
+     * @param aoUser true, if the disturber uses AnyOffice, false if not and null if the information is unavailable
+     */
     void noteDisturbance(Boolean aoUser) {
-        HttpEntity<String> entity = null;
-        try {
-            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(aoUser), headers);
-        } catch (IOException e) {
-            log.error(e.getMessage()); //TODO
-        }
+        HttpEntity<String> entity = createEntity(aoUser);
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "disturbance", HttpMethod.PUT, entity, String.class);
@@ -307,8 +350,22 @@ public class RestClient {
         }
     }
 
+    /**
+     * 
+     * @return true, if the last server request finished successfully, false otherwise
+     */
     static boolean isServerOnline() {
         return serverOnline;
+    }
+    
+    private HttpEntity<String> createEntity(Object bodyObject){
+        HttpEntity<String> entity = null;
+        try {
+            entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(bodyObject), headers);
+        } catch (IOException e) {
+            log.error(e.getMessage()); //TODO
+        }
+        return entity;
     }
 
     /**

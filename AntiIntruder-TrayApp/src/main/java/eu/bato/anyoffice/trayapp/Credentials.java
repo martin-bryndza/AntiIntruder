@@ -3,7 +3,6 @@ package eu.bato.anyoffice.trayapp;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -22,7 +21,6 @@ public class Credentials {
             outputStream.write(password[i]);
         }
         byte c[] = outputStream.toByteArray();
-        //this.encodedAuthString = Base64.getEncoder().encodeToString(c); // java 8 only
         this.encodedAuthString = DatatypeConverter.printBase64Binary(c);
     }
 

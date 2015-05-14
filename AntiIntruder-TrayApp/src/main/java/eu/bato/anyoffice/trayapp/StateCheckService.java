@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Schedules tasks for checking current server state and updating interface and
  * also for mouse tracking. The state check tasks ping the server and call
- * TrayIconManager for update. The mouse tracking task sends lock to server if
- * the mouse hasn't moved for 2 minutes. Sends unlock if the mouse moves again.
+ TrayIconManager for updateFromServer. The mouse tracking task sends lock to server if
+ the mouse hasn't moved for 2 minutes. Sends unlock if the mouse moves again.
  *
  * @author Bato
  */
@@ -82,7 +82,7 @@ class StateCheckService {
         public void run() {
             log.debug("States check started...");
             TrayIconManager.getInstance().pingServer();
-            TrayIconManager.getInstance().update();
+            TrayIconManager.getInstance().updateFromServer();
             if (!RestClient.isServerOnline()) {
                 log.error("Conection to server failed.");
                 try {

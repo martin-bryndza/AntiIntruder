@@ -15,6 +15,7 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuItem;
@@ -77,8 +78,8 @@ class TrayIconManager {
     private static TrayIconManager instance;
 
     private TrayIcon trayIcon;
-    private final Map<PersonState, MenuItem> stateItems;
-    CheckboxMenuItem dndChkboxMenuItem;
+    private final Map<PersonState, MenuItem> statesMenuItems;
+    CheckboxMenuItem dndSwitchOnceChkboxMenuItem;
     private final UpdateIconMouseListener updateIconMouseListener;
 
     private final SwitchToStateFrame switchToDndFrame;
@@ -100,42 +101,64 @@ class TrayIconManager {
         switchToDndFrame = new SwitchToStateFrame();
         availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
         dndCustomPeriodFrame = new DndCustomPeriodFrame();
-        stateItems = new HashMap<>();
+        statesMenuItems = new HashMap<>();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
         if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))) {
             client = new RestClient(requestCredentials(false));
         } else {
             client = new RestClient(new Credentials(authString));
         }
-        client.ping();
+        client.ping(); //initial ping to server
         currentState = client.returnFromAway();
         currentLocation = client.getLocation();
         if (currentLocation == null || currentLocation.isEmpty()) {
-            currentLocation = "-";
+            currentLocation = "-"; // to avoid displaying null or empty string in menu
         }
-        initialize(currentState, currentLocation);
+        initializeTrayIcon(currentState, currentLocation);
+        //if auto switch is turned on, DND is not active and it is possible to switch to DND
         if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)
                 && !currentState.equals(PersonState.DO_NOT_DISTURB)
                 && client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-            dndStateAutoSwitchProcess();
+            startDndAutoSwitchTimeoutProcedure();
         }
     }
 
+    
+    /**
+     * The same as getInstance.
+     * Method for semantical purposes.
+     * 
+     * @return initialized TrayIconManager
+     */
     static TrayIconManager initialize() {
+        return getInstance();
+    }
+
+    /**
+     * Initializes the GUI. Asks for credentials, send unlock message to server
+     * and displays tray icon according to state returned by server.
+     *
+     * @return initialized TrayIconManager
+     */
+    static TrayIconManager getInstance() {
         if (instance == null) {
             instance = new TrayIconManager();
         }
         return instance;
     }
 
-    static TrayIconManager getInstance() {
-        return instance;
-    }
-
+    /**
+     * Gets the current person state set in the GUI.
+     * @return the currently set person state
+     */
     public PersonState getCurrentState() {
         return currentState;
     }
 
+    /**
+     * Gets the current location set in the GUI.
+     * @return the currently set location
+     */
     private String getCurrentLocation() {
         return currentLocation;
     }
@@ -144,14 +167,22 @@ class TrayIconManager {
         this.currentLocation = location;
     }
 
-    private synchronized void initialize(PersonState currentState, String currentLocation) {
+    /**
+     * Initializes or reinitializes tray icon and its menu.
+     * @param currentState the person state, according to which the components will be initialized
+     * @param currentLocation the location to display in the menu
+     */
+    private synchronized void initializeTrayIcon(PersonState currentState, String currentLocation) {
         log.debug("Initializing visual components with state {} and location {}", currentState, currentLocation);
         if (!SystemTray.isSupported()) {
             log.error("SystemTray is not supported on this system.");
+            showInfoMessage("Error", "This operating system is not supported.");
+            close();
             return;
         }
         SystemTray tray = SystemTray.getSystemTray();
         if (trayIcon == null) {
+            // initialize icon ...
             trayIcon = createIcon(currentState.getIcon());
             try {
                 tray.add(trayIcon);
@@ -163,6 +194,7 @@ class TrayIconManager {
                 Configuration.getInstance().setProperty(Property.FIRST_RUN, "false");
             }
         } else {
+            // reinitialize icon
             trayIcon.setImage(getTrayIconImage(currentState.getIcon()));
             trayIcon.setToolTip(currentState.getDescription());
             ActionListener[] actionListeners = trayIcon.getActionListeners();
@@ -172,17 +204,19 @@ class TrayIconManager {
         }
         trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
         trayIcon.addMouseListener(updateIconMouseListener);
+        
+        //on double click display state switch message or information about remaining time
         trayIcon.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getCurrentState().equals(PersonState.AVAILABLE)) {
-                    if (stateItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
+                    if (statesMenuItems.get(PersonState.DO_NOT_DISTURB).isEnabled()) {
                         switchToDndFrame.display(PersonState.DO_NOT_DISTURB);
                     } else {
                         Long current = new Date().getTime();
                         Long start = client.getDndStart();
-                        showInfoMessage("AnyOffice", "Do Not Disturb will be available in " + ((start - current) / 60000) + " minutes.");
+                        showInfoMessage("AnyOffice", "Do Not Disturb will be available in " + millisToMins(start - current) + " minutes.");
                     }
                 } else if (getCurrentState().equals(PersonState.DO_NOT_DISTURB)) {
                     switchToDndFrame.display(PersonState.AVAILABLE);
@@ -191,39 +225,104 @@ class TrayIconManager {
         });
     }
 
+    /**
+     * Send ping message to server.
+     */
     void pingServer() {
         client.ping();
     }
 
-    synchronized void update() {
+    /**
+     * Checks server for updates of person state and location, and updates the GUI accordingly.
+     */
+    synchronized void updateFromServer() {
+        // to prevent several requests to unreachable server
         if (!RestClient.isServerOnline()) {
             currentState = PersonState.UNKNOWN;
-            initialize(currentState, currentLocation);
+            initializeTrayIcon(currentState, currentLocation);
             return;
         }
-        MenuItem dnd = stateItems.get(PersonState.DO_NOT_DISTURB);
-        boolean wasDndAvailable = dnd != null && dnd.isEnabled();
+        
+        MenuItem dnd = statesMenuItems.get(PersonState.DO_NOT_DISTURB);
+        boolean wasDndAvailable = dnd != null && dnd.isEnabled();        
+        //if DND is newly available
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB) && currentState.equals(PersonState.AVAILABLE)) {
-            initialize(currentState, currentLocation);
+            initializeTrayIcon(currentState, currentLocation);
             log.debug("DND is now enabled");
-            if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) {
-                dndStateAutoSwitchProcess();
-            } else if (dndChkboxMenuItem != null && dndChkboxMenuItem.getState()) {
+            if (Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH)) { // if DND autoswitch is selected
+                startDndAutoSwitchTimeoutProcedure();
+            } else if (dndSwitchOnceChkboxMenuItem != null && dndSwitchOnceChkboxMenuItem.getState()) { //if autoswitch to DND once is selected
                 changeState(PersonState.DO_NOT_DISTURB);
                 showInfoBubble("You are in Do Not Disturb state now.");
-                dndChkboxMenuItem.setState(false);
+                dndSwitchOnceChkboxMenuItem.setState(false);
                 return;
             } else {
-                showInfoBubble("Do Not Disturb state is possible. Click this bubble for further actions.");
+                showInfoBubble(PersonState.DO_NOT_DISTURB.getDisplayName() + " state is possible now.");
             }
         }
+        
         PersonState newState = client.getState();
+        
+        //if for some reason server thinks that client is offline or locked
         if (newState.equals(PersonState.UNKNOWN) || (newState.equals(PersonState.AWAY) && !locked)) {
             log.warn("Server returned {} state and the machine is {}locked. Sending machine unlock message...", newState, locked ? "" : "not ");
+            pingServer();
             lock(locked);
-            return; // update is called again in the lock method
+            return; // updateFromServer is called again in the lock method
         }
+        
         String newLocation = client.getLocation();
+        
+        showPendingConsultationsPopup(newState);
+        
+        Long current = new Date().getTime();
+        
+        //change tool tip message of tray icon and states menu items accordingly (due to elapsed time)
+        if (newState.equals(PersonState.DO_NOT_DISTURB)) {
+            Long end = client.getDndEnd() - current;
+            trayIcon.setToolTip("Do not disturb will end in " + millisToMins(end) + " minutes.");
+            statesMenuItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + millisToMins(end) + " min.)");
+        } else if (newState.equals(PersonState.AVAILABLE)) {
+            Long start = client.getDndStart();
+            if (start > current) {
+                trayIcon.setToolTip("Do not disturb will be available in " + millisToMins(start - current) + " minutes.");
+                statesMenuItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (in " + millisToMins(start - current) + " min.)");
+            } else {
+                trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
+            }
+        } else {
+            trayIcon.setToolTip(newState.getDescription());
+        }
+        
+        //check if any change of visual components is necessary
+        if (newState.equals(currentState) && newLocation.equals(currentLocation)) {
+            return;
+        }
+        
+        log.debug("Updating icon to state {}, location {}", newState, newLocation);
+        boolean showAvailableBubble = newState.equals(PersonState.AVAILABLE) && currentState.equals(PersonState.DO_NOT_DISTURB);
+        currentState = newState;
+        currentLocation = newLocation;
+        initializeTrayIcon(currentState, currentLocation);
+        //show bubble after the icon has been reinitialized, otherwise it would be closed by the reinitialization
+        if (showAvailableBubble) {
+            int requests = client.getNumberOfRequests();
+            String requestsMsg = requests != 0 
+                    ? (" You have " + requests + " pending " + toPlural("request", requests) + " for consultation.")
+                    : "";
+            showInfoBubble("You have gone Available." + requestsMsg);
+        }
+    }
+    
+    private static String toPlural(String string, int count){
+        return string + (count > 1 ? "s":"");
+    }
+
+    private static long millisToMins(Long end) {
+        return end / 60000;
+    }
+
+    private void showPendingConsultationsPopup(PersonState newState) {
         if (!newState.isAwayState()) {
             List<InteractionPerson> availableConsulters = client.getNewAvailableConsulters();
             if (!availableConsulters.isEmpty()) {
@@ -235,39 +334,11 @@ class TrayIconManager {
                 showInfoBubble(" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
             }
         }
-        Long current = new Date().getTime();
-        if (newState.equals(PersonState.DO_NOT_DISTURB)) {
-            Long end = client.getDndEnd() - current;
-            trayIcon.setToolTip("Do not disturb will end in " + (end / 60000) + " minutes.");
-            stateItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + (end / 60000) + " min.)");
-        } else if (newState.equals(PersonState.AVAILABLE)) {
-            Long start = client.getDndStart();
-            if (start > current) {
-                trayIcon.setToolTip("Do not disturb will be available in " + ((start - current) / 60000) + " minutes.");
-                stateItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (in " + ((start - current) / 60000) + " min.)");
-            } else {
-                trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
-            }
-        } else {
-            trayIcon.setToolTip(newState.getDescription());
-        }
-        if (newState.equals(currentState) && newLocation.equals(currentLocation)) {
-            return;
-        }
-        log.debug("Updating icon to state {}, location {}", newState, newLocation);
-        boolean showAvailableBubble = newState.equals(PersonState.AVAILABLE) && currentState.equals(PersonState.DO_NOT_DISTURB);
-        currentState = newState;
-        currentLocation = newLocation;
-        initialize(currentState, currentLocation);
-        if (showAvailableBubble) {
-            int requests = client.getNumberOfRequests();
-            showInfoBubble("You have gone Available." + (requests == 0 ? "" : (" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.")));
-        }
     }
 
-    private void dndStateAutoSwitchProcess() {
+    private void startDndAutoSwitchTimeoutProcedure() {
         //show bubble, add action to dismiss, start timer to autoswitch
-        showInfoBubble("Do Not Disturb will be set in 20 seconds. Click this bubble to dismiss.");
+        showInfoBubble("Do Not Disturb will be set in 20 seconds. Double-click this icon to dismiss.");
         final AutoDndSwitchWaitThread r = new AutoDndSwitchWaitThread();
         new Thread(r).start();
         final ActionListener[] actionListeners = trayIcon.getActionListeners();
@@ -336,6 +407,7 @@ class TrayIconManager {
 
                 @Override
                 public void run() {
+                    // try to send the (un)lock message until successful (due to limited connectivity of notebooks after unlock)
                     while (true) {
                         try {
                             client.returnFromAway(true);
@@ -355,11 +427,14 @@ class TrayIconManager {
             Thread t = new Thread(r);
             t.start();
             locked = false;
-            update();
+            updateFromServer();
         }
         log.debug("Session {}locked", lock ? "" : "un");
     }
 
+    /**
+     * Hides the GUI, switches to UNKNOWN state
+     */
     void close() {
         if (!RestClient.isServerOnline()) {
             System.exit(0);
@@ -373,15 +448,16 @@ class TrayIconManager {
      * The menu contains: <br />
      * - Exit button <br />
      * - Settings... button <br />
+     * - State autoswitch menu <br />
      * - "Disturbed by" menu <br />
      * - Set location... button <br />
      * - Go to web page ... button <br />
      * - Buttons to switch to all states from PersonState enum <br />
-     * The button for current state is in bold. The buttons for currently
-     * unavailable states are disabled. For each disabled button there is a
-     * check box item to switch to the state as soon as possible. These switches
-     * have to be done elsewhere in code. States buttons are saved in map
-     * stateItems. Check box items are saved in map chkBoxStateItems.
+ The button for current state is in bold. The buttons for currently
+ unavailable states are disabled. For each disabled button there is a
+ check box item to switch to the state as soon as possible. These switches
+ have to be done elsewhere in code. States buttons are saved in map
+ statesMenuItems. Check box items are saved in map chkBoxStateItems.
      *
      * @param currentState
      * @param currentLocation
@@ -413,14 +489,14 @@ class TrayIconManager {
         popup.add(settingsItem);
 
         Menu dndSwitchMenu = new Menu("Automatically switch to " + PersonState.DO_NOT_DISTURB.getDisplayName());
-        boolean chkBoxDndChecked = dndChkboxMenuItem != null && dndChkboxMenuItem.getState() && !Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH);
-        dndChkboxMenuItem = new CheckboxMenuItem("next time when possible", chkBoxDndChecked);
-        dndSwitchMenu.add(dndChkboxMenuItem);
+        boolean chkBoxDndChecked = dndSwitchOnceChkboxMenuItem != null && dndSwitchOnceChkboxMenuItem.getState() && !Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH);
+        dndSwitchOnceChkboxMenuItem = new CheckboxMenuItem("next time when possible", chkBoxDndChecked);
+        dndSwitchMenu.add(dndSwitchOnceChkboxMenuItem);
         final CheckboxMenuItem dndAlwaysChkboxMenuItem = new CheckboxMenuItem("always when possible", Configuration.getInstance().getBooleanProperty(Property.STATE_AUTO_SWITCH));
         if (dndAlwaysChkboxMenuItem.getState()) {
-            dndChkboxMenuItem.setState(false);
+            dndSwitchOnceChkboxMenuItem.setState(false);
         }
-        dndChkboxMenuItem.addItemListener(new ItemListener() {
+        dndSwitchOnceChkboxMenuItem.addItemListener(new ItemListener() {
 
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -442,7 +518,7 @@ class TrayIconManager {
             public void itemStateChanged(ItemEvent e) {
                 boolean selected = e.getStateChange() == ItemEvent.SELECTED;
                 if (selected) {
-                    dndChkboxMenuItem.setState(false);
+                    dndSwitchOnceChkboxMenuItem.setState(false);
                 }
                 Configuration.getInstance().setProperty(Property.STATE_AUTO_SWITCH, String.valueOf(selected));
                 //switch right away if possible
@@ -452,7 +528,6 @@ class TrayIconManager {
             }
         });
         dndSwitchMenu.add(dndAlwaysChkboxMenuItem);
-
         popup.add(dndSwitchMenu);
 
         popup.addSeparator();
@@ -489,7 +564,6 @@ class TrayIconManager {
             popup.add(disturbanceMenu);
 
             MenuItem browserMenuItem = new MenuItem("Go to web page...");
-
             browserMenuItem.addActionListener(new ActionListener() {
 
                 @Override
@@ -506,6 +580,7 @@ class TrayIconManager {
 
             popup.addSeparator();
 
+            // Location menu items
             int i = 1;
             boolean checked = false;
             for (final PersonLocation location : PersonLocation.values()) {
@@ -526,9 +601,9 @@ class TrayIconManager {
                     break;
                 }
             }
-            String locationStr = (currentLocation == null || currentLocation.isEmpty()
-                    ? ""
-                    : (" (" + currentLocation.substring(0, currentLocation.length() > 15 ? 15 : currentLocation.length()) + ")"));
+            String locationStr = currentLocation != null && !currentLocation.isEmpty()
+                    ? " (" + currentLocation.substring(0, currentLocation.length() > 15 ? 15 : currentLocation.length()) + ")"
+                    : "";
             final CheckboxMenuItem locationMenuItem = new CheckboxMenuItem("Other location " + (checked ? "" : locationStr) + "...", !checked);
             locationMenuItem.addItemListener(new ItemListener() {
                 @Override
@@ -541,93 +616,17 @@ class TrayIconManager {
 
             popup.addSeparator();
 
+            // States menu items
             Configuration conf = Configuration.getInstance();
-            final Long dndMaxTime = client.getDndMax();
-            final Long dndDefaultTime = conf.getLongProperty(Property.DND_DEFAULT_PERIOD);
-            final Long dndLastTime = conf.getLongProperty(Property.DND_LAST_PERIOD);
             final CheckboxMenuItem availableItem = new CheckboxMenuItem(PersonState.AVAILABLE.getDisplayName());
             final CheckboxMenuItem dndDefaultItem = new CheckboxMenuItem(PersonState.DO_NOT_DISTURB.getDisplayName());
             if (currentState.equals(PersonState.AVAILABLE)) {
-                makeStateItemChosen(availableItem);
-                if (client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-                    MenuItem dndCustomItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for...");
-                    dndCustomItem.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            dndCustomPeriodFrame.requestPeriodAndSwitchToDnd(dndDefaultTime, dndMaxTime);
-                        }
-                    });
-                    popup.add(dndCustomItem);
-                    dndDefaultItem.addItemListener(new ItemListener() {
-
-                        @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            if (e.getStateChange() == ItemEvent.DESELECTED) {
-                                dndDefaultItem.setState(true);
-                                return;
-                            }
-                            // the order is important here
-                            Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, dndDefaultTime.toString());
-                            changeToDndState(dndDefaultTime);
-                        }
-                    });
-                    if (!Objects.equals(dndDefaultTime, dndLastTime)) {
-                        MenuItem dndLastItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + dndLastTime / 60000 + " min.");
-
-                        dndLastItem.addActionListener(new ActionListener() {
-
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                // the order is important here
-                                changeToDndState(dndLastTime);
-                            }
-                        });
-                        popup.add(dndLastItem);
-                    }
-                    dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + dndDefaultTime / 60000 + " min.");
-                } else {
-                    dndDefaultItem.setEnabled(false);
-                    Long current = new Date().getTime();
-                    Long start = client.getDndStart();
-                    dndDefaultItem.setLabel(dndDefaultItem.getLabel() + " (in " + ((start - current) / 60000) + " min.)");
-                }
+                initMenuItemsAvailable(availableItem, popup, dndDefaultItem);
             } else if (currentState.equals(PersonState.DO_NOT_DISTURB)) {
-                makeStateItemChosen(dndDefaultItem);
-                Long current = new Date().getTime();
-                Long end = client.getDndEnd();
-                dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + ((end - current) / 60000) + " min.)");
-                Long diff = (dndMaxTime - dndLastTime) / 60000; //in minutes
-                if (diff > 0) {
-                    final MenuItem addDndTimeMenuItem = new MenuItem("Add " + (diff > 10 ? "10" : diff) + " min. to " + PersonState.DO_NOT_DISTURB.getDisplayName());
-                    addDndTimeMenuItem.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            long dndLastTime = Configuration.getInstance().getLongProperty(Property.DND_LAST_PERIOD);
-                            long extraTime = dndMaxTime - dndLastTime;
-                            long addTime = extraTime > 600000 ? 600000 : extraTime;
-                            Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, String.valueOf(dndLastTime + addTime));
-                            client.addDndTime(addTime);
-                            extraTime = extraTime - addTime;
-                            if (extraTime < 600000) {
-                                // we need to refresh the menu to get the new period into the label and ActionEvent
-                                trayIcon.setPopupMenu(createMenu(getCurrentState(), getCurrentLocation()));
-                            }
-                        }
-                    });
-                    popup.add(addDndTimeMenuItem);
-                }
-                availableItem.addItemListener(new ItemListener() {
-
-                    @Override
-                    public void itemStateChanged(ItemEvent e) {
-                        changeState(PersonState.AVAILABLE);
-                    }
-                });
+                initMenuItemsDnd(dndDefaultItem, popup, availableItem);
             }
-            stateItems.put(PersonState.DO_NOT_DISTURB, dndDefaultItem);
-            stateItems.put(PersonState.AVAILABLE, availableItem);
+            statesMenuItems.put(PersonState.DO_NOT_DISTURB, dndDefaultItem);
+            statesMenuItems.put(PersonState.AVAILABLE, availableItem);
             popup.add(dndDefaultItem);
             popup.add(availableItem);
         } else {
@@ -636,6 +635,96 @@ class TrayIconManager {
             popup.add(item);
         }
         return popup;
+    }
+
+    private void initMenuItemsDnd(final CheckboxMenuItem dndDefaultItem, PopupMenu popup, final CheckboxMenuItem availableItem) throws HeadlessException {
+        final Long dndLastTime = Configuration.getInstance().getLongProperty(Property.DND_LAST_PERIOD);
+        final Long dndMaxTime = client.getDndMax();
+        makeStateItemChosen(dndDefaultItem);
+        Long current = new Date().getTime();
+        Long end = client.getDndEnd();
+        dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + millisToMins(end - current) + " min.)");
+        Long diff = millisToMins(dndMaxTime - dndLastTime); //difference between current and maximal time spent in DND state
+        
+        // if it is possible to prolong the DND period
+        if (diff > 0) {
+            final MenuItem addDndTimeMenuItem = new MenuItem("Add " + (diff > 10 ? "10" : diff) + " min. to " + PersonState.DO_NOT_DISTURB.getDisplayName());
+            addDndTimeMenuItem.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    long dndLastTime = Configuration.getInstance().getLongProperty(Property.DND_LAST_PERIOD);
+                    long extraTime = dndMaxTime - dndLastTime;
+                    long addTime = extraTime > 600000 ? 600000 : extraTime;
+                    Configuration.getInstance().setProperty(Property.DND_LAST_PERIOD, String.valueOf(dndLastTime + addTime));
+                    client.addDndTime(addTime);
+                    extraTime = extraTime - addTime;
+                    if (extraTime < 600000) {
+                        // we need to refresh the menu to get the new period into the label and ActionEvent
+                        trayIcon.setPopupMenu(createMenu(getCurrentState(), getCurrentLocation()));
+                    }
+                }
+            });
+            popup.add(addDndTimeMenuItem);
+        }
+        availableItem.addItemListener(new ItemListener() {
+            
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                changeState(PersonState.AVAILABLE);
+            }
+        });
+    }
+
+    private void initMenuItemsAvailable(final CheckboxMenuItem availableItem, PopupMenu popup, final CheckboxMenuItem dndDefaultItem) throws HeadlessException {
+        final Configuration conf = Configuration.getInstance();
+        final Long dndDefaultTime = conf.getLongProperty(Property.DND_DEFAULT_PERIOD);
+        final Long dndLastTime = conf.getLongProperty(Property.DND_LAST_PERIOD);
+        final Long dndMaxTime = client.getDndMax();
+        makeStateItemChosen(availableItem);
+        if (client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
+            MenuItem dndCustomItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for...");
+            dndCustomItem.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dndCustomPeriodFrame.requestPeriodAndSwitchToDnd(dndDefaultTime, dndMaxTime);
+                }
+            });
+            popup.add(dndCustomItem);
+            dndDefaultItem.addItemListener(new ItemListener() {
+                
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.DESELECTED) {
+                        dndDefaultItem.setState(true);
+                        return;
+                    }
+                    // the order is important here
+                    conf.setProperty(Property.DND_LAST_PERIOD, dndDefaultTime.toString());
+                    changeToDndState(dndDefaultTime);
+                }
+            });
+            if (!Objects.equals(dndDefaultTime, dndLastTime)) {
+                MenuItem dndLastItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + millisToMins(dndLastTime) + " min.");
+                
+                dndLastItem.addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // the order is important here
+                        changeToDndState(dndLastTime);
+                    }
+                });
+                popup.add(dndLastItem);
+            }
+            dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + dndDefaultTime / 60000 + " min.");
+        } else {
+            dndDefaultItem.setEnabled(false);
+            Long current = new Date().getTime();
+            Long start = client.getDndStart();
+            dndDefaultItem.setLabel(dndDefaultItem.getLabel() + " (in " + millisToMins(start - current) + " min.)");
+        }
     }
 
     private void makeStateItemChosen(final CheckboxMenuItem item) {
@@ -672,36 +761,44 @@ class TrayIconManager {
         }
     }
 
+    /**
+     * This method should be called when change of state is initiated by client application (not server).
+     * @param state 
+     */
     private synchronized void changeState(PersonState state) {
+        if (beforeStateChangeActions(state, "-")) return;
+        PersonState newStateByServer = client.setState(state);
+        afterStateChangeActions(newStateByServer, state);
+    }
+
+    /**
+     * This method should be called when change of state to DND is initiated by client
+     * application (not server).
+     * @param period 
+     */
+    private synchronized void changeToDndState(Long period) {
+        if (beforeStateChangeActions(PersonState.DO_NOT_DISTURB, String.valueOf(period)));
+        PersonState newStateByServer = client.setDndState(period);
+        afterStateChangeActions(newStateByServer, PersonState.DO_NOT_DISTURB);
+    }
+    
+    private boolean beforeStateChangeActions(PersonState state, String period) {
         log.info("State change request by user -> " + state);
         if (state.equals(currentState)) {
-            return;
+            return true;
         }
-        log.debug("User switched state to " + state);
+        log.debug("User switched state to {} for {} ms", state, period);
         if (!client.isStateChangePossible(state)) {
             showErrorBubble("Unable to switch to " + state.getDisplayName());
             log.warn("Attempt to switch to state {} unsuccessfull.", state.getDisplayName());
         }
-        PersonState newStateByServer = client.setState(state);
+        return false;
+    }
+    
+    private void afterStateChangeActions(PersonState newStateByServer, PersonState state) {
         log.info("Server returned state " + newStateByServer + " after user switched state to " + state);
         currentState = newStateByServer;
-        initialize(currentState, currentLocation);
-    }
-
-    private synchronized void changeToDndState(Long period) {
-        log.info("State change request by user -> DND {}", period);
-        if (PersonState.DO_NOT_DISTURB.equals(currentState)) {
-            return;
-        }
-        log.debug("User switched state to DND for {}.", period);
-        if (!client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
-            showErrorBubble("Unable to switch to " + PersonState.DO_NOT_DISTURB.getDisplayName());
-            log.warn("Attempt to switch to state {} unsuccessfull.", PersonState.DO_NOT_DISTURB.getDisplayName());
-        }
-        PersonState newStateByServer = client.setDndState(period);
-        log.info("Server returned state " + newStateByServer + " after user switched state to " + PersonState.DO_NOT_DISTURB);
-        currentState = newStateByServer;
-        initialize(currentState, currentLocation);
+        initializeTrayIcon(currentState, currentLocation);
     }
 
     private TrayIcon createIcon(Image image) {
@@ -738,8 +835,8 @@ class TrayIconManager {
     }
 
     /**
-     * Displays a window with a field to input a new newLocation. If user
-     * confirms the location, sends the update to server.
+     * Displays a window with a field to input a new location. If user
+ confirms the location, sends the updateFromServer to server.
      */
     private void requestNewLocation(String currentLocation) {
         JComboBox combo = new JComboBox();
@@ -768,7 +865,7 @@ class TrayIconManager {
 
     /**
      * Displays a window with a field to input a new newLocation. If user
-     * confirms the location, sends the update to server.
+ confirms the location, sends the updateFromServer to server.
      */
     private void showSettings() {
         Configuration conf = Configuration.getInstance();
@@ -1004,7 +1101,7 @@ class TrayIconManager {
         }
 
         @SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated Code">
+        // <editor-fold defaultstate="collapsed" desc="initComponents">
         private void initComponents() {
 
             jLabel1 = new javax.swing.JLabel();
@@ -1155,7 +1252,6 @@ class TrayIconManager {
             pack();
         }// </editor-fold>
 
-        // Variables declaration - do not modify
         private javax.swing.JButton cancelButton;
         private javax.swing.JLabel jLabel1;
         private javax.swing.JLabel jLabel2;
@@ -1164,7 +1260,6 @@ class TrayIconManager {
         private javax.swing.JTextField periodTextField;
         private javax.swing.JButton plusButton;
         private javax.swing.JCheckBox saveAsDefaultCheckBox;
-        // End of variables declaration
     }
 
     private class UpdateIconMouseListener extends MouseAdapter {
@@ -1174,7 +1269,7 @@ class TrayIconManager {
         @Override
         public void mousePressed(MouseEvent e) {
             if (released) {
-                update();
+                updateFromServer();
                 released = false;
             }
         }
@@ -1186,6 +1281,9 @@ class TrayIconManager {
 
     }
 
+    /**
+     * Frame for displaying people available to be contacted.
+     */
     private class AvailableConsultersMessageFrame extends javax.swing.JFrame {
 
         private JLabel mainLabel;
@@ -1362,9 +1460,6 @@ class TrayIconManager {
             }
         }
 
-        /**
-         * @version 1.0 11/09/98
-         */
         private final class ButtonEditor extends DefaultCellEditor {
 
             protected JButton button;
@@ -1459,13 +1554,9 @@ class TrayIconManager {
             this.setVisible(show);
         }
 
-        /**
-         * This method is called from within the constructor to initialize the
-         * form. WARNING: Do NOT modify this code. The content of this method is
-         * always regenerated by the Form Editor.
-         */
+
         @SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated Code">
+        // <editor-fold defaultstate="collapsed" desc="initComponents">
         private void initComponents() {
 
             jLabel1 = new javax.swing.JLabel();
@@ -1675,7 +1766,6 @@ class TrayIconManager {
 
         }
 
-        // Variables declaration - do not modify
         private javax.swing.JButton jButtonNo;
         private javax.swing.JButton jButtonOk;
         private javax.swing.JButton jButtonYes;
@@ -1686,6 +1776,5 @@ class TrayIconManager {
         private javax.swing.JTextField jTextFieldMinutes;
         private javax.swing.JToggleButton jToggleButtonRemindLater;
         private javax.swing.JPanel jPanel2;
-        // End of variables declaration
     }
 }

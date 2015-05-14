@@ -15,6 +15,10 @@ import com.sun.jna.platform.win32.WinUser.WindowProc;
 import com.sun.jna.platform.win32.Wtsapi32;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author Timothy Wall
+ */
 public class WorkstationLockListener implements WindowProc {
 
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(WorkstationLockListener.class);
@@ -23,9 +27,6 @@ public class WorkstationLockListener implements WindowProc {
     private final WString windowClass;
     private final HMODULE hInst;
 
-    /**
-     * Instantiates a new win32 window test.
-     */
     public WorkstationLockListener() {
         // define new window class
         windowClass = new WString("MyWindowClass");

@@ -11,10 +11,6 @@ package eu.bato.anyoffice.trayapp.config;
  */
 public enum Property {
 
-    /**
-     * Interval of checking current state on server. Unit: milisecond Default:
-     * 10000
-     */
     CHECK_INTERVAL(PropertyType.LONG, "10000"),
     SERVER_ADDRESS(PropertyType.STRING, "http://localhost:8080"),
     WEB_ADDRESS(PropertyType.STRING, "http://localhost:8080"),
