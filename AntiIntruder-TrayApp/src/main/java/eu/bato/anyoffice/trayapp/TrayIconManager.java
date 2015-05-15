@@ -982,7 +982,7 @@ class TrayIconManager {
         } else {
             frame.dispose();
             JOptionPane.showMessageDialog(null, "No credentials were provided. Application will exit now.", "Cancelled", JOptionPane.WARNING_MESSAGE);
-            Main.programFinish();
+            System.exit(0);
             return null;
         }
     }
