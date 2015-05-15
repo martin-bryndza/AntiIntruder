@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
@@ -79,6 +74,7 @@ public class RestClient {
 
     /**
      * Sends a request to login to server.
+     *
      * @param credentials
      * @return true, if the authentication succeeded, false otherwise
      */
@@ -110,7 +106,9 @@ public class RestClient {
 
     /**
      * Gets the current state set on server.
-     * @return PersonState returned by server or PersonState.UNKNOWN if an error occured
+     *
+     * @return PersonState returned by server or PersonState.UNKNOWN if an error
+     * occured
      */
     PersonState getState() {
         ResponseEntity<String> response;
@@ -125,8 +123,9 @@ public class RestClient {
     }
 
     /**
-     * Sends a request to change state to server.
-     * The returned state may be different, because the server may reject the change.
+     * Sends a request to change state to server. The returned state may be
+     * different, because the server may reject the change.
+     *
      * @param state PersonState to set
      * @return the PersonState returned by server
      */
@@ -165,11 +164,13 @@ public class RestClient {
 
     /**
      * Sends request to server to prolong DND period.
+     *
      * @param millisToAdd milliseconds to add
-     * @return new end of DND period in milliseconds or null if an error occurred
+     * @return new end of DND period in milliseconds or null if an error
+     * occurred
      */
     Long addDndTime(Long millisToAdd) {
-        HttpEntity<String> entity = createEntity(millisToAdd);        
+        HttpEntity<String> entity = createEntity(millisToAdd);
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "adddnd", HttpMethod.PUT, entity, String.class);
@@ -182,7 +183,7 @@ public class RestClient {
     }
 
     /**
-     * 
+     *
      * @param toState
      * @return possibility to switch to state or false, if an error occurred
      */
@@ -200,7 +201,8 @@ public class RestClient {
 
     /**
      * Sends info to server info about machine unlock.
-     * @return Current state of person after machine unlock or 
+     *
+     * @return Current state of person after machine unlock or
      * PersonState.UNKNOWN, if an error occurred
      */
     PersonState returnFromAway() {
@@ -223,7 +225,9 @@ public class RestClient {
 
     /**
      * Gets location set on server.
-     * @return location returned by server or an empty string, if an error occurred
+     *
+     * @return location returned by server or an empty string, if an error
+     * occurred
      */
     String getLocation() {
         ResponseEntity<String> response;
@@ -239,6 +243,7 @@ public class RestClient {
 
     /**
      * Sends a request to server to set location.
+     *
      * @param location
      * @return true, if location was set successfully, false otherwise
      */
@@ -256,8 +261,9 @@ public class RestClient {
     }
 
     /**
-     * 
-     * @return number of newly requested consultations or zero, if an error occurred
+     *
+     * @return number of newly requested consultations or zero, if an error
+     * occurred
      */
     int getNumberOfRequests() {
         ResponseEntity<String> response;
@@ -272,7 +278,7 @@ public class RestClient {
     }
 
     /**
-     * 
+     *
      * @return number of people newly available for consultation
      */
     List<InteractionPerson> getNewAvailableConsulters() {
@@ -288,8 +294,9 @@ public class RestClient {
     }
 
     /**
-     * 
-     * @return time when next DND period will be available or 0, if an error occurred
+     *
+     * @return time when next DND period will be available or 0, if an error
+     * occurred
      */
     long getDndStart() {
         ResponseEntity<String> response;
@@ -304,8 +311,9 @@ public class RestClient {
     }
 
     /**
-     * 
-     * @return time, when the current DND period will end or the last DND period has ended, or 0, if an error occurred
+     *
+     * @return time, when the current DND period will end or the last DND period
+     * has ended, or 0, if an error occurred
      */
     long getDndEnd() {
         ResponseEntity<String> response;
@@ -320,7 +328,7 @@ public class RestClient {
     }
 
     /**
-     * 
+     *
      * @return maximum time possible for a DND period or 0, if an error occurred
      */
     long getDndMax() {
@@ -337,7 +345,9 @@ public class RestClient {
 
     /**
      * Sends request to server to note disturbance of the user
-     * @param aoUser true, if the disturber uses AnyOffice, false if not and null if the information is unavailable
+     *
+     * @param aoUser true, if the disturber uses AnyOffice, false if not and
+     * null if the information is unavailable
      */
     void noteDisturbance(Boolean aoUser) {
         HttpEntity<String> entity = createEntity(aoUser);
@@ -351,14 +361,15 @@ public class RestClient {
     }
 
     /**
-     * 
-     * @return true, if the last server request finished successfully, false otherwise
+     *
+     * @return true, if the last server request finished successfully, false
+     * otherwise
      */
     static boolean isServerOnline() {
         return serverOnline;
     }
-    
-    private HttpEntity<String> createEntity(Object bodyObject){
+
+    private HttpEntity<String> createEntity(Object bodyObject) {
         HttpEntity<String> entity = null;
         try {
             entity = new HttpEntity<>(new ObjectMapper().writeValueAsString(bodyObject), headers);

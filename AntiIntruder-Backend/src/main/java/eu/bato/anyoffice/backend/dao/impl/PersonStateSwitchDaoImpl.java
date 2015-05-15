@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.PersonStateSwitchDao;
@@ -22,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class PersonStateSwitchDaoImpl implements PersonStateSwitchDao{
+public class PersonStateSwitchDaoImpl implements PersonStateSwitchDao {
 
     @PersistenceContext
     private EntityManager em;
-    
+
     @Override
     public List<PersonStateSwitch> findRangeForUser(Long id, Date from, Date to) {
         TypedQuery<PersonStateSwitch> query = em.createQuery("SELECT tbl FROM StateSwitch tbl WHERE tbl.personId = :id AND tbl.time >= :from AND tbl.time < :to", PersonStateSwitch.class)
@@ -35,6 +29,6 @@ public class PersonStateSwitchDaoImpl implements PersonStateSwitchDao{
                 .setParameter("to", to);
         List<PersonStateSwitch> result = query.getResultList();
         return result;
-    }   
-    
+    }
+
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.core.person;
 
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
@@ -19,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Manages interactions of persons and entities.
+ *
  * @author bryndza
  */
 @Service

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
@@ -123,11 +118,9 @@ class TrayIconManager {
         }
     }
 
-    
     /**
-     * The same as getInstance.
-     * Method for semantical purposes.
-     * 
+     * The same as getInstance. Method for semantical purposes.
+     *
      * @return initialized TrayIconManager
      */
     static TrayIconManager initialize() {
@@ -149,6 +142,7 @@ class TrayIconManager {
 
     /**
      * Gets the current person state set in the GUI.
+     *
      * @return the currently set person state
      */
     public PersonState getCurrentState() {
@@ -157,6 +151,7 @@ class TrayIconManager {
 
     /**
      * Gets the current location set in the GUI.
+     *
      * @return the currently set location
      */
     private String getCurrentLocation() {
@@ -169,7 +164,9 @@ class TrayIconManager {
 
     /**
      * Initializes or reinitializes tray icon and its menu.
-     * @param currentState the person state, according to which the components will be initialized
+     *
+     * @param currentState the person state, according to which the components
+     * will be initialized
      * @param currentLocation the location to display in the menu
      */
     private synchronized void initializeTrayIcon(PersonState currentState, String currentLocation) {
@@ -204,7 +201,7 @@ class TrayIconManager {
         }
         trayIcon.setPopupMenu(createMenu(currentState, currentLocation));
         trayIcon.addMouseListener(updateIconMouseListener);
-        
+
         //on double click display state switch message or information about remaining time
         trayIcon.addActionListener(new ActionListener() {
 
@@ -233,7 +230,8 @@ class TrayIconManager {
     }
 
     /**
-     * Checks server for updates of person state and location, and updates the GUI accordingly.
+     * Checks server for updates of person state and location, and updates the
+     * GUI accordingly.
      */
     synchronized void updateFromServer() {
         // to prevent several requests to unreachable server
@@ -242,9 +240,9 @@ class TrayIconManager {
             initializeTrayIcon(currentState, currentLocation);
             return;
         }
-        
+
         MenuItem dnd = statesMenuItems.get(PersonState.DO_NOT_DISTURB);
-        boolean wasDndAvailable = dnd != null && dnd.isEnabled();        
+        boolean wasDndAvailable = dnd != null && dnd.isEnabled();
         //if DND is newly available
         if (!wasDndAvailable && client.isStateChangePossible(PersonState.DO_NOT_DISTURB) && currentState.equals(PersonState.AVAILABLE)) {
             initializeTrayIcon(currentState, currentLocation);
@@ -260,9 +258,9 @@ class TrayIconManager {
                 showInfoBubble(PersonState.DO_NOT_DISTURB.getDisplayName() + " state is possible now.");
             }
         }
-        
+
         PersonState newState = client.getState();
-        
+
         //if for some reason server thinks that client is offline or locked
         if (newState.equals(PersonState.UNKNOWN) || (newState.equals(PersonState.AWAY) && !locked)) {
             log.warn("Server returned {} state and the machine is {}locked. Sending machine unlock message...", newState, locked ? "" : "not ");
@@ -270,13 +268,13 @@ class TrayIconManager {
             lock(locked);
             return; // updateFromServer is called again in the lock method
         }
-        
+
         String newLocation = client.getLocation();
-        
+
         showPendingConsultationsPopup(newState);
-        
+
         Long current = new Date().getTime();
-        
+
         //change tool tip message of tray icon and states menu items accordingly (due to elapsed time)
         if (newState.equals(PersonState.DO_NOT_DISTURB)) {
             Long end = client.getDndEnd() - current;
@@ -293,12 +291,12 @@ class TrayIconManager {
         } else {
             trayIcon.setToolTip(newState.getDescription());
         }
-        
+
         //check if any change of visual components is necessary
         if (newState.equals(currentState) && newLocation.equals(currentLocation)) {
             return;
         }
-        
+
         log.debug("Updating icon to state {}, location {}", newState, newLocation);
         boolean showAvailableBubble = newState.equals(PersonState.AVAILABLE) && currentState.equals(PersonState.DO_NOT_DISTURB);
         currentState = newState;
@@ -307,15 +305,15 @@ class TrayIconManager {
         //show bubble after the icon has been reinitialized, otherwise it would be closed by the reinitialization
         if (showAvailableBubble) {
             int requests = client.getNumberOfRequests();
-            String requestsMsg = requests != 0 
+            String requestsMsg = requests != 0
                     ? (" You have " + requests + " pending " + toPlural("request", requests) + " for consultation.")
                     : "";
             showInfoBubble("You have gone Available." + requestsMsg);
         }
     }
-    
-    private static String toPlural(String string, int count){
-        return string + (count > 1 ? "s":"");
+
+    private static String toPlural(String string, int count) {
+        return string + (count > 1 ? "s" : "");
     }
 
     private static long millisToMins(Long end) {
@@ -453,11 +451,11 @@ class TrayIconManager {
      * - Set location... button <br />
      * - Go to web page ... button <br />
      * - Buttons to switch to all states from PersonState enum <br />
- The button for current state is in bold. The buttons for currently
- unavailable states are disabled. For each disabled button there is a
- check box item to switch to the state as soon as possible. These switches
- have to be done elsewhere in code. States buttons are saved in map
- statesMenuItems. Check box items are saved in map chkBoxStateItems.
+     * The button for current state is in bold. The buttons for currently
+     * unavailable states are disabled. For each disabled button there is a
+     * check box item to switch to the state as soon as possible. These switches
+     * have to be done elsewhere in code. States buttons are saved in map
+     * statesMenuItems. Check box items are saved in map chkBoxStateItems.
      *
      * @param currentState
      * @param currentLocation
@@ -645,12 +643,12 @@ class TrayIconManager {
         Long end = client.getDndEnd();
         dndDefaultItem.setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + millisToMins(end - current) + " min.)");
         Long diff = millisToMins(dndMaxTime - dndLastTime); //difference between current and maximal time spent in DND state
-        
+
         // if it is possible to prolong the DND period
         if (diff > 0) {
             final MenuItem addDndTimeMenuItem = new MenuItem("Add " + (diff > 10 ? "10" : diff) + " min. to " + PersonState.DO_NOT_DISTURB.getDisplayName());
             addDndTimeMenuItem.addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     long dndLastTime = Configuration.getInstance().getLongProperty(Property.DND_LAST_PERIOD);
@@ -668,7 +666,7 @@ class TrayIconManager {
             popup.add(addDndTimeMenuItem);
         }
         availableItem.addItemListener(new ItemListener() {
-            
+
             @Override
             public void itemStateChanged(ItemEvent e) {
                 changeState(PersonState.AVAILABLE);
@@ -685,7 +683,7 @@ class TrayIconManager {
         if (client.isStateChangePossible(PersonState.DO_NOT_DISTURB)) {
             MenuItem dndCustomItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for...");
             dndCustomItem.addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dndCustomPeriodFrame.requestPeriodAndSwitchToDnd(dndDefaultTime, dndMaxTime);
@@ -693,7 +691,7 @@ class TrayIconManager {
             });
             popup.add(dndCustomItem);
             dndDefaultItem.addItemListener(new ItemListener() {
-                
+
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     if (e.getStateChange() == ItemEvent.DESELECTED) {
@@ -707,9 +705,9 @@ class TrayIconManager {
             });
             if (!Objects.equals(dndDefaultTime, dndLastTime)) {
                 MenuItem dndLastItem = new MenuItem(PersonState.DO_NOT_DISTURB.getDisplayName() + " for " + millisToMins(dndLastTime) + " min.");
-                
+
                 dndLastItem.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         // the order is important here
@@ -762,26 +760,31 @@ class TrayIconManager {
     }
 
     /**
-     * This method should be called when change of state is initiated by client application (not server).
-     * @param state 
+     * This method should be called when change of state is initiated by client
+     * application (not server).
+     *
+     * @param state
      */
     private synchronized void changeState(PersonState state) {
-        if (beforeStateChangeActions(state, "-")) return;
+        if (beforeStateChangeActions(state, "-")) {
+            return;
+        }
         PersonState newStateByServer = client.setState(state);
         afterStateChangeActions(newStateByServer, state);
     }
 
     /**
-     * This method should be called when change of state to DND is initiated by client
-     * application (not server).
-     * @param period 
+     * This method should be called when change of state to DND is initiated by
+     * client application (not server).
+     *
+     * @param period
      */
     private synchronized void changeToDndState(Long period) {
         if (beforeStateChangeActions(PersonState.DO_NOT_DISTURB, String.valueOf(period)));
         PersonState newStateByServer = client.setDndState(period);
         afterStateChangeActions(newStateByServer, PersonState.DO_NOT_DISTURB);
     }
-    
+
     private boolean beforeStateChangeActions(PersonState state, String period) {
         log.info("State change request by user -> " + state);
         if (state.equals(currentState)) {
@@ -794,7 +797,7 @@ class TrayIconManager {
         }
         return false;
     }
-    
+
     private void afterStateChangeActions(PersonState newStateByServer, PersonState state) {
         log.info("Server returned state " + newStateByServer + " after user switched state to " + state);
         currentState = newStateByServer;
@@ -835,8 +838,8 @@ class TrayIconManager {
     }
 
     /**
-     * Displays a window with a field to input a new location. If user
- confirms the location, sends the updateFromServer to server.
+     * Displays a window with a field to input a new location. If user confirms
+     * the location, sends the updateFromServer to server.
      */
     private void requestNewLocation(String currentLocation) {
         JComboBox combo = new JComboBox();
@@ -865,7 +868,7 @@ class TrayIconManager {
 
     /**
      * Displays a window with a field to input a new newLocation. If user
- confirms the location, sends the updateFromServer to server.
+     * confirms the location, sends the updateFromServer to server.
      */
     private void showSettings() {
         Configuration conf = Configuration.getInstance();
@@ -1553,7 +1556,6 @@ class TrayIconManager {
             this.setAlwaysOnTop(show);
             this.setVisible(show);
         }
-
 
         @SuppressWarnings("unchecked")
         // <editor-fold defaultstate="collapsed" desc="initComponents">

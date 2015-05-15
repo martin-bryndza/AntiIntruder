@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
 import eu.bato.anyoffice.backend.model.PersonStateSwitch;
@@ -16,7 +10,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PersonStateSwitchConvert {
-    
+
     public static PersonStateSwitch fromDtoToEntity(PersonStateSwitchDto dto) {
         if (dto == null) {
             return null;
@@ -38,5 +32,5 @@ public class PersonStateSwitchConvert {
         dto.setTime(entity.getTime());
         return dto;
     }
-    
+
 }

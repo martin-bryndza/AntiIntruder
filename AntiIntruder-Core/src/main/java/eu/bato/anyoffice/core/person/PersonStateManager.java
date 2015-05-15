@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.core.person;
 
 import eu.bato.anyoffice.core.config.Configuration;
@@ -36,11 +31,13 @@ public class PersonStateManager {
     HipChatClient hipChatClient;
 
     /**
-     * Validates the change of the state and sets the new person state if possible
+     * Validates the change of the state and sets the new person state if
+     * possible
+     *
      * @param username
      * @param state
      * @param force
-     * @return 
+     * @return
      */
     public PersonState setState(String username, PersonState state, boolean force) {
         PersonState checkState = beforeSwitchCheck(username, state, force);

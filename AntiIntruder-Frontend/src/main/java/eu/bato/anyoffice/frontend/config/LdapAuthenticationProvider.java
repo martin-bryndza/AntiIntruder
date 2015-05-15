@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.frontend.config;
 
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
@@ -29,27 +24,27 @@ import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAu
  * @author bryndza
  */
 public class LdapAuthenticationProvider implements AuthenticationProvider {
-    
+
     private static final String LDAP_DOMAIN = "ldap.domain";
     private static final String LDAP_URL = "ldap.url";
-    private static final String LDAP_ROOT_DN = "ldap.rootDn";    
+    private static final String LDAP_ROOT_DN = "ldap.rootDn";
 
     private static final Logger log = LoggerFactory.getLogger(LdapAuthenticationProvider.class);
 
     private static AuthenticationProvider ap;
     private static final StandardPasswordEncoder encoder = new StandardPasswordEncoder();
-    
+
     @Autowired
     private PersonService personService;
 
     @Autowired
     private Environment environment;
-    
+
     public LdapAuthenticationProvider() {
-        
+
     }
-    
-    public void initialize(){
+
+    public void initialize() {
         String domain = environment.getProperty(LDAP_DOMAIN, "2008r2ad.test");
         String url = environment.getProperty(LDAP_URL, "ldap://10.0.10.170");
         String rootDn = environment.getProperty(LDAP_ROOT_DN, "DC=2008r2ad,DC=test");

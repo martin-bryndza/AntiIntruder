@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package eu.bato.anyoffice.frontend.web.data;
 
 /**
@@ -11,7 +5,7 @@ package eu.bato.anyoffice.frontend.web.data;
  * @author bryndza
  */
 public enum PersonLocation {
-    
+
     MY_PLACE("My place"),
     RELAX_BRNO("Relax room Brno"),
     RELAX_PRAGUE("Relax room Prague"),
@@ -25,7 +19,7 @@ public enum PersonLocation {
     ROBOT("Robot room"),
     CSS("CSS office"),
     OTHER("Other");
-    
+
     private String name;
 
     private PersonLocation(String name) {
@@ -39,7 +33,5 @@ public enum PersonLocation {
     public void setName(String name) {
         this.name = name;
     }
-    
-    
-    
+
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.backend.model;
 
 import java.util.Calendar;
@@ -13,7 +8,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * Entity prepared to represent any other entity than person (e.g. printers, public notebooks, books etc.)
+ * Entity prepared to represent any other entity than person (e.g. printers,
+ * public notebooks, books etc.)
+ *
  * @author Bato
  */
 @javax.persistence.Entity

@@ -1,13 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
 import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.serviceapi.dto.InteractionResourceDto;
-import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
 import org.springframework.stereotype.Component;
 
 /**

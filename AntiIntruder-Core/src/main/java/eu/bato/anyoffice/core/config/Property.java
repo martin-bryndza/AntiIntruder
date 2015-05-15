@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.bato.anyoffice.core.config;
 
 /**
@@ -31,15 +26,14 @@ public enum Property {
      */
     PERSON_STATE_CHECK_INTERVAL(PropertyType.LONG, "10000"),
     /**
-     * If client app of a person does not ping server within this time and person is not in state AWAY, person state is set to UNKOWN
-     * Unit: milliseconds
-     * Default: 3600000 (1 hour)
+     * If client app of a person does not ping server within this time and
+     * person is not in state AWAY, person state is set to UNKOWN Unit:
+     * milliseconds Default: 3600000 (1 hour)
      */
     MAXIMUM_PING_DELAY(PropertyType.LONG, "3600000"),
     /**
-     * If client app of a person does not ping server within this time, person state is set to UNKOWN
-     * Unit: milliseconds
-     * Default: 10800000 (3 hours)
+     * If client app of a person does not ping server within this time, person
+     * state is set to UNKOWN Unit: milliseconds Default: 10800000 (3 hours)
      */
     MAXIMUM_AWAY_PING_DELAY(PropertyType.LONG, "10800000");
 
