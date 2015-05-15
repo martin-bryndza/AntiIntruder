@@ -5,7 +5,7 @@ import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.model.ConsultationRequest;
 import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.backend.model.StateSwitch;
+import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.Collection;
 import java.util.Date;
@@ -138,7 +138,7 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     private void noteStateSwitch(Long personId, PersonState state) {
-        StateSwitch sSwitch = new StateSwitch();
+        PersonStateSwitch sSwitch = new PersonStateSwitch();
         sSwitch.setPersonId(personId);
         sSwitch.setState(state);
         sSwitch.setTime(new Date());

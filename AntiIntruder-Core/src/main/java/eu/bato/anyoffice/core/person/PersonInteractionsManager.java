@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * Manages interactions of persons and entities.
  * @author bryndza
  */
 @Service

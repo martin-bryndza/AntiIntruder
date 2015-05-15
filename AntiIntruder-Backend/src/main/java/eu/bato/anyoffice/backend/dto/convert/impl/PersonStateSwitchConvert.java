@@ -6,8 +6,8 @@
 
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
-import eu.bato.anyoffice.backend.model.StateSwitch;
-import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
+import eu.bato.anyoffice.backend.model.PersonStateSwitch;
+import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,24 +15,24 @@ import org.springframework.stereotype.Component;
  * @author bryndza
  */
 @Component
-public class StateSwitchConvert {
+public class PersonStateSwitchConvert {
     
-    public static StateSwitch fromDtoToEntity(StateSwitchDto dto) {
+    public static PersonStateSwitch fromDtoToEntity(PersonStateSwitchDto dto) {
         if (dto == null) {
             return null;
         }
-        StateSwitch e = new StateSwitch();
+        PersonStateSwitch e = new PersonStateSwitch();
         e.setPersonId(dto.getPersonId());
         e.setState(dto.getState());
         e.setTime(dto.getTime());
         return e;
     }
 
-    public static StateSwitchDto fromEntityToDto(StateSwitch entity) {
+    public static PersonStateSwitchDto fromEntityToDto(PersonStateSwitch entity) {
         if (entity == null) {
             return null;
         }
-        StateSwitchDto dto = new StateSwitchDto();
+        PersonStateSwitchDto dto = new PersonStateSwitchDto();
         dto.setPersonId(entity.getPersonId());
         dto.setState(entity.getState());
         dto.setTime(entity.getTime());

@@ -4,6 +4,11 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * DTO prepared to represent any other entity than person (e.g. printers,
+ * public notebooks, books etc.)
+ * @author Bato
+ */
 public class ResourceDto extends EntityDto {
 
     private Long stateId;

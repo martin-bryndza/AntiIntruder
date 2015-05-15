@@ -35,6 +35,13 @@ public class PersonStateManager {
     @Autowired
     HipChatClient hipChatClient;
 
+    /**
+     * Validates the change of the state and sets the new person state if possible
+     * @param username
+     * @param state
+     * @param force
+     * @return 
+     */
     public PersonState setState(String username, PersonState state, boolean force) {
         PersonState checkState = beforeSwitchCheck(username, state, force);
         if (checkState != null) {

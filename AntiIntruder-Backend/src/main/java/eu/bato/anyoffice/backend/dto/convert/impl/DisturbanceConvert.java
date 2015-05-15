@@ -7,9 +7,9 @@
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
 import eu.bato.anyoffice.backend.model.Disturbance;
-import eu.bato.anyoffice.backend.model.StateSwitch;
+import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.serviceapi.dto.DisturbanceDto;
-import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
+import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
 import org.springframework.stereotype.Component;
 
 /**

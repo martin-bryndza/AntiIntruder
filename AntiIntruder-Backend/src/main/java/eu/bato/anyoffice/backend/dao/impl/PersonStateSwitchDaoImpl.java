@@ -6,8 +6,8 @@
 
 package eu.bato.anyoffice.backend.dao.impl;
 
-import eu.bato.anyoffice.backend.dao.StateSwitchDao;
-import eu.bato.anyoffice.backend.model.StateSwitch;
+import eu.bato.anyoffice.backend.dao.PersonStateSwitchDao;
+import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -22,18 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class StateSwitchDaoImpl implements StateSwitchDao{
+public class PersonStateSwitchDaoImpl implements PersonStateSwitchDao{
 
     @PersistenceContext
     private EntityManager em;
     
     @Override
-    public List<StateSwitch> findRangeForUser(Long id, Date from, Date to) {
-        TypedQuery<StateSwitch> query = em.createQuery("SELECT tbl FROM StateSwitch tbl WHERE tbl.personId = :id AND tbl.time >= :from AND tbl.time < :to", StateSwitch.class)
+    public List<PersonStateSwitch> findRangeForUser(Long id, Date from, Date to) {
+        TypedQuery<PersonStateSwitch> query = em.createQuery("SELECT tbl FROM StateSwitch tbl WHERE tbl.personId = :id AND tbl.time >= :from AND tbl.time < :to", PersonStateSwitch.class)
                 .setParameter("id", id)
                 .setParameter("from", from)
                 .setParameter("to", to);
-        List<StateSwitch> result = query.getResultList();
+        List<PersonStateSwitch> result = query.getResultList();
         return result;
     }   
     

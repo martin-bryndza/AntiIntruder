@@ -8,7 +8,7 @@ package eu.bato.anyoffice.frontend.web.controllers;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
-import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
+import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -91,7 +91,7 @@ public class GraphController extends CommonController {
      * @return
      */
     private State[] computeStates(String username, Date from, Date to) {
-        List<StateSwitchDto> stateSwitches = personService.getStateSwitches(username, from, to);
+        List<PersonStateSwitchDto> stateSwitches = personService.getStateSwitches(username, from, to);
         if (stateSwitches.isEmpty()) {
             return new State[0];
         }
@@ -102,7 +102,7 @@ public class GraphController extends CommonController {
         Long previous = from.getTime() + 60000;
         states[1] = new State(PersonState.UNKNOWN);
         int i = 2;
-        for (StateSwitchDto swich : stateSwitches) {
+        for (PersonStateSwitchDto swich : stateSwitches) {
             states[i - 1].data = (swich.getTime().getTime() - previous);
             states[i++] = new State(swich.getState());
             previous = swich.getTime().getTime();

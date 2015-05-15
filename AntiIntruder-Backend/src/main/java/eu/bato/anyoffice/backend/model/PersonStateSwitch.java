@@ -20,7 +20,7 @@ import javax.persistence.Id;
  * @author bryndza
  */
 @javax.persistence.Entity
-public class StateSwitch {
+public class PersonStateSwitch {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -80,7 +80,7 @@ public class StateSwitch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final StateSwitch other = (StateSwitch) obj;
+        final PersonStateSwitch other = (PersonStateSwitch) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }

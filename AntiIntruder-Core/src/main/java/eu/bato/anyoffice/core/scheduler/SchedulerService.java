@@ -25,25 +25,13 @@ public class SchedulerService {
 
     public void start() {
         Timer t = new Timer();
-        Long period = Configuration.getInstance().getLongProperty(Property.STATE_CHECK_INTERVAL);
-        if (period <= 0) {
-            log.info("Scheduler service for states check is disabled.");
-        } else {
-            t.schedule(stateCheckTask(), 0, period);
-            log.info("Scheduler service for states check started with interval " + period);
-        }
-        period = Configuration.getInstance().getLongProperty(Property.PERSON_STATE_CHECK_INTERVAL);
+        Long period = Configuration.getInstance().getLongProperty(Property.PERSON_STATE_CHECK_INTERVAL);
         if (period <= 0) {
             log.info("Scheduler service for people's states check is disabled.");
         } else {
             t.schedule(personStateCheckTask(), period, period);
             log.info("Scheduler service for people's states check started with interval " + period);
         }
-    }
-
-    @Bean
-    public StateCheckTask stateCheckTask() {
-        return new StateCheckTask();
     }
 
     @Bean

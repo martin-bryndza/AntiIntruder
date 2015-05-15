@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- *
+ * Entity prepared to represent any other entity than person (e.g. printers, public notebooks, books etc.)
  * @author Bato
  */
 @javax.persistence.Entity

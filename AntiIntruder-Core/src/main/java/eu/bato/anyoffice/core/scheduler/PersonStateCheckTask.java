@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- *
+ * Task to regularly check validity of states of users.
  * @author Bato
  */
 public class PersonStateCheckTask extends TimerTask {

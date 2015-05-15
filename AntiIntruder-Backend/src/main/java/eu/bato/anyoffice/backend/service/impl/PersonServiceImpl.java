@@ -7,16 +7,16 @@ package eu.bato.anyoffice.backend.service.impl;
 
 import eu.bato.anyoffice.backend.dao.DisturbanceDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
-import eu.bato.anyoffice.backend.dao.StateSwitchDao;
+import eu.bato.anyoffice.backend.dao.PersonStateSwitchDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionPersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionResourceConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonConvert;
-import eu.bato.anyoffice.backend.dto.convert.impl.StateSwitchConvert;
+import eu.bato.anyoffice.backend.dto.convert.impl.PersonStateSwitchConvert;
 import eu.bato.anyoffice.backend.model.Disturbance;
 import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.Resource;
-import eu.bato.anyoffice.backend.model.StateSwitch;
+import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
@@ -25,7 +25,7 @@ import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
-import eu.bato.anyoffice.serviceapi.dto.StateSwitchDto;
+import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Collection;
 import java.util.Date;
@@ -52,7 +52,7 @@ public class PersonServiceImpl implements PersonService {
     @Autowired
     private PersonDao personDao;
     @Autowired
-    private StateSwitchDao stateSwitchDao;
+    private PersonStateSwitchDao stateSwitchDao;
     @Autowired
     private DisturbanceDao disturbanceDao;
     @Autowired
@@ -459,10 +459,10 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<StateSwitchDto> getStateSwitches(String username, Date from, Date to) {
+    public List<PersonStateSwitchDto> getStateSwitches(String username, Date from, Date to) {
         Long id = getId(username);
-        List<StateSwitch> switches = stateSwitchDao.findRangeForUser(id, from, to);
-        return switches.stream().map(p -> StateSwitchConvert.fromEntityToDto(p)).collect(Collectors.toList());
+        List<PersonStateSwitch> switches = stateSwitchDao.findRangeForUser(id, from, to);
+        return switches.stream().map(p -> PersonStateSwitchConvert.fromEntityToDto(p)).collect(Collectors.toList());
     }
 
     @Override

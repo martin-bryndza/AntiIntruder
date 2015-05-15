@@ -14,7 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 /**
- *
+ * Entity prepared for use with as a state of a resource.
  * @author Bato
  */
 @Entity

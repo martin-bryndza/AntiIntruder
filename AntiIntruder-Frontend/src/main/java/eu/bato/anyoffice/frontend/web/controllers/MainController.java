@@ -47,11 +47,6 @@ public class MainController extends CommonController {
             }
         }
     }
-//
-//    @RequestMapping("/error")
-//    public String notFound() {
-//        return "errors/404";
-//    }
 
     @RequestMapping(value = "/faq", method = RequestMethod.GET)
     public String loadFaq(Model model) {
