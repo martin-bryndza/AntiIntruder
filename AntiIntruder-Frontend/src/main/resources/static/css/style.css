@@ -234,18 +234,22 @@ iframe.colleagues{
 
 /*----------------states----------------------*/
 .state_AVAILABLE{
+    white-space: nowrap;
     color: green;
 }
 
 .state_DO_NOT_DISTURB{
+    white-space: nowrap;
     color: red;
 }
 
 .state_AWAY{
+    white-space: nowrap;
     color: gold;
 }
 
 .state_UNKNOWN{
+    white-space: nowrap;
     color: darkgrey;
 }
 
