@@ -1,6 +1,5 @@
 package eu.bato.anyoffice.serviceapi.service;
 
-import eu.bato.anyoffice.serviceapi.dto.DisturbanceDto;
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;

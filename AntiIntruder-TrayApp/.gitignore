@@ -33,3 +33,4 @@ AvailableConsultersFrame.*
 anyoffice-client.properties
 *.log
 anyoffice-client/
+/bin/

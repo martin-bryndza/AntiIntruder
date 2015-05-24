@@ -24,11 +24,7 @@ buildscript {
 
 dependencies {
     compile project(':AntiIntruder-ServiceApi')
-    
-    // Hibernate
-    compile 'org.hibernate:hibernate-core:4.2.6.Final'
-    compile 'org.hibernate:hibernate-entitymanager:4.2.6.Final'
-           
+               
     // Spring-boot
     compile ('org.springframework.boot:spring-boot-starter-data-jpa:' + project.ext.springBootVersion)
     compile ('org.springframework.boot:spring-boot-starter-test:' + project.ext.springBootVersion)
