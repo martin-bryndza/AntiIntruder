@@ -1,4 +1,4 @@
-package eu.bato.anyoffice.trayapp;
+package eu.bato.anyoffice.trayapp.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;

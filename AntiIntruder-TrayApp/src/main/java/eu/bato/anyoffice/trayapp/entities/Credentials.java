@@ -1,4 +1,4 @@
-package eu.bato.anyoffice.trayapp;
+package eu.bato.anyoffice.trayapp.entities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

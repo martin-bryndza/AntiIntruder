@@ -1,5 +1,7 @@
 package eu.bato.anyoffice.trayapp;
 
+import eu.bato.anyoffice.trayapp.entities.PersonState;
+import eu.bato.anyoffice.trayapp.entities.Credentials;
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
