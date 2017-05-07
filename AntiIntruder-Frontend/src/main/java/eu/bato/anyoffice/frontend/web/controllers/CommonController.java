@@ -51,23 +51,24 @@ public class CommonController {
     @Autowired
     protected PersonService personService;
 
-//    @ModelAttribute("otherApps")
-//    public List<OtherPageObject> otherApps() {
-//        log.debug("OtherPageObject");
-//        List<OtherPageObject> apps = new LinkedList<>();
-//        apps.add(new OtherPageObject("Booking", "https://booking.ysoft.local/", false));
-//        apps.add(new OtherPageObject("Download Manager", "http://bamboo.ysoft.local/dm", false));
-//        apps.add(new OtherPageObject("Licence", "https://license.ysoft.local/", true));
-//        apps.add(new OtherPageObject("VMware", "https://vcac.ysoft.local/vcac/", false));
-//        apps.add(new OtherPageObject("Bamboo", "http://bamboo.ysoft.local/allPlans.action", false));
-//        apps.add(new OtherPageObject("Jira", "http://jira.ysoft.local", false));
-//        apps.add(new OtherPageObject("Intranet", "http://intranet.ysoft.local", false));
-//        apps.add(new OtherPageObject("SQ5 (150)", "http://10.0.10.150", false));
-//        apps.add(new OtherPageObject("SQ6 (120)", "http://10.0.10.150", false));
-//        return apps;
-//    }
-//    @ModelAttribute("app")
-//    public String app() {
-//        return "anyoffice";
-//    }
+    @ModelAttribute("otherApps")
+    public List<OtherPageObject> otherApps() {
+        log.debug("OtherPageObject");
+        List<OtherPageObject> apps = new LinkedList<>();
+        apps.add(new OtherPageObject("Booking", "https://booking.ysoft.local/", false));
+        apps.add(new OtherPageObject("Download Manager", "http://bamboo.ysoft.local/dm", false));
+        apps.add(new OtherPageObject("Licence", "https://license.ysoft.local/", true));
+        apps.add(new OtherPageObject("VMware", "https://vcac.ysoft.local/vcac/", false));
+        apps.add(new OtherPageObject("Bamboo", "http://bamboo.ysoft.local/allPlans.action", false));
+        apps.add(new OtherPageObject("Jira", "http://jira.ysoft.local", false));
+        apps.add(new OtherPageObject("Intranet", "http://intranet.ysoft.local", false));
+        apps.add(new OtherPageObject("SQ5 (150)", "http://10.0.10.150", false));
+        apps.add(new OtherPageObject("SQ6 (120)", "http://10.0.10.150", false));
+        return apps;
+    }
+    
+    @ModelAttribute("app")
+    public String app() {
+        return "anyoffice";
+    }
 }

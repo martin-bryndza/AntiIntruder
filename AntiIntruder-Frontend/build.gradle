@@ -33,12 +33,13 @@ dependencies {
     	
     compile 'org.aspectj:aspectjweaver:1.8.10'
     
-    compile 'org.thymeleaf:thymeleaf-spring4:3.0.5.RELEASE'
+//    compile 'org.thymeleaf:thymeleaf-spring4:3.0.5.RELEASE'
     compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.2.1'
     
-    compile ('org.springframework.boot:spring-boot-starter-thymeleaf:1.5.3.RELEASE')
-    compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
-    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
+    compile ('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile ('org.springframework.boot:spring-boot-devtools')
+//    compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
+//    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
     
     // Spring Security
     compile 'org.springframework.security:spring-security-web:4.2.2.RELEASE'

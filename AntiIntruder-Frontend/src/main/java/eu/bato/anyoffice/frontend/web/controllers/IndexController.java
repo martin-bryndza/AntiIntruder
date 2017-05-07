@@ -63,18 +63,19 @@ public class IndexController extends CommonController {
 
     private PersonDto adminPerson = null;
 
-//    @ModelAttribute("page")
-//    public String module() {
-//        return "index_1";
-//    }
+    @ModelAttribute("page")
+    public String module() {
+        return "index";
+    }
+    
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String loadItems(/*Model model, Authentication authentication*/) {
-        //model.addAttribute("personObject", new PersonDto());
-        //model.addAttribute("password", new PasswordObject());
-        //model.addAttribute("states", PersonState.values());
-        //addCurrentAndPersons(model);
+    public String loadItems(Model model, Authentication authentication) {
+        model.addAttribute("personObject", new PersonDto());
+        model.addAttribute("password", new PasswordObject());
+        model.addAttribute("states", PersonState.values());
+        addCurrentAndPersons(model);
         log.debug("Ahoj");
-        return "index_1";
+        return "index";
     }
 
     @RequestMapping(value = "/colleagues", method = RequestMethod.GET)
