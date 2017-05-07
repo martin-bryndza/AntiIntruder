@@ -48,7 +48,7 @@ public class PersonStateSwitchDaoImpl implements PersonStateSwitchDao {
 
     @Override
     public List<PersonStateSwitch> findRangeForUser(Long id, Date from, Date to) {
-        TypedQuery<PersonStateSwitch> query = em.createQuery("SELECT tbl FROM StateSwitch tbl WHERE tbl.personId = :id AND tbl.time >= :from AND tbl.time < :to", PersonStateSwitch.class)
+        TypedQuery<PersonStateSwitch> query = em.createQuery("SELECT tbl FROM PersonStateSwitch tbl WHERE tbl.personId = :id AND tbl.time >= :from AND tbl.time < :to", PersonStateSwitch.class)
                 .setParameter("id", id)
                 .setParameter("from", from)
                 .setParameter("to", to);
