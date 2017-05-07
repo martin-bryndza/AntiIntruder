@@ -37,7 +37,9 @@ import javax.persistence.Table;
  * public notebooks, books etc.)
  *
  * @author Bato
+ * @deprecated Kept only for historical reasons.
  */
+@Deprecated
 @javax.persistence.Entity
 @Table(name = "Resource")
 public class Resource extends Entity {

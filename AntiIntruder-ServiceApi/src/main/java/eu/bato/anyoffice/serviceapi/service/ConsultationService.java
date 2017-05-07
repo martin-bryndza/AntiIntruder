@@ -23,19 +23,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.dao;
+package eu.bato.anyoffice.serviceapi.service;
 
-import eu.bato.anyoffice.backend.model.Entity;
-import eu.bato.anyoffice.backend.model.Resource;
-import org.springframework.transaction.annotation.Transactional;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
 
 /**
  *
  * @author Bato
  */
-@Transactional
-public interface ResourceDao extends Dao<Resource, Long> {
+public interface ConsultationService extends Service<ConsultationDto> {
 
-    Entity updateState(Long id, Long stateId);
+    public Long addConsultation(String requesterUsername, Long targetId, String purpose);
+    
+    public void cancelConsultation(String requesterUsername, Long targetId);
 
 }

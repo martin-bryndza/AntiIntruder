@@ -28,13 +28,11 @@ package eu.bato.anyoffice.frontend.rest.v1_0.controllers;
 import eu.bato.anyoffice.core.person.PersonInteractionsManager;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.rest.Versions;
-import eu.bato.anyoffice.serviceapi.dto.DisturbanceDto;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,29 +151,39 @@ public class PersonStateController {
     @RequestMapping(value = "requests", method = GET)
     public @ResponseBody
     Integer getNumberOfRequests(Authentication authentication) {
-        Set<InteractionPersonDto> interactingPersons = personInteractionsManager.getInteractingPersons(authentication.getName());
+        Set<ConsultationDto> interactingPersons = personInteractionsManager.getRequestedConsultations(authentication.getName());
         int result = interactingPersons.size();
         log.debug("GET requests for user {}, response: {}", authentication.getName(), result);
-        // by now, the confirmation of the fact, that the interacting persons have been see, is done here. In the future this should be done by a call from client
-        personInteractionsManager.seenInteractingEntities(authentication.getName(), interactingPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return result;
+    }
+    
+    /**
+     * Returns list of all persons, that requested a consultation with the current user.
+     *
+     * @param authentication
+     * @return map (username: displayName, location, dndStart)
+     */
+    @RequestMapping(value = "requestedInteractingPersons", method = GET)
+
+    public @ResponseBody
+    Set<ConsultationDto> getNewrequestedInteractionPersons(Authentication authentication) {
+        Set<ConsultationDto> interactingPersons = personInteractionsManager.getRequestedConsultations(authentication.getName());
+        log.debug("GET requestedInteractingPersons for user {}, response size: {}", authentication.getName(), interactingPersons.size());
+        return interactingPersons;
     }
 
     /**
      * Returns list of all persons, that have been requested for interaction and
-     * are available now. The interaction request is canceled automatically
-     * after performing this operation.
+     * are available now.
      *
      * @param authentication
      * @return map (username: displayName, location, dndStart)
      */
     @RequestMapping(value = "availableInteractionPersons", method = GET)
     public @ResponseBody
-    Set<InteractionPersonDto> getNewAvailableInteractionPersons(Authentication authentication) {
-        Set<InteractionPersonDto> interactionPersons = personInteractionsManager.getInteractionPersons(authentication.getName(), PersonState.AVAILABLE);
+    Set<ConsultationDto> getNewAvailableInteractionPersons(Authentication authentication) {
+        Set<ConsultationDto> interactionPersons = personInteractionsManager.getAvailableConsultations(authentication.getName(), PersonState.AVAILABLE);
         log.debug("GET availableInteractionPersons for user {}, response size: {}", authentication.getName(), interactionPersons.size());
-        // by now, the confirmation of the fact, that the interaction persons have been see, is done here. In the future this should be done by a call from client
-        personInteractionsManager.seenInteractionEntities(authentication.getName(), interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
         return interactionPersons;
     }
 

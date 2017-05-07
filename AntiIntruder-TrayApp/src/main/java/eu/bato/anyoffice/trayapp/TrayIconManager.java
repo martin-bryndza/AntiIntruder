@@ -103,7 +103,7 @@ class TrayIconManager {
     private final UpdateIconMouseListener updateIconMouseListener;
 
     private final SwitchToStateFrame switchToDndFrame;
-    private final AvailableConsultersMessageFrame availableConsultersMessageFrame;
+    private final AvailableConsultersMessageFrame consultationsMessageFrame;
     private final DndCustomPeriodFrame dndCustomPeriodFrame;
 
     private final RestClient client;
@@ -119,7 +119,7 @@ class TrayIconManager {
         icon = Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/logo.png"));
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToStateFrame();
-        availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
+        consultationsMessageFrame = new AvailableConsultersMessageFrame();
         dndCustomPeriodFrame = new DndCustomPeriodFrame();
         statesMenuItems = new HashMap<>();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
@@ -347,14 +347,11 @@ class TrayIconManager {
 
     private void showPendingConsultationsPopup(PersonState newState) {
         if (!newState.isAwayState()) {
+            List<InteractionPerson> requestedConsultations = client.getNewRequestedConsultations();
             List<InteractionPerson> availableConsulters = client.getNewAvailableConsulters();
             if (!availableConsulters.isEmpty()) {
-                availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
-            }
-            // if I can see a consultation request means, that I am or I've just recently been AVAILABLE
-            int requests = client.getNumberOfRequests();
-            if (requests > 0) {
-                showInfoBubble(" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
+//                consultationsMessageFrame.showAvailableConsultersMessage(availableConsulters);
+                consultationsMessageFrame.showConsultationsMessage(requestedConsultations, availableConsulters);
             }
         }
     }
@@ -1421,6 +1418,10 @@ class TrayIconManager {
                     dm.removeRow(i);
                 }
             }
+        }
+        
+        void showConsultationsMessage(List<InteractionPerson> requestedConsultations, List<InteractionPerson> availableConsulters){
+            showInfoMessage("Consultations", requestedConsultations.toArray().toString() + availableConsulters.toArray().toString());
         }
 
         void showAvailableConsultersMessage(List<InteractionPerson> availableConsulters) {

@@ -29,22 +29,12 @@ import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.Table;
-import org.hibernate.annotations.AnyMetaDef;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.ManyToAny;
-import org.hibernate.annotations.MetaValue;
 
 /**
  *
@@ -71,16 +61,16 @@ public class Person extends Entity {
     private Date awayStart;
     @Column(nullable = true, name = "LAST_PING")
     private Date lastPing;
-    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
-    @AnyMetaDef(
-            idType = "long",
-            metaType = "string",
-            metaValues = {
-                @MetaValue(value = "P", targetEntity = Person.class),
-                @MetaValue(value = "R", targetEntity = Resource.class)})
-    @Cascade(CascadeType.ALL)
-    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<Entity> interactionEntities;
+//    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
+//    @AnyMetaDef(
+//            idType = "long",
+//            metaType = "string",
+//            metaValues = {
+//                @MetaValue(value = "P", targetEntity = Person.class),
+//                @MetaValue(value = "R", targetEntity = Resource.class)})
+//    @Cascade(CascadeType.ALL)
+//    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
+//    private List<Entity> interactionEntities;
     @Column(columnDefinition = "VARCHAR(100)", nullable = true)
     private String hipChatToken;
     @Column(columnDefinition = "VARCHAR(100)", nullable = true)
@@ -168,30 +158,30 @@ public class Person extends Entity {
         this.awayStart = awayStart.orElse(null);
     }
 
-    public List<Entity> getInteractionEntities() {
-        return interactionEntities;
-    }
-
-    public void setInteractionEntities(List<Entity> interactionEntities) {
-        this.interactionEntities = interactionEntities;
-    }
-
-    public void addInteractionEntity(Entity interactionEntity) {
-        if (this.interactionEntities == null) {
-            this.interactionEntities = new LinkedList<>();
-        }
-        this.interactionEntities.add(interactionEntity);
-    }
-
-    public void removeInteractionEntity(Entity interactionEntity) {
-        if (this.interactionEntities != null) {
-            this.interactionEntities.remove(interactionEntity);
-        }
-    }
-
-    public void removeAllInteractionEntities() {
-        this.interactionEntities.clear();
-    }
+//    public List<Entity> getInteractionEntities() {
+//        return interactionEntities;
+//    }
+//
+//    public void setInteractionEntities(List<Entity> interactionEntities) {
+//        this.interactionEntities = interactionEntities;
+//    }
+//
+//    public void addInteractionEntity(Entity interactionEntity) {
+//        if (this.interactionEntities == null) {
+//            this.interactionEntities = new LinkedList<>();
+//        }
+//        this.interactionEntities.add(interactionEntity);
+//    }
+//
+//    public void removeInteractionEntity(Entity interactionEntity) {
+//        if (this.interactionEntities != null) {
+//            this.interactionEntities.remove(interactionEntity);
+//        }
+//    }
+//
+//    public void removeAllInteractionEntities() {
+//        this.interactionEntities.clear();
+//    }
 
     @Override
     public int hashCode() {

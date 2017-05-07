@@ -40,20 +40,27 @@ import javax.persistence.Id;
  * @author bryndza
  */
 @javax.persistence.Entity
-public class ConsultationRequest {
+public class Consultation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(nullable = false)
-    private Long requesterId;
+    private Person requester;
     @Column(nullable = false)
-    private Long targetId;
-    @Enumerated(EnumType.STRING)
+    private Person target;
     @Column(nullable = false)
-    private PersonState targetState;
+    private Date requestTime;
+    @Column(nullable = true)
+    private String purpose;
+    /**
+     * 0 = unresolved
+     * 1 = resolved by target only
+     * 2 = resolved
+     * 3 = canceled
+     */
     @Column(nullable = false)
-    private Date time;
+    private Short state = 0;
 
     public Long getId() {
         return id;
@@ -63,36 +70,62 @@ public class ConsultationRequest {
         this.id = id;
     }
 
-    public Long getRequesterId() {
-        return requesterId;
+    public Person getRequester() {
+        return requester;
     }
 
-    public void setRequesterId(Long requesterId) {
-        this.requesterId = requesterId;
+    public void setRequester(Person requester) {
+        this.requester = requester;
     }
 
-    public Long getTargetId() {
-        return targetId;
+    public Person getTarget() {
+        return target;
     }
 
-    public void setTargetId(Long targetId) {
-        this.targetId = targetId;
-    }
-
-    public PersonState getTargetState() {
-        return targetState;
-    }
-
-    public void setTargetState(PersonState targetState) {
-        this.targetState = targetState;
+    public void setTarget(Person target) {
+        this.target = target;
     }
 
     public Date getTime() {
-        return time;
+        return requestTime;
     }
 
     public void setTime(Date time) {
-        this.time = time;
+        this.requestTime = time;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public void resolve(boolean byRequester) {
+        if (state <= 1){
+                state = byRequester ? (short) 2 : (short) 1; 
+        }
+    }
+    
+    public Boolean isNew() {
+        return state == 0;
+    }
+    
+    public Boolean isResolved() {
+        return state == 2;
+    }
+    
+    public Boolean isResolvedByTargetOnly(){
+        return state == 1;
+    }
+    
+    public Boolean isCancelled() {
+        return state == 3;
+    }
+
+    public void cancel() {
+        this.state = 3;
     }
 
     @Override
@@ -110,7 +143,7 @@ public class ConsultationRequest {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ConsultationRequest other = (ConsultationRequest) obj;
+        final Consultation other = (Consultation) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
@@ -119,7 +152,7 @@ public class ConsultationRequest {
 
     @Override
     public String toString() {
-        return "ConsultationRequest{" + "id=" + id + ", requesterId=" + requesterId + ", targetId=" + targetId + ", targetState=" + targetState + ", time=" + time + '}';
+        return "ConsultationRequest{" + "id=" + id + ", requester=" + requester + ", target=" + target + ", requestTime=" + requestTime + ", purpose=" + purpose + ", state=" + state + '}';
     }
 
 }

@@ -23,29 +23,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.dto.convert.impl;
+package eu.bato.anyoffice.backend.dao;
 
-import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
+import eu.bato.anyoffice.backend.model.Consultation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Bato
  */
-public class InteractionPersonConvert {
-
-    public static InteractionPersonDto fromEntityToDto(Person entity) {
-        if (entity == null) {
-            return null;
-        }
-        InteractionPersonDto dto = new InteractionPersonDto();
-        dto.setId(entity.getId());
-        dto.setUsername(entity.getUsername());
-        dto.setState(entity.getState());
-        dto.setDisplayName(entity.getDisplayName());
-        dto.setLocation(entity.getLocation());
-        dto.setDndStart(entity.getDndStart().getTime());
-        return dto;
-    }
+@Transactional
+public interface ConsultationDao extends Dao<Consultation, Long> {
+    
+    public Consultation findOne(String requesterUsername, Long targetId);
 
 }

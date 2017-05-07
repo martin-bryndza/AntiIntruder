@@ -26,7 +26,6 @@
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
 import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import java.util.Date;
 import java.util.Optional;
@@ -57,7 +56,7 @@ public class PersonConvert {
         e.setHipChatEmail(dto.getHipChatEmail());
         e.setHipChatToken(dto.getHipChatToken());
         //awayStart, dndStart and dndEnd are set by separate method in PersonService
-        //interaction entities are added one after another
+//        //interaction entities are added one after another
         //it is not possible to change lastStateChange from outside Backend module
         return e;
     }
@@ -80,7 +79,7 @@ public class PersonConvert {
         dto.setDndStart(entity.getDndStart().getTime());
         Date ping = entity.getLastPing();
         dto.setLastPing(Optional.ofNullable(ping == null ? null : entity.getLastPing().getTime()));
-        dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
+//        dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
         dto.setHipChatEmail(entity.getHipChatEmail());
         dto.setHipChatToken(entity.getHipChatToken());
         return dto;

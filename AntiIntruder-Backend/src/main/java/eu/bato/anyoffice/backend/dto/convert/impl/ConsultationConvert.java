@@ -25,54 +25,54 @@
  */
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
-import eu.bato.anyoffice.backend.model.Resource;
-import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
-import eu.bato.anyoffice.serviceapi.service.StateService;
+import eu.bato.anyoffice.backend.model.Consultation;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.PersonDto;
+import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Bato
  */
-@Component
-public class ResourceConvert {
+public class ConsultationConvert {
 
     @Autowired
-    private StateService stateService;
-
-    @Autowired
-    private StateConvert stateConvert;
-
-    public Resource fromDtoToEntity(ResourceDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        Resource e = new Resource();
-        e.setId(dto.getId());
-        e.setDescription(dto.getDescription());
-        e.setDisplayName(dto.getDisplayName());
-        e.setState(stateConvert.fromDtoToEntity(stateService.findOne(dto.getStateId())));
-        e.setLocation(dto.getLocation());
-        //interaction entities are added one after another
-        //it is not possible to change lastStateChange from outside Backend module
-        return e;
-    }
-
-    public ResourceDto fromEntityToDto(Resource entity) {
+    PersonService personService;
+    
+    public static ConsultationDto fromEntityToDto(Consultation entity) {
         if (entity == null) {
             return null;
         }
-        ResourceDto dto = new ResourceDto();
+        ConsultationDto dto = new ConsultationDto();
         dto.setId(entity.getId());
-        dto.setDisplayName(entity.getDisplayName());
-        dto.setDescription(entity.getDescription());
-        dto.setStateId(entity.getState().getId());
-        dto.setLastStateChange(entity.getLastStateChange().getTime());
-        dto.setNextPossibleStateChange(entity.getNextPossibleStateChange());
-        dto.setStateExpiration(entity.getStateExpiration());
-        dto.setLocation(entity.getLocation());
+        dto.setPurpose(entity.getPurpose());
+        dto.setRequesterDisplayName(entity.getRequester().getDisplayName());
+        dto.setRequesterState(entity.getRequester().getState());
+        dto.setRequesterUsername(entity.getRequester().getUsername());
+        dto.setTargetDisplayName(entity.getTarget().getDisplayName());
+        dto.setTargetState(entity.getTarget().getState());
+        dto.setTargetUsername(entity.getTarget().getUsername());
+        dto.setTime(entity.getTime());
         return dto;
     }
+
+//    public Consultation fromDtoToEntity(ConsultationDto dto) {
+//        if (dto == null) {
+//            return null;
+//        }
+//        Consultation entity = new Consultation();
+//        
+//        PersonDto requester = personService.findOneByUsername(dto.getRequesterUsername());
+//        PersonDto target = personService.findOneByUsername(dto.getTargetUsername());
+//        entity.setRequester(requester);
+//        entity.setTarget(target);
+//        entity.setTargetState(target.getState());
+//        
+//        entity.setPurpose(dto.getPurpose());
+//        entity.setTime(new Date());
+//        return entity;
+//    }
 
 }

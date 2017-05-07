@@ -25,64 +25,74 @@
  */
 package eu.bato.anyoffice.backend.service.impl;
 
-import eu.bato.anyoffice.backend.dao.ResourceDao;
-import eu.bato.anyoffice.backend.dto.convert.impl.ResourceConvert;
-import eu.bato.anyoffice.backend.model.Resource;
+import eu.bato.anyoffice.backend.dao.ConsultationDao;
+import eu.bato.anyoffice.backend.dao.PersonDao;
+import eu.bato.anyoffice.backend.dto.convert.impl.ConsultationConvert;
+import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
-import eu.bato.anyoffice.serviceapi.dto.ResourceDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.service.ConsultationService;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import javax.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import eu.bato.anyoffice.serviceapi.service.ResourceService;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  *
  * @author Bato
  */
 @Service
-@Transactional
-public class ResourceServiceImpl implements ResourceService {
+@Transactional(noRollbackFor = NoResultException.class)
+public class ConsultationServiceImpl implements ConsultationService {
 
-    final static Logger log = LoggerFactory.getLogger(ResourceServiceImpl.class);
+    final static Logger log = LoggerFactory.getLogger(ConsultationServiceImpl.class);
     @Autowired
-    private ResourceDao resourceDao;
+    private ConsultationDao consultationDao;
     @Autowired
-    private ResourceConvert resourceConvert;
-
+    private PersonDao personDao;
+    
     @Override
     @Transactional(readOnly = false)
-    public Long save(ResourceDto dto) {
+    public Long save(ConsultationDto dto) {
         return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
             @Override
             public Long doMethod() {
-                ResourceDto dto = (ResourceDto) getU();
-                if (dto.getStateId() == null) {
-                    dto.setStateId(1L); // TODO: Replace with default state for entity type
+                ConsultationDto dto = (ConsultationDto) getU();
+                Consultation entity = new Consultation();
+                entity.setRequester(personDao.findOneByUsername(dto.getRequesterUsername()));
+                entity.setTarget(personDao.findOneByUsername(dto.getTargetUsername()));
+                entity.setPurpose(dto.getPurpose());
+                entity.setTime(dto.getTime());
+                if (entity.getRequester() == null) {
+                    throw new IllegalArgumentException("Error while saving consultation " + dto.toString() + ". Requester does not exist in DB.");
                 }
-                Resource entity = resourceConvert.fromDtoToEntity((ResourceDto) getU());
-                Resource savedEntity = resourceDao.save(entity);
+                if (entity.getTarget() == null) {
+                    throw new IllegalArgumentException("Error while saving consultation " + dto.toString() + ". Target does not exist in DB.");
+                }
+                Consultation savedEntity = consultationDao.save(entity);
                 return savedEntity.getId();
             }
         }.tryMethod();
     }
 
     @Override
-    public ResourceDto findOne(Long id) {
+    public ConsultationDto findOne(Long id) {
         if (id == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
-            log.error("ResourceServiceImpl.get() called on null parameter: Long id", iaex);
+            log.error("ConsultationServiceImpl.get() called on null parameter: Long id", iaex);
             throw iaex;
         }
-        return (ResourceDto) new DataAccessExceptionNonVoidTemplate(id) {
+        return (ConsultationDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
-            public ResourceDto doMethod() {
-                Resource entity = resourceDao.findOne((Long) getU());
-                return resourceConvert.fromEntityToDto(entity);
+            public ConsultationDto doMethod() {
+                Consultation entity = consultationDao.findOne((Long) getU());
+                return ConsultationConvert.fromEntityToDto(entity);
             }
         }.tryMethod();
     }
@@ -98,7 +108,7 @@ public class ResourceServiceImpl implements ResourceService {
             new DataAccessExceptionVoidTemplate(id) {
                 @Override
                 public void doMethod() {
-                    resourceDao.delete((Long) getU());
+                    consultationDao.delete((Long) getU());
                 }
             }.tryMethod();
         }
@@ -106,35 +116,31 @@ public class ResourceServiceImpl implements ResourceService {
 
     //TODO: add paging
     @Override
-    public List<ResourceDto> findAll() {
-        List<Resource> entities = resourceDao.findAll();
-        List<ResourceDto> result = new LinkedList<>();
+    public List<ConsultationDto> findAll() {
+        List<Consultation> entities = consultationDao.findAll();
+        List<ConsultationDto> result = new LinkedList<>();
         entities.stream().forEach((entity) -> {
-            result.add(resourceConvert.fromEntityToDto(entity));
+            result.add(ConsultationConvert.fromEntityToDto(entity));
         });
         return result;
     }
 
     @Override
-    public void updateState(Long id, Long stateId) {
-        if (id == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update Resource that"
-                    + " doesn't exist.");
-            log.error("ID is null", iaex);
-            throw iaex;
-        } else if (stateId == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update Resource to state that"
-                    + " doesn't exist.");
-            log.error("stateId is null", iaex);
-            throw iaex;
-        } else {
-            new DataAccessExceptionVoidTemplate(id, stateId) {
-                @Override
-                public void doMethod() {
-                    resourceDao.updateState((Long) getU(), (Long) getV());
-                }
-            }.tryMethod();
-        }
+    public Long addConsultation(String requesterUsername, Long targetId, String purpose) {
+        ConsultationDto dto = new ConsultationDto();
+        dto.setTime(new Date());
+        dto.setRequesterUsername(requesterUsername);
+        dto.setTargetUsername(personDao.findOne(targetId).getUsername());
+        dto.setPurpose(purpose);
+        return save(dto);
     }
+
+    @Override
+    public void cancelConsultation(String requesterUsername, Long targetId) {
+        Consultation entity = consultationDao.findOne(requesterUsername, targetId);
+        entity.cancel();
+    }
+
+    
 
 }

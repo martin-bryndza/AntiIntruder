@@ -317,6 +317,18 @@ public class RestClient {
             return new LinkedList<>();
         }
     }
+    
+    List<InteractionPerson> getNewRequestedConsultations() {
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "requestedInteractingPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET new requested consultations response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            return parseListInteractionPerson(response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to GET new requested consultations.");
+            return new LinkedList<>();
+        }
+    }
 
     /**
      *

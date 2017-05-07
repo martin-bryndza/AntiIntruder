@@ -30,7 +30,7 @@ import eu.bato.anyoffice.frontend.web.data.PasswordObject;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
-import eu.bato.anyoffice.serviceapi.service.ResourceService;
+import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +53,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class IndexController extends CommonController {
 
     @Autowired
-    protected ResourceService entityService;
-    @Autowired
     protected PersonStateManager personStateManager;
+    
+    @Autowired
+    protected ConsultationService consultationService;
 
     private PersonDto adminPerson = null;
 
@@ -78,6 +79,7 @@ public class IndexController extends CommonController {
         model.addAttribute("states", PersonState.values());
         addCurrentAndPersons(model);
         model.addAttribute("now", new Date().getTime());
+        
         return "fragments/colleagues :: colleagues";
     }
 
@@ -112,24 +114,32 @@ public class IndexController extends CommonController {
         return "redirect:";
     }
 
+    /**
+     * 
+     * @param id Id of the person to consult with
+     */
     @RequestMapping(value = "/interact", method = RequestMethod.POST)
     @ResponseBody
     public void interact(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
-                personService.addInteractionEntity(auth.getName(), id);
+                consultationService.addConsultation(auth.getName(), id, "Temp purpose");
             }
         }
     }
 
+    /**
+     *
+     * @param id Id of the person to cancel consultation with
+     */
     @RequestMapping(value = "/cancelinteract", method = RequestMethod.POST)
     @ResponseBody
     public void cancelInteract(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
-                personService.removeInteractionEntity(auth.getName(), id);
+                consultationService.cancelConsultation(auth.getName(), id);
             }
         }
     }
