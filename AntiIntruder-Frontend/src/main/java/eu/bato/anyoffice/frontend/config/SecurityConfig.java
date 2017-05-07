@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -78,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .headers().frameOptions().addHeaderWriter(new XFrameOptionsHeaderWriter(new RegExpAllowFromStrategy("/.*/"))).and()
+                .headers().frameOptions().and().addHeaderWriter(new XFrameOptionsHeaderWriter(new RegExpAllowFromStrategy("/.*/"))).and()
                 .addFilterBefore(authenticationFilter(), LogoutFilter.class)
                 .csrf().disable()
                 .authorizeRequests()

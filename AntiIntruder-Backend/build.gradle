@@ -30,11 +30,11 @@ dependencies {
     compile ('org.springframework.boot:spring-boot-starter-test:' + project.ext.springBootVersion)
     
     // Derby
-    compile 'org.apache.derby:derbyclient:10.10.1.1'
-    compile 'org.apache.derby:derby:10.10.1.1'
+    compile 'org.apache.derby:derbyclient:10.13.1.1'
+    compile 'org.apache.derby:derby:10.13.1.1'
     
     // PostgreSQL
-    compile 'postgresql:postgresql:9.0-801.jdbc4'
+    compile 'postgresql:postgresql:9.1-901-1.jdbc4'
     
     //Other
     testCompile 'org.mockito:mockito-all:1.10.19'

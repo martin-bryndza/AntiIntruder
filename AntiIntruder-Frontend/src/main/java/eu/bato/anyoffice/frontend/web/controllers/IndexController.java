@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -33,6 +33,8 @@ import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -57,20 +59,22 @@ public class IndexController extends CommonController {
     @Autowired
     protected PersonStateManager personStateManager;
 
+    private final static Logger log = LoggerFactory.getLogger(PersonStateManager.class);
+
     private PersonDto adminPerson = null;
 
-    @ModelAttribute("page")
-    public String module() {
-        return "index";
-    }
-
+//    @ModelAttribute("page")
+//    public String module() {
+//        return "index_1";
+//    }
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String loadItems(Model model, Authentication authentication) {
-        model.addAttribute("personObject", new PersonDto());
-        model.addAttribute("password", new PasswordObject());
-        model.addAttribute("states", PersonState.values());
-        addCurrentAndPersons(model);
-        return "index";
+    public String loadItems(/*Model model, Authentication authentication*/) {
+        //model.addAttribute("personObject", new PersonDto());
+        //model.addAttribute("password", new PasswordObject());
+        //model.addAttribute("states", PersonState.values());
+        //addCurrentAndPersons(model);
+        log.debug("Ahoj");
+        return "index_1";
     }
 
     @RequestMapping(value = "/colleagues", method = RequestMethod.GET)

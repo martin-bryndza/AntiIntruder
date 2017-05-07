@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -28,7 +28,6 @@ package eu.bato.anyoffice.frontend.rest.v1_0.controllers;
 import eu.bato.anyoffice.core.person.PersonInteractionsManager;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.rest.Versions;
-import eu.bato.anyoffice.serviceapi.dto.DisturbanceDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.PersonService;

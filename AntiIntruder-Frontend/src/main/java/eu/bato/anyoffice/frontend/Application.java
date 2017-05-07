@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -96,18 +96,17 @@ public class Application extends WebMvcConfigurerAdapter {
         converters.add(converter);
     }
 
-    @Bean
-    public LocalValidatorFactoryBean validator() {
-        LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
-        validatorFactoryBean.setValidationMessageSource(messageSource);
-        return validatorFactoryBean;
-    }
-
-    @Override
-    public Validator getValidator() {
-        return validator();
-    }
-
+//    @Bean
+//    public LocalValidatorFactoryBean validator() {
+//        LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
+//        validatorFactoryBean.setValidationMessageSource(messageSource);
+//        return validatorFactoryBean;
+//    }
+//
+//    @Override
+//    public Validator getValidator() {
+//        return validator();
+//    }
 //    @Bean
 //    public ITemplateResolver templateResolver(){
 //        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();

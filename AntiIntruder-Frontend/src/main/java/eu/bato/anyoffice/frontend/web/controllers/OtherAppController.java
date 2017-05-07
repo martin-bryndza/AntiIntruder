@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -43,12 +43,11 @@ public class OtherAppController extends CommonController {
 
     private static final Logger log = LoggerFactory.getLogger(OtherAppController.class);
 
-    @ModelAttribute("app")
-    @Override
-    public String app() {
-        return "other"; //will be defined in loadOtherApp
-    }
-
+//    @ModelAttribute("app")
+//    @Override
+//    public String app() {
+//        return "other"; //will be defined in loadOtherApp
+//    }
     @RequestMapping(value = "/otherApp", method = RequestMethod.GET)
     public String loadOtherApp(Model model, @RequestParam String url, @RequestParam String app, @RequestParam boolean inframe) {
         if (inframe) {
