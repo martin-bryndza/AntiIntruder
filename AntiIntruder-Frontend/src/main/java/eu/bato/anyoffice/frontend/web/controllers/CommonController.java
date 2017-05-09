@@ -53,7 +53,6 @@ public class CommonController {
 
     @ModelAttribute("otherApps")
     public List<OtherPageObject> otherApps() {
-        log.debug("OtherPageObject");
         List<OtherPageObject> apps = new LinkedList<>();
         apps.add(new OtherPageObject("Booking", "https://booking.ysoft.local/", false));
         apps.add(new OtherPageObject("Download Manager", "http://bamboo.ysoft.local/dm", false));

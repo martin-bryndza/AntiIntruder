@@ -74,7 +74,6 @@ public class IndexController extends CommonController {
         model.addAttribute("password", new PasswordObject());
         model.addAttribute("states", PersonState.values());
         addCurrentAndPersons(model);
-        log.debug("Ahoj");
         return "index";
     }
 
