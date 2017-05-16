@@ -67,7 +67,7 @@ public class IndexController extends CommonController {
     public String module() {
         return "index";
     }
-    
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String loadItems(Model model, Authentication authentication) {
         model.addAttribute("personObject", new PersonDto());
@@ -95,7 +95,7 @@ public class IndexController extends CommonController {
             Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             PersonDto currentPerson = personService.findOneByUsername(auth.getName());
             model.addAttribute("currentPerson", currentPerson);
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
                 otherPersons.remove(currentPerson);
             }
         }
@@ -104,7 +104,7 @@ public class IndexController extends CommonController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public String submitFormHandler(@ModelAttribute PersonDto person, @ModelAttribute PasswordObject password) {
-        person.setRole(PersonRole.USER);
+        person.setRole(PersonRole.ROLE_USER);
         person.setState(PersonState.UNKNOWN);
         personService.register(person, password.getValue());
         return "redirect:";
@@ -121,7 +121,7 @@ public class IndexController extends CommonController {
     public void interact(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
                 personService.addInteractionEntity(auth.getName(), id);
             }
         }
@@ -132,7 +132,7 @@ public class IndexController extends CommonController {
     public void cancelInteract(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
                 personService.removeInteractionEntity(auth.getName(), id);
             }
         }

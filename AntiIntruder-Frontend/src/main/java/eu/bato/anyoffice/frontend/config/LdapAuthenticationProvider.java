@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -95,7 +95,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
             log.info("User with username {} logged in through AD for the first time", username);
             PersonDto dto = new PersonDto();
             dto.setUsername(username);
-            dto.setRole(PersonRole.USER);
+            dto.setRole(PersonRole.ROLE_USER);
             dto.setDisplayName(username);
             personService.register(dto, encoder.encode(a.getCredentials().toString()));
         }

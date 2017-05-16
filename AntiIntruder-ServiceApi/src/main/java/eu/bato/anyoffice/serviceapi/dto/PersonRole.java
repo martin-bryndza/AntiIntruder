@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -31,8 +31,8 @@ package eu.bato.anyoffice.serviceapi.dto;
  */
 public enum PersonRole {
 
-    USER,
-    ADMIN;
+    ROLE_USER,
+    ROLE_ADMIN;
 
     private PersonRole() {
     }
@@ -40,15 +40,15 @@ public enum PersonRole {
     public static PersonRole getPersonRole(int index) {
         switch (index) {
             case 1:
-                return ADMIN;
+                return ROLE_ADMIN;
             default:
-                return USER;
+                return ROLE_USER;
         }
     }
 
     public static int getIndex(PersonRole personRole) {
         switch (personRole) {
-            case ADMIN:
+            case ROLE_ADMIN:
                 return 1;
             default:
                 return 0;
