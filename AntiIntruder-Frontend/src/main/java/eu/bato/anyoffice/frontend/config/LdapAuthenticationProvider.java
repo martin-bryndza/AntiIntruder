@@ -30,6 +30,7 @@ import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -40,7 +41,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 
@@ -66,26 +69,29 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
     private Environment environment;
 
     public LdapAuthenticationProvider() {
-
     }
 
     public void initialize() {
         String domain = environment.getProperty(LDAP_DOMAIN, "2008r2ad.test");
         String url = environment.getProperty(LDAP_URL, "ldap://10.0.10.170");
         String rootDn = environment.getProperty(LDAP_ROOT_DN, "DC=2008r2ad,DC=test");
-        ap = new ActiveDirectoryLdapAuthenticationProvider(domain, url, rootDn);
+        log.debug("Initializing LDAP Auth Provder:" + domain + "; " + url + "; " + rootDn);
+        ActiveDirectoryLdapAuthenticationProvider adp = new ActiveDirectoryLdapAuthenticationProvider(domain, url, rootDn);
+        adp.setConvertSubErrorCodesToExceptions(true);
+        ap = adp;
     }
 
     @Override
     public Authentication authenticate(Authentication a) throws AuthenticationException {
         String username = a.getName();
-        log.info("Authenticating: " + username);
+        log.info("Authenticating (LDAP): " + username + ":" + a.getCredentials().toString());
         try {
             ap.authenticate(a);
         } catch (AuthenticationException e) {
             if (username.equals("adminAnyOffice") && environment.getProperty("auth.admin.password", "1234").equals(a.getCredentials().toString())) {
                 log.warn("Administrator authenticated from: {}", a.getDetails());
             } else {
+                log.error(e.getLocalizedMessage());
                 throw e;
             }
         }

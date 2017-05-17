@@ -128,7 +128,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     LdapAuthenticationProvider ldapAuthenticationProvider() {
         LdapAuthenticationProvider provider = new LdapAuthenticationProvider();
-//        provider.initialize();
         return provider;
     }
 

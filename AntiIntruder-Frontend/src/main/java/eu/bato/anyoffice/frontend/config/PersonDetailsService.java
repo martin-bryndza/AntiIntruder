@@ -114,14 +114,9 @@ public class PersonDetailsService implements UserDetailsService {
         if (!optDetails.isPresent()) {
             throw new UsernameNotFoundException("User with username " + username + " was not found.");
         }
-        optDetails = personService.getLoginDetails(username);
-        if (!optDetails.isPresent()) {
-            throw new UsernameNotFoundException("User with username " + username + " was not found.");
-        }
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(optDetails.get().getRole().name()));
         return new User(username, optDetails.get().getPassword(), authorities);
-
     }
 
 }
