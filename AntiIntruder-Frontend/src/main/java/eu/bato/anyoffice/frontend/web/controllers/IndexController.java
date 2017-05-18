@@ -30,7 +30,6 @@ import eu.bato.anyoffice.frontend.web.data.PasswordObject;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
-import eu.bato.anyoffice.serviceapi.service.ResourceService;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -54,8 +53,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class IndexController extends CommonController {
 
-    @Autowired
-    protected ResourceService entityService;
     @Autowired
     protected PersonStateManager personStateManager;
 

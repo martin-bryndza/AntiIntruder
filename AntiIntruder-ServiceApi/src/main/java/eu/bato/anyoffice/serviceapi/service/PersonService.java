@@ -108,6 +108,15 @@ public interface PersonService extends Service<PersonDto> {
      * @return
      */
     PersonState getState(String username);
+    
+    /**
+     * Sets State of the Person identified by id to the State identified by
+     * stateId.
+     *
+     * @param id Id of the Person
+     * @param personState Id of the State
+     */
+    void updateState(Long id, PersonState personState);
 
     PersonDto findOneByUsername(String username);
 
@@ -156,14 +165,6 @@ public interface PersonService extends Service<PersonDto> {
      * @param ids
      */
     void removeInteractionEntities(String username, Collection<Long> ids);
-
-    /**
-     * Returns entities that person (username) wants to interact with.
-     *
-     * @param username
-     * @return
-     */
-    List<InteractionEntityDto> getInteractionEntities(String username);
 
     /**
      * Returns persons that person (username) wants to interact with.

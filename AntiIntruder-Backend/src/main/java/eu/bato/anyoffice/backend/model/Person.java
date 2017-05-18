@@ -58,9 +58,17 @@ public class Person extends Entity {
     private String username;
     @Column(columnDefinition = "VARCHAR(250)", nullable = false)
     private String password;
+    @Column(columnDefinition = "VARCHAR(150)", nullable = false)
+    private String displayName;    
+    @Column(columnDefinition = "VARCHAR(250)", nullable = true)
+    private String description;
+    @Column(columnDefinition = "VARCHAR(125)", nullable = true)
+    private String location;
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
-    private PersonState state = PersonState.UNKNOWN;
+    private PersonState state = PersonState.UNKNOWN; 
+    @Column(nullable = false, name = "LAST_STATE_CHANGE")
+    private Date lastStateChange;
     @Enumerated(EnumType.STRING)
     private PersonRole role;
     @Column(nullable = false, name = "DND_START")
@@ -76,8 +84,7 @@ public class Person extends Entity {
             idType = "long",
             metaType = "string",
             metaValues = {
-                @MetaValue(value = "P", targetEntity = Person.class),
-                @MetaValue(value = "R", targetEntity = Resource.class)})
+                @MetaValue(value = "P", targetEntity = Person.class)})
     @Cascade(CascadeType.ALL)
     @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<Entity> interactionEntities;
@@ -117,6 +124,14 @@ public class Person extends Entity {
     public void setRole(PersonRole role) {
         this.role = role;
     }
+    
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+    
+    public String getDisplayName() {
+        return displayName;
+    }
 
     public String getUsername() {
         return username;
@@ -133,6 +148,30 @@ public class Person extends Entity {
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+    
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    public Date getLastStateChange() {
+        return lastStateChange;
+    }
+
+    protected void setLastStateChange(Date lastStateChange) {
+        this.lastStateChange = lastStateChange;
+    }
 
     public PersonState getState() {
         return state;
@@ -140,7 +179,7 @@ public class Person extends Entity {
 
     public void setState(PersonState state) {
         final Long currentMillis = Calendar.getInstance().getTimeInMillis();
-        super.setLastStateChange(new Date(currentMillis));
+        this.setLastStateChange(new Date(currentMillis));
         this.state = state;
     }
 

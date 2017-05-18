@@ -29,18 +29,14 @@ import eu.bato.anyoffice.backend.dao.DisturbanceDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.dao.PersonStateSwitchDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.InteractionPersonConvert;
-import eu.bato.anyoffice.backend.dto.convert.impl.InteractionResourceConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonStateSwitchConvert;
 import eu.bato.anyoffice.backend.model.Disturbance;
-import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.backend.model.Resource;
 import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
-import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
 import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
@@ -219,7 +215,27 @@ public class PersonServiceImpl implements PersonService {
     public PersonState getState(String username) {
         return findOnePersonByUsername(username).get().getState();
     }
-
+    
+    @Override
+    public void updateState(Long id, PersonState personState) {
+        if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update a Person that doesn't exist.");
+            log.error("ID is null", iaex);
+            throw iaex;
+        } else if (personState == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update a Person to a state that doesn't exist.");
+            log.error("personState is null", iaex);
+            throw iaex;
+        } else {
+            new DataAccessExceptionVoidTemplate(id, personState) {
+                @Override
+                public void doMethod() {
+                    personDao.updateState((Long) getU(), (PersonState) getV());
+                }
+            }.tryMethod();
+        }
+    }
+    
     @Override
     public void setTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart) {
         personDao.updateTimers(username, dndStart, dndEnd, awayStart);
@@ -386,23 +402,6 @@ public class PersonServiceImpl implements PersonService {
                 return personDao.getLocation((String) getU());
             }
         }.tryMethod();
-    }
-
-    @Override
-    public List<InteractionEntityDto> getInteractionEntities(String username) {
-        Person person = findOnePersonByUsername(username).get();
-        List<Entity> entities = person.getInteractionEntities();
-        List<InteractionEntityDto> result = new LinkedList<>();
-        entities.stream().forEach((entity) -> {
-            if (Person.class.isInstance(entity)) {
-                result.add(InteractionPersonConvert.fromEntityToDto((Person) entity));
-            } else if (Resource.class.isInstance(entity)) {
-                result.add(InteractionResourceConvert.fromEntityToDto((Resource) entity));
-            } else {
-                log.error("Unknown entity type: {}", entity);
-            }
-        });
-        return result;
     }
 
     @Override

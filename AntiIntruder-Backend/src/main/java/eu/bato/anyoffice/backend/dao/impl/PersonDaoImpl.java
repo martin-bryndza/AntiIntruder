@@ -171,8 +171,7 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public Person updateState(Long id, PersonState personState
-    ) {
+    public Person updateState(Long id, PersonState personState) {
         Person e = findOne(id);
         return updateState(e, personState);
     }
