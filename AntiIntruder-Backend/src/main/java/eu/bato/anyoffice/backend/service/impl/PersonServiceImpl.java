@@ -262,115 +262,115 @@ public class PersonServiceImpl implements PersonService {
         return personDao.isTaken(username);
     }
 
-    @Override
-    public void addInteractionEntity(String username, Long id) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        } else if (id == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Id is null.");
-            log.error("Id is null", iaex);
-            throw iaex;
-        }
-        new DataAccessExceptionVoidTemplate(username, id) {
-            @Override
-            public void doMethod() {
-                personDao.addInteractionEntity((String) getU(), (Long) getV());
-            }
-        }.tryMethod();
-    }
-
-    @Override
-    public void removeInteractionEntity(String username, Long id) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        } else if (id == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Id is null.");
-            log.error("Id is null", iaex);
-            throw iaex;
-        }
-        new DataAccessExceptionVoidTemplate(username, id) {
-            @Override
-            public void doMethod() {
-                personDao.removeInteractionEntity((String) getU(), (Long) getV());
-            }
-        }.tryMethod();
-    }
-
-    @Override
-    public void removeAllInteractionEntities(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        }
-        new DataAccessExceptionVoidTemplate(username) {
-            @Override
-            public void doMethod() {
-                personDao.removeAllInteractionEntities((String) getU());
-            }
-        }.tryMethod();
-    }
-
-    @Override
-    public void removeInteractionEntities(String username, Collection<Long> ids) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        }
-        if (ids.isEmpty()) {
-            return;
-        }
-        new DataAccessExceptionVoidTemplate(username, ids) {
-            @Override
-            public void doMethod() {
-                personDao.removeInteractionEntities((String) getU(), (Collection<Long>) getV());
-            }
-        }.tryMethod();
-    }
-
-    @Override
-    public List<InteractionPersonDto> getInteractingPersons(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        }
-        return (List<InteractionPersonDto>) new DataAccessExceptionNonVoidTemplate(username) {
-            @Override
-            public List<InteractionPersonDto> doMethod() {
-                List<Person> entities = personDao.getInteractingPersons((String) getU());
-                List<InteractionPersonDto> result = new LinkedList<>();
-                entities.stream().forEach((entity) -> {
-                    if (Person.class.isInstance(entity)) {
-                        result.add(InteractionPersonConvert.fromEntityToDto((Person) entity));
-                    } else {
-                        log.error("Invalid entity type (should be Person): {}", entity);
-                    }
-                });
-                return result;
-            }
-        }.tryMethod();
-    }
-
-    @Override
-    public void removeAllInteractingPersons(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        }
-        new DataAccessExceptionVoidTemplate(username) {
-            @Override
-            public void doMethod() {
-                personDao.removeAllInteractingPersons((String) getU());
-            }
-        }.tryMethod();
-    }
+//    @Override
+//    public void addInteractionEntity(String username, Long id) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        } else if (id == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Id is null.");
+//            log.error("Id is null", iaex);
+//            throw iaex;
+//        }
+//        new DataAccessExceptionVoidTemplate(username, id) {
+//            @Override
+//            public void doMethod() {
+//                personDao.addInteractionEntity((String) getU(), (Long) getV());
+//            }
+//        }.tryMethod();
+//    }
+//
+//    @Override
+//    public void removeInteractionEntity(String username, Long id) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        } else if (id == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Id is null.");
+//            log.error("Id is null", iaex);
+//            throw iaex;
+//        }
+//        new DataAccessExceptionVoidTemplate(username, id) {
+//            @Override
+//            public void doMethod() {
+//                personDao.removeInteractionEntity((String) getU(), (Long) getV());
+//            }
+//        }.tryMethod();
+//    }
+//
+//    @Override
+//    public void removeAllInteractionEntities(String username) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        }
+//        new DataAccessExceptionVoidTemplate(username) {
+//            @Override
+//            public void doMethod() {
+//                personDao.removeAllInteractionEntities((String) getU());
+//            }
+//        }.tryMethod();
+//    }
+//
+//    @Override
+//    public void removeInteractionEntities(String username, Collection<Long> ids) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        }
+//        if (ids.isEmpty()) {
+//            return;
+//        }
+//        new DataAccessExceptionVoidTemplate(username, ids) {
+//            @Override
+//            public void doMethod() {
+//                personDao.removeInteractionEntities((String) getU(), (Collection<Long>) getV());
+//            }
+//        }.tryMethod();
+//    }
+//
+//    @Override
+//    public List<InteractionPersonDto> getInteractingPersons(String username) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        }
+//        return (List<InteractionPersonDto>) new DataAccessExceptionNonVoidTemplate(username) {
+//            @Override
+//            public List<InteractionPersonDto> doMethod() {
+//                List<Person> entities = personDao.getInteractingPersons((String) getU());
+//                List<InteractionPersonDto> result = new LinkedList<>();
+//                entities.stream().forEach((entity) -> {
+//                    if (Person.class.isInstance(entity)) {
+//                        result.add(InteractionPersonConvert.fromEntityToDto((Person) entity));
+//                    } else {
+//                        log.error("Invalid entity type (should be Person): {}", entity);
+//                    }
+//                });
+//                return result;
+//            }
+//        }.tryMethod();
+//    }
+//
+//    @Override
+//    public void removeAllInteractingPersons(String username) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        }
+//        new DataAccessExceptionVoidTemplate(username) {
+//            @Override
+//            public void doMethod() {
+//                personDao.removeAllInteractingPersons((String) getU());
+//            }
+//        }.tryMethod();
+//    }
 
     @Override
     public void setLocation(String username, String location) {
@@ -404,32 +404,32 @@ public class PersonServiceImpl implements PersonService {
         }.tryMethod();
     }
 
-    @Override
-    public List<InteractionPersonDto> getInteractionPersons(String username) {
-        if (username == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
-            log.error("Username is null", iaex);
-            throw iaex;
-        }
-        List<Person> persons = (List<Person>) new DataAccessExceptionNonVoidTemplate(username) {
-            @Override
-            public List<Person> doMethod() {
-                return personDao.getInteractionPersons(username);
-            }
-        }.tryMethod();
-        List<InteractionPersonDto> result = new LinkedList<>();
-        persons.forEach((p) -> result.add(InteractionPersonConvert.fromEntityToDto(p)));
-        return result;
-    }
-
-    @Override
-    public List<InteractionPersonDto> getInteractionPersons(String username, PersonState state) {
-        List<InteractionPersonDto> result = getInteractionPersons(username);
-        result.removeIf((InteractionPersonDto t) -> {
-            return !t.getState().equals(state);
-        });
-        return result;
-    }
+//    @Override
+//    public List<InteractionPersonDto> getInteractionPersons(String username) {
+//        if (username == null) {
+//            IllegalArgumentException iaex = new IllegalArgumentException("Username is null.");
+//            log.error("Username is null", iaex);
+//            throw iaex;
+//        }
+//        List<Person> persons = (List<Person>) new DataAccessExceptionNonVoidTemplate(username) {
+//            @Override
+//            public List<Person> doMethod() {
+//                return personDao.getInteractionPersons(username);
+//            }
+//        }.tryMethod();
+//        List<InteractionPersonDto> result = new LinkedList<>();
+//        persons.forEach((p) -> result.add(InteractionPersonConvert.fromEntityToDto(p)));
+//        return result;
+//    }
+//
+//    @Override
+//    public List<InteractionPersonDto> getInteractionPersons(String username, PersonState state) {
+//        List<InteractionPersonDto> result = getInteractionPersons(username);
+//        result.removeIf((InteractionPersonDto t) -> {
+//            return !t.getState().equals(state);
+//        });
+//        return result;
+//    }
 
     @Override
     public Long getId(String username) {
@@ -437,10 +437,10 @@ public class PersonServiceImpl implements PersonService {
         return p.isPresent() ? p.get().getId() : null;
     }
 
-    @Override
-    public InteractionPersonDto findOneByUsernameAsInteractionPerson(String username) {
-        return InteractionPersonConvert.fromEntityToDto(findOnePersonByUsername(username).get());
-    }
+//    @Override
+//    public InteractionPersonDto findOneByUsernameAsInteractionPerson(String username) {
+//        return InteractionPersonConvert.fromEntityToDto(findOnePersonByUsername(username).get());
+//    }
 
     private Optional<Person> findOnePersonByUsername(String username) {
         if (username == null || username.isEmpty()) {

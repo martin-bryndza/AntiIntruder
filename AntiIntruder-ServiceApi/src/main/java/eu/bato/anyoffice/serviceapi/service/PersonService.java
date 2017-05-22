@@ -131,76 +131,76 @@ public interface PersonService extends Service<PersonDto> {
 
     boolean isPresent(String username);
 
-    /**
-     * Adds a request for interaction of this person (username) with an entity
-     * (id).
-     *
-     * @param username
-     * @param id
-     */
-    void addInteractionEntity(String username, Long id);
-
-    /**
-     * Removes interaction with entity (id) that this person (username) wants to
-     * interact with
-     *
-     * @param username
-     * @param id
-     */
-    void removeInteractionEntity(String username, Long id);
-
-    /**
-     * Removes all interactions with entities that this person (username) wants
-     * to interact with
-     *
-     * @param username
-     */
-    void removeAllInteractionEntities(String username);
-
-    /**
-     * Removes interactions with selected entities (IDs) that this person
-     * (username) wants to interact with
-     *
-     * @param username
-     * @param ids
-     */
-    void removeInteractionEntities(String username, Collection<Long> ids);
-
-    /**
-     * Returns persons that person (username) wants to interact with.
-     *
-     * @param username
-     * @return
-     */
-    List<InteractionPersonDto> getInteractionPersons(String username);
-
-    /**
-     * Returns persons that person (username) wants to interact with and are
-     * currently in the requested state.
-     *
-     * @param username
-     * @param state
-     * @return
-     */
-    List<InteractionPersonDto> getInteractionPersons(String username, PersonState state);
-
-    /**
-     * Returns all persons that want to interact with this person (username)
-     *
-     * @param username
-     * @return
-     */
-    List<InteractionPersonDto> getInteractingPersons(String username);
-
-    InteractionPersonDto findOneByUsernameAsInteractionPerson(String username);
-
-    /**
-     * Removes interactions with all persons that want to interact with this
-     * person (username)
-     *
-     * @param username
-     */
-    void removeAllInteractingPersons(String username);
+//    /**
+//     * Adds a request for interaction of this person (username) with an entity
+//     * (id).
+//     *
+//     * @param username
+//     * @param id
+//     */
+//    void addInteractionEntity(String username, Long id);
+//
+//    /**
+//     * Removes interaction with entity (id) that this person (username) wants to
+//     * interact with
+//     *
+//     * @param username
+//     * @param id
+//     */
+//    void removeInteractionEntity(String username, Long id);
+//
+//    /**
+//     * Removes all interactions with entities that this person (username) wants
+//     * to interact with
+//     *
+//     * @param username
+//     */
+//    void removeAllInteractionEntities(String username);
+//
+//    /**
+//     * Removes interactions with selected entities (IDs) that this person
+//     * (username) wants to interact with
+//     *
+//     * @param username
+//     * @param ids
+//     */
+//    void removeInteractionEntities(String username, Collection<Long> ids);
+//
+//    /**
+//     * Returns persons that person (username) wants to interact with.
+//     *
+//     * @param username
+//     * @return
+//     */
+//    List<InteractionPersonDto> getInteractionPersons(String username);
+//
+//    /**
+//     * Returns persons that person (username) wants to interact with and are
+//     * currently in the requested state.
+//     *
+//     * @param username
+//     * @param state
+//     * @return
+//     */
+//    List<InteractionPersonDto> getInteractionPersons(String username, PersonState state);
+//
+//    /**
+//     * Returns all persons that want to interact with this person (username)
+//     *
+//     * @param username
+//     * @return
+//     */
+//    List<InteractionPersonDto> getInteractingPersons(String username);
+//
+//    InteractionPersonDto findOneByUsernameAsInteractionPerson(String username);
+//
+//    /**
+//     * Removes interactions with all persons that want to interact with this
+//     * person (username)
+//     *
+//     * @param username
+//     */
+//    void removeAllInteractingPersons(String username);
 
     void setLocation(String username, String location);
 

@@ -27,14 +27,10 @@ package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.ConsultationRequestDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
-import eu.bato.anyoffice.backend.model.ConsultationRequest;
-import eu.bato.anyoffice.backend.model.Entity;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
-import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -204,65 +200,65 @@ public class PersonDaoImpl implements PersonDao {
         e.setDndStart(dndStart.orElse(e.getDndStart()));
     }
 
-    @Override
-    public void addInteractionEntity(String username, Long interactionEntityId) {
-        Person p1 = findOneByUsername(username);
-        Person p2 = findOne(interactionEntityId); //TODO should be Entity
-        p1.addInteractionEntity(p2);
-        ConsultationRequest cr = new ConsultationRequest();
-        cr.setRequesterId(p1.getId());
-        cr.setTargetId(p2.getId());
-        cr.setTargetState(p2.getState());
-        cr.setTime(new Date());
-        consultationRequestDao.save(cr);
-    }
-
-    @Override
-    public void removeInteractionEntity(String username, Long interactionEntityId) {
-        Person p1 = findOneByUsername(username);
-        Person p2 = findOne(interactionEntityId); //TODO should be Entity
-        p1.removeInteractionEntity(p2);
-    }
-
-    @Override
-    public void removeAllInteractionEntities(String username) {
-        Person p1 = findOneByUsername(username);
-        p1.removeAllInteractionEntities();
-    }
-
-    @Override
-    public void removeInteractionEntities(String username, Collection<Long> ids) {
-        Person p1 = findOneByUsername(username);
-        ids.stream().map((id) -> findOne(id)).forEach((p2) -> { //TODO should be Entity
-            p1.removeInteractionEntity(p2);
-        });
-        p1.removeAllInteractionEntities();
-    }
-
-    @Override
-    public List<Person> getInteractingPersons(String username) {
-        Person person = findOneByUsername(username);
-        return person.getInteractingPersons();
-    }
-
-    @Override
-    public void removeAllInteractingPersons(String username) {
-        Person person = findOneByUsername(username);
-        person.removeAllInteractingPersons();
-    }
-
-    @Override
-    public List<Person> getInteractionPersons(String username) {
-        Person person = findOneByUsername(username);
-        List<Entity> entities = person.getInteractionEntities();
-        List<Person> persons = new LinkedList<>();
-        entities.forEach((e) -> {
-            if (Person.class.isInstance(e)) {
-                persons.add((Person) e);
-            }
-        });
-        return persons;
-    }
+//    @Override
+//    public void addInteractionEntity(String username, Long interactionEntityId) {
+//        Person p1 = findOneByUsername(username);
+//        Person p2 = findOne(interactionEntityId);
+//        p1.addOutgoingInteractionRequest(p2);
+//        ConsultationRequest cr = new ConsultationRequest();
+//        cr.setRequesterId(p1.getId());
+//        cr.setTargetId(p2.getId());
+//        cr.setTargetState(p2.getState());
+//        cr.setTime(new Date());
+//        consultationRequestDao.save(cr);
+//    }
+//
+//    @Override
+//    public void removeInteractionEntity(String username, Long interactionEntityId) {
+//        Person p1 = findOneByUsername(username);
+//        Person p2 = findOne(interactionEntityId);
+//        p1.removeOutgoingInteractionRequest(p2);
+//    }
+//
+//    @Override
+//    public void removeAllInteractionEntities(String username) {
+//        Person p1 = findOneByUsername(username);
+//        p1.removeAllOutgoingInteractionRequests();
+//    }
+//
+//    @Override
+//    public void removeInteractionEntities(String username, Collection<Long> ids) {
+//        Person p1 = findOneByUsername(username);
+//        ids.stream().map((id) -> findOne(id)).forEach((p2) -> { //TODO should be Entity
+//            p1.removeOutgoingInteractionRequest(p2);
+//        });
+//        p1.removeAllOutgoingInteractionRequests();
+//    }
+//
+//    @Override
+//    public List<Person> getInteractingPersons(String username) {
+//        Person person = findOneByUsername(username);
+//        return person.getIncomingInteractionRequests();
+//    }
+//
+//    @Override
+//    public void removeAllInteractingPersons(String username) {
+//        Person person = findOneByUsername(username);
+//        person.removeAllIncomingInteractionRequests();
+//    }
+//
+//    @Override
+//    public List<Person> getInteractionPersons(String username) {
+//        Person person = findOneByUsername(username);
+//        List<Entity> entities = person.getOutgoingInteractionRequests();
+//        List<Person> persons = new LinkedList<>();
+//        entities.forEach((e) -> {
+//            if (Person.class.isInstance(e)) {
+//                persons.add((Person) e);
+//            }
+//        });
+//        return persons;
+//    }
 
     @Override
     public boolean isTaken(String username) {

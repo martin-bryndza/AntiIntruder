@@ -93,60 +93,60 @@ public interface PersonDao extends Dao<Person, Long> {
      */
     void updateTimers(String username, Optional<Date> dndStart, Optional<Date> dndEnd, Optional<Date> awayStart);
 
-    /**
-     * Adds an interaction of this person with an entity.
-     *
-     * @param username
-     * @param id
-     */
-    void addInteractionEntity(String username, Long id);
-
-    /**
-     * Removes interaction with entity that this person interacts with
-     *
-     * @param username
-     * @param id
-     */
-    void removeInteractionEntity(String username, Long id);
-
-    /**
-     * Removes interactions with entities that this person interacts with
-     *
-     * @param username
-     */
-    void removeAllInteractionEntities(String username);
-
-    /**
-     * Removes interactions with selected entities (IDs) that this person
-     * (username) wants to interact with
-     *
-     * @param username
-     * @param ids
-     */
-    void removeInteractionEntities(String username, Collection<Long> ids);
-
-    /**
-     * Returns all persons that this person (username) wants to interact with
-     *
-     * @param username
-     * @return
-     */
-    List<Person> getInteractionPersons(String username);
-
-    /**
-     * Returns all persons that want to interact with this Person (username)
-     *
-     * @param username
-     * @return
-     */
-    List<Person> getInteractingPersons(String username);
-
-    /**
-     * Removes interactions with all persons that interact with this Entity
-     *
-     * @param username
-     */
-    void removeAllInteractingPersons(String username);
+//    /**
+//     * Adds an interaction of this person with an entity.
+//     *
+//     * @param username
+//     * @param id
+//     */
+//    void addInteractionEntity(String username, Long id);
+//
+//    /**
+//     * Removes interaction with entity that this person interacts with
+//     *
+//     * @param username
+//     * @param id
+//     */
+//    void removeInteractionEntity(String username, Long id);
+//
+//    /**
+//     * Removes interactions with entities that this person interacts with
+//     *
+//     * @param username
+//     */
+//    void removeAllInteractionEntities(String username);
+//
+//    /**
+//     * Removes interactions with selected entities (IDs) that this person
+//     * (username) wants to interact with
+//     *
+//     * @param username
+//     * @param ids
+//     */
+//    void removeInteractionEntities(String username, Collection<Long> ids);
+//
+//    /**
+//     * Returns all persons that this person (username) wants to interact with
+//     *
+//     * @param username
+//     * @return
+//     */
+//    List<Person> getInteractionPersons(String username);
+//
+//    /**
+//     * Returns all persons that want to interact with this Person (username)
+//     *
+//     * @param username
+//     * @return
+//     */
+//    List<Person> getInteractingPersons(String username);
+//
+//    /**
+//     * Removes interactions with all persons that interact with this Entity
+//     *
+//     * @param username
+//     */
+//    void removeAllInteractingPersons(String username);
 
     boolean isTaken(String username);
 
