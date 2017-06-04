@@ -23,16 +23,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.dao;
-
-import eu.bato.anyoffice.backend.model.State;
-import org.springframework.transaction.annotation.Transactional;
+package eu.bato.anyoffice.serviceapi.dto;
 
 /**
  *
  * @author Bato
  */
-@Transactional
-public interface StateDao extends Dao<State, Long> {
+public enum ConsultationState {
 
+    PENDING, CANCELLED, DONE, EXPIRED;
+
+    public String getName() {
+        return name();
+    }
 }

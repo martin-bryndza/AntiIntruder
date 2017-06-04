@@ -25,12 +25,45 @@
  */
 package eu.bato.anyoffice.serviceapi.service;
 
-import eu.bato.anyoffice.serviceapi.dto.StateDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import java.util.List;
+
 
 /**
  *
  * @author Bato
  */
-public interface StateService extends Service<StateDto> {
+public interface ConsultationService extends Service<ConsultationDto> {
+    
+    void addConsultation(String requesterUsername, Long targetId, String message);
+    
+    void cancelConsultationByRequester(String requesterUsername, Long targetId);
+    
+    List<ConsultationDto> getIncomingConsultations(String username);
+
+    List<ConsultationDto> getOutgoingConsultations(String username);
+
+    List<ConsultationDto> getIncomingConsultations(String username, ConsultationState state);
+
+    List<ConsultationDto> getOutgoingConsultations(String username, ConsultationState state);
+    
+    /**
+     * Filters consultations in the "state" requested by the "username".
+     * @param username The requester's username
+     * @param state The state of the consultations to filter
+     * @return List of IDs of target persons
+     */
+    List<Long> getTargetsIds(String username, ConsultationState state);
+    
+    /**
+     * Filters consultations in the "state" where the "username" is the target.
+     *
+     * @param username The target's username
+     * @param state The state of the consultations to filter
+     * @return List of IDs of requesters
+     */
+    List<Long> getRequestersIds(String username, ConsultationState state);
+    
 
 }

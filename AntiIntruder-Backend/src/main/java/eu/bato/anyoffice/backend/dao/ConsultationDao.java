@@ -25,7 +25,8 @@
  */
 package eu.bato.anyoffice.backend.dao;
 
-import eu.bato.anyoffice.backend.model.ConsultationRequest;
+import eu.bato.anyoffice.backend.model.Consultation;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Bato
  */
 @Transactional
-public interface ConsultationRequestDao extends Dao<ConsultationRequest, Long> {
+public interface ConsultationDao extends Dao<Consultation, Long> {
+    
+    Consultation updateState(Long id, ConsultationState state);
 
 }

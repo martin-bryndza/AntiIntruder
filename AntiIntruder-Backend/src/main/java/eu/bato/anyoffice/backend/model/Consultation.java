@@ -23,21 +23,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.serviceapi.dto;
+package eu.bato.anyoffice.backend.model;
 
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.util.Date;
 import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  *
- * @author Bato
+ * @author bryndza
  */
-public abstract class EntityDto {
+@javax.persistence.Entity
+public class Consultation {
 
-    private String description;
-    private String displayName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long lastStateChange;
-    private String location;
+    @Column(nullable = false)
+    private Long requesterId;
+    @Column(nullable = false)
+    private Long targetId;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PersonState targetState;
+    @Column(nullable = false)
+    private Date time;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ConsultationState state;
 
     public Long getId() {
         return id;
@@ -47,42 +67,50 @@ public abstract class EntityDto {
         this.id = id;
     }
 
-    public String getLocation() {
-        return location;
+    public Long getRequesterId() {
+        return requesterId;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setRequesterId(Long requesterId) {
+        this.requesterId = requesterId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public Long getTargetId() {
+        return targetId;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setTargetId(Long targetId) {
+        this.targetId = targetId;
     }
 
-    public String getDescription() {
-        return description;
+    public PersonState getTargetState() {
+        return targetState;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public void setTargetState(PersonState targetState) {
+        this.targetState = targetState;
     }
 
-    public Long getLastStateChange() {
-        return lastStateChange;
+    public Date getTime() {
+        return time;
     }
 
-    public void setLastStateChange(Long lastStateChange) {
-        this.lastStateChange = lastStateChange;
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public ConsultationState getState() {
+        return state;
+    }
+
+    public void setState(ConsultationState state) {
+        this.state = state;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 13 * hash + Objects.hashCode(this.id);
+        int hash = 7;
+        hash = 41 * hash + Objects.hashCode(this.id);
         return hash;
     }
 
@@ -94,7 +122,7 @@ public abstract class EntityDto {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final EntityDto other = (EntityDto) obj;
+        final Consultation other = (Consultation) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
@@ -103,7 +131,7 @@ public abstract class EntityDto {
 
     @Override
     public String toString() {
-        return "EntityDto{" + "description=" + description + ", displayName=" + displayName + ", id=" + id + '}';
+        return "ConsultationRequest{" + "id=" + id + ", requesterId=" + requesterId + ", targetId=" + targetId + ", targetState=" + targetState + ", time=" + time + '}';
     }
 
 }

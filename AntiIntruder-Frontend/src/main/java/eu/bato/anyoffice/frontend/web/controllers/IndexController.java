@@ -27,9 +27,11 @@ package eu.bato.anyoffice.frontend.web.controllers;
 
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.web.data.PasswordObject;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -55,6 +57,9 @@ public class IndexController extends CommonController {
 
     @Autowired
     protected PersonStateManager personStateManager;
+    
+    @Autowired
+    protected ConsultationService consultationService;
 
     private final static Logger log = LoggerFactory.getLogger(PersonStateManager.class);
 
@@ -79,6 +84,12 @@ public class IndexController extends CommonController {
         model.addAttribute("states", PersonState.values());
         addCurrentAndPersons(model);
         model.addAttribute("now", new Date().getTime());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getName().equals("anonymousUser")) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
+                model.addAttribute("consultationsIds", consultationService.getTargetsIds(auth.getName(), ConsultationState.PENDING));
+            }
+        }
         return "fragments/colleagues :: colleagues";
     }
 
@@ -119,7 +130,7 @@ public class IndexController extends CommonController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                personService.addInteractionEntity(auth.getName(), id);
+                consultationService.addConsultation(auth.getName(), id, "TODO");
             }
         }
     }
@@ -130,7 +141,7 @@ public class IndexController extends CommonController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                personService.removeInteractionEntity(auth.getName(), id);
+                consultationService.cancelConsultationByRequester(auth.getName(), id);
             }
         }
     }

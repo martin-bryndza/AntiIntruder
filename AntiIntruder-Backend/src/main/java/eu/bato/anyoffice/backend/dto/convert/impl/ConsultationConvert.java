@@ -23,11 +23,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.config;
+package eu.bato.anyoffice.backend.dto.convert.impl;
 
-import eu.bato.anyoffice.backend.dao.StateDao;
-import eu.bato.anyoffice.backend.model.State;
-import javax.annotation.PostConstruct;
+import eu.bato.anyoffice.backend.model.Consultation;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,19 +36,36 @@ import org.springframework.stereotype.Component;
  * @author Bato
  */
 @Component
-public class InitialImport {
-
+public class ConsultationConvert {
+    
     @Autowired
-    StateDao stateDao;
-
-    @PostConstruct
-    public void run() {
-        State state = new State();
-        state.setName("AVAILABLE");
-        state.setMinDuration(0L);
-        state.setMaxDuration(0L);
-        state.setDefaultSuccessor(state);
-        stateDao.save(state);
+    private PersonService personService;
+    
+    public static Consultation fromDtoToEntity(ConsultationDto dto, String password) {
+        if (dto == null) {
+            return null;
+        }
+        Consultation e = new Consultation();
+        e.setId(dto.getId());
+        e.setRequesterId(dto.getRequester().getId());
+        e.setState(dto.getState());
+        e.setTargetId(dto.getTarget().getId());
+        e.setTargetState(dto.getTarget().getState());
+        e.setTime(dto.getTime());
+        return e;
     }
 
+    public ConsultationDto fromEntityToDto(Consultation entity) {
+        if (entity == null) {
+            return null;
+        }
+        ConsultationDto dto = new ConsultationDto();
+        dto.setId(entity.getId());
+        dto.setRequester(personService.findOne(entity.getRequesterId()));
+        dto.setState(entity.getState());
+        dto.setTarget(personService.findOne(entity.getTargetId()));
+        dto.setTime(dto.getTime());
+        return dto;
+    }
+    
 }

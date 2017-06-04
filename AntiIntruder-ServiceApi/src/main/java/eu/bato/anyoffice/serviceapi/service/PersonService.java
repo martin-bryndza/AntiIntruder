@@ -25,9 +25,9 @@
  */
 package eu.bato.anyoffice.serviceapi.service;
 
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
-import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;

@@ -28,7 +28,6 @@ package eu.bato.anyoffice.backend.service.impl;
 import eu.bato.anyoffice.backend.dao.DisturbanceDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.dao.PersonStateSwitchDao;
-import eu.bato.anyoffice.backend.dto.convert.impl.InteractionPersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonConvert;
 import eu.bato.anyoffice.backend.dto.convert.impl.PersonStateSwitchConvert;
 import eu.bato.anyoffice.backend.model.Disturbance;
@@ -36,14 +35,14 @@ import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -517,5 +516,4 @@ public class PersonServiceImpl implements PersonService {
         hcc.setToken(p.get().getHipChatToken());
         return hcc;
     }
-
 }

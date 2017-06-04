@@ -25,9 +25,10 @@
  */
 package eu.bato.anyoffice.backend.dao.impl;
 
-import eu.bato.anyoffice.backend.dao.ConsultationRequestDao;
-import eu.bato.anyoffice.backend.model.ConsultationRequest;
+import eu.bato.anyoffice.backend.dao.ConsultationDao;
+import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.backend.model.Person;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -42,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class ConsultationRequestDaoImpl implements ConsultationRequestDao {
+public class ConsultationDaoImpl implements ConsultationDao {
 
     @PersistenceContext
     private EntityManager em;
@@ -62,30 +63,41 @@ public class ConsultationRequestDaoImpl implements ConsultationRequestDao {
     }
 
     @Override
-    public List<ConsultationRequest> findAll() {
-        return em.createQuery("SELECT tbl FROM ConsultationRequest tbl", ConsultationRequest.class).getResultList();
+    public List<Consultation> findAll() {
+        return em.createQuery("SELECT tbl FROM ConsultationRequest tbl", Consultation.class).getResultList();
     }
 
     @Override
-    public ConsultationRequest findOne(Long id) {
+    public Consultation findOne(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Invalid id: " + id);
         }
-        return em.createQuery("SELECT e FROM ConsultationRequest e WHERE e.id = :pk", ConsultationRequest.class).setParameter("pk", id).getSingleResult();
+        return em.createQuery("SELECT e FROM ConsultationRequest e WHERE e.id = :pk", Consultation.class).setParameter("pk", id).getSingleResult();
 
     }
 
     @Override
-    public ConsultationRequest save(ConsultationRequest consultationRequest) {
+    public Consultation save(Consultation consultationRequest) {
         if (consultationRequest == null) {
             throw new IllegalArgumentException("Invalid entity (ConsultationRequest): " + consultationRequest);
         }
 
         log.debug("Saving " + consultationRequest.toString());
-        ConsultationRequest modelConsultationRequest = em.merge(consultationRequest);
+        Consultation modelConsultationRequest = em.merge(consultationRequest);
         log.info("Saved " + modelConsultationRequest.toString() + ".");
         log.debug(" Assigned entity id: " + modelConsultationRequest.getId());
         return modelConsultationRequest;
+    }
+
+    @Override
+    public Consultation updateState(Long id, ConsultationState state) {
+        Consultation e = findOne(id);
+        if (e.getState().equals(state)) {
+            log.info("Actual {} and wanted {} states are the same. State of consultation {} will not be changed.", e.getState(), state, e.getId());
+            return e;
+        }
+        e.setState(state);
+        return e;
     }
 
 }

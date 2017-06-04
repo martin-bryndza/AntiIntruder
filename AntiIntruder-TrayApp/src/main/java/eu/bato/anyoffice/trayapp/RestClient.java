@@ -306,14 +306,14 @@ public class RestClient {
      *
      * @return number of people newly available for consultation
      */
-    List<InteractionPerson> getNewAvailableConsulters() {
+    List<InteractionPerson> getCurrentIncomingConsultations() {
         ResponseEntity<String> response;
         try {
-            response = exchange(uri + "availableInteractionPersons", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-            log.debug("GET new available consulters response:" + response.getStatusCode().toString() + " body:" + response.getBody());
+            response = exchange(uri + "incomingConsultations", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            log.debug("GET current incoming consultations response:" + response.getStatusCode().toString() + " body:" + response.getBody());
             return parseListInteractionPerson(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
-            log.error("Unable to GET new available consulters.");
+            log.error("Unable to GET current incoming consultations.");
             return new LinkedList<>();
         }
     }

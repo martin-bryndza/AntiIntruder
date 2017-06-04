@@ -25,8 +25,9 @@
  */
 package eu.bato.anyoffice.backend.dao.impl;
 
-import eu.bato.anyoffice.backend.dao.ConsultationRequestDao;
+import eu.bato.anyoffice.backend.dao.ConsultationDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
+import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
@@ -56,7 +57,7 @@ public class PersonDaoImpl implements PersonDao {
     private EntityManager em;
 
     @Autowired
-    ConsultationRequestDao consultationRequestDao;
+    ConsultationDao consultationRequestDao;
 
     @Override
     public void delete(Long id) {
@@ -200,67 +201,7 @@ public class PersonDaoImpl implements PersonDao {
         e.setDndStart(dndStart.orElse(e.getDndStart()));
     }
 
-//    @Override
-//    public void addInteractionEntity(String username, Long interactionEntityId) {
-//        Person p1 = findOneByUsername(username);
-//        Person p2 = findOne(interactionEntityId);
-//        p1.addOutgoingInteractionRequest(p2);
-//        ConsultationRequest cr = new ConsultationRequest();
-//        cr.setRequesterId(p1.getId());
-//        cr.setTargetId(p2.getId());
-//        cr.setTargetState(p2.getState());
-//        cr.setTime(new Date());
-//        consultationRequestDao.save(cr);
-//    }
-//
-//    @Override
-//    public void removeInteractionEntity(String username, Long interactionEntityId) {
-//        Person p1 = findOneByUsername(username);
-//        Person p2 = findOne(interactionEntityId);
-//        p1.removeOutgoingInteractionRequest(p2);
-//    }
-//
-//    @Override
-//    public void removeAllInteractionEntities(String username) {
-//        Person p1 = findOneByUsername(username);
-//        p1.removeAllOutgoingInteractionRequests();
-//    }
-//
-//    @Override
-//    public void removeInteractionEntities(String username, Collection<Long> ids) {
-//        Person p1 = findOneByUsername(username);
-//        ids.stream().map((id) -> findOne(id)).forEach((p2) -> { //TODO should be Entity
-//            p1.removeOutgoingInteractionRequest(p2);
-//        });
-//        p1.removeAllOutgoingInteractionRequests();
-//    }
-//
-//    @Override
-//    public List<Person> getInteractingPersons(String username) {
-//        Person person = findOneByUsername(username);
-//        return person.getIncomingInteractionRequests();
-//    }
-//
-//    @Override
-//    public void removeAllInteractingPersons(String username) {
-//        Person person = findOneByUsername(username);
-//        person.removeAllIncomingInteractionRequests();
-//    }
-//
-//    @Override
-//    public List<Person> getInteractionPersons(String username) {
-//        Person person = findOneByUsername(username);
-//        List<Entity> entities = person.getOutgoingInteractionRequests();
-//        List<Person> persons = new LinkedList<>();
-//        entities.forEach((e) -> {
-//            if (Person.class.isInstance(e)) {
-//                persons.add((Person) e);
-//            }
-//        });
-//        return persons;
-//    }
-
-    @Override
+@Override
     public boolean isTaken(String username) {
         if (username == null) {
             throw new IllegalArgumentException("Username is null.");
@@ -291,6 +232,16 @@ public class PersonDaoImpl implements PersonDao {
     public Date getLastPing(String username) {
         Person p = findOneByUsername(username);
         return p.getLastPing();
+    }
+
+    @Override
+    public List<Consultation> getIncomingConsultations(String username) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Consultation> getOutgoingConsultations(String username) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

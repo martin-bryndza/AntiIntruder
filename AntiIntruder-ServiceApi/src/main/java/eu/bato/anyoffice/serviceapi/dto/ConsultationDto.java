@@ -23,29 +23,61 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.dto.convert.impl;
+package eu.bato.anyoffice.serviceapi.dto;
 
-import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
+import java.util.Date;
 
 /**
  *
  * @author Bato
  */
-public class InteractionPersonConvert {
+public class ConsultationDto {
+    
+    private Long id;
+    private PersonDto requester;
+    private PersonDto target;
+    private Date time;
+    private ConsultationState state;
 
-    public static InteractionPersonDto fromEntityToDto(Person entity) {
-        if (entity == null) {
-            return null;
-        }
-        InteractionPersonDto dto = new InteractionPersonDto();
-        dto.setId(entity.getId());
-        dto.setUsername(entity.getUsername());
-        dto.setState(entity.getState());
-        dto.setDisplayName(entity.getDisplayName());
-        dto.setLocation(entity.getLocation());
-        dto.setDndStart(entity.getDndStart().getTime());
-        return dto;
+    public Long getId() {
+        return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public PersonDto getRequester() {
+        return requester;
+    }
+
+    public void setRequester(PersonDto requester) {
+        this.requester = requester;
+    }
+
+    public PersonDto getTarget() {
+        return target;
+    }
+
+    public void setTarget(PersonDto target) {
+        this.target = target;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public ConsultationState getState() {
+        return state;
+    }
+
+    public void setState(ConsultationState state) {
+        this.state = state;
+    }
+
+    
 }
