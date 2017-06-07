@@ -34,8 +34,10 @@ import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.service.ConsultationService;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +57,28 @@ public class ConsultationServiceImpl implements ConsultationService {
     @Autowired
     private ConsultationDao consultationDao;
     @Autowired
+    private PersonDao personDao;
+    @Autowired
     private ConsultationConvert consultationConvert;
 
     @Override
     @Transactional(readOnly = false)
     public Long save(ConsultationDto dto) {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return (Long) new DataAccessExceptionNonVoidTemplate(dto) {
+            @Override
+            public Long doMethod() {
+                ConsultationDto dto = (ConsultationDto) getU();
+                Consultation entity = consultationConvert.fromDtoToEntity(dto, (String) getV());
+                if (entity.getState() == null) {
+                    entity.setState(ConsultationState.PENDING);
+                }
+                if (entity.getTime() == null) {
+                    entity.setTime(new Date());
+                }
+                Consultation savedEntity = consultationDao.save(entity);
+                return savedEntity.????;
+            }
+        }.tryMethod();
     }
 
     @Override
@@ -85,8 +103,8 @@ public class ConsultationServiceImpl implements ConsultationService {
     public List<ConsultationDto> findAll() {
         List<Consultation> entities = consultationDao.findAll();
         List<ConsultationDto> result = new LinkedList<>();
-        entities.stream().forEach((entity) -> {
-            result.add(consultationConvert.fromEntityToDto(entity));
+        entities.stream().forEach((Consultation entity) -> {
+            result.add(ConsultationConvert.fromEntityToDto(entity));
         });
         return result;
     }
@@ -95,14 +113,34 @@ public class ConsultationServiceImpl implements ConsultationService {
     public ConsultationDto findOne(Long id) {
         if (id == null) {
             IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
-            log.error("PersonServiceImpl.get() called on null parameter: Long id", iaex);
+            log.error("ConsultationServiceImpl.findOne() called on null parameter: Long id", iaex);
             throw iaex;
         }
         return (ConsultationDto) new DataAccessExceptionNonVoidTemplate(id) {
             @Override
             public ConsultationDto doMethod() {
                 Consultation entity = consultationDao.findOne((Long) getU());
-                return consultationConvert.fromEntityToDto(entity);
+                return ConsultationConvert.fromEntityToDto(entity);
+            }
+        }.tryMethod();
+    }
+    
+    @Override
+    public void setState(String requesterUsername, Long targetId, ConsultationState state){
+        if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
+            log.error("ID is null", iaex);
+            throw iaex;
+        }
+        if (state == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Cannot update consultation to null state.");
+            log.error("ConsultationState is null", iaex);
+            throw iaex;
+        }
+        new DataAccessExceptionVoidTemplate(id, state) {
+            @Override
+            public void doMethod() {
+                consultationDao.setState((Long) getU(), (ConsultationState) getV());
             }
         }.tryMethod();
     }
@@ -128,18 +166,19 @@ public class ConsultationServiceImpl implements ConsultationService {
     }
 
     @Override
-    public void addConsultation(String requesterUsername, Long targetId, String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void cancelConsultationByRequester(String requesterUsername, Long targetId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public List<Long> getTargetsIds(String username, ConsultationState state) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid username in parameter: null");
+            log.error("PersonServiceImpl.getTargetIds() called on null parameter: String username", iaex);
+            throw iaex;
+        }        
+        return (List<Long>) new DataAccessExceptionNonVoidTemplate(username, state) {
+            @Override
+            public List<Long> doMethod() {
+                Long requesterId = personDao.findOneByUsername((String) getU()).getId();
+                return consultationDao.getTargetsIds(requesterId, (ConsultationState) getV());
+            }
+        }.tryMethod();
     }
 
     @Override

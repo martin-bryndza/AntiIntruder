@@ -27,6 +27,7 @@ package eu.bato.anyoffice.backend.dao;
 
 import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -34,8 +35,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Bato
  */
 @Transactional
-public interface ConsultationDao extends Dao<Consultation, Long> {
+public interface ConsultationDao extends Dao<Consultation, Consultation.ConsultationPK> {
     
-    Consultation updateState(Long id, ConsultationState state);
+    Consultation setState(Consultation.ConsultationPK pk, ConsultationState state);
+    
+    List<Consultation> getIncomingConsultations(Long targetId);
+
+    List<Consultation> getOutgoingConsultations(Long requesterId);
+    
+    public List<Long> getTargetsIds(Long requesterId, ConsultationState state);
 
 }

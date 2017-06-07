@@ -25,70 +25,61 @@
  */
 package eu.bato.anyoffice.backend.model;
 
+import eu.bato.anyoffice.backend.model.Consultation.ConsultationPK;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
-import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  *
  * @author bryndza
  */
 @javax.persistence.Entity
+@IdClass(ConsultationPK.class)
 public class Consultation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    @Column(nullable = false)
-    private Long requesterId;
-    @Column(nullable = false)
-    private Long targetId;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PersonState targetState;
+    @ManyToOne
+    @JoinColumn(name = "requesterId")
+    private Person requester;
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "targetId")
+    private Person target;
     @Column(nullable = false)
     private Date time;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ConsultationState state;
-
-    public Long getId() {
-        return id;
+    @Column(nullable = false)
+    private String message;
+    
+    public ConsultationPK getPk(){
+        return new ConsultationPK(requester, target);
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Person getRequester() {
+        return requester;
     }
 
-    public Long getRequesterId() {
-        return requesterId;
+    public void setRequester(Person requester) {
+        this.requester = requester;
     }
 
-    public void setRequesterId(Long requesterId) {
-        this.requesterId = requesterId;
+    public Person getTarget() {
+        return target;
     }
 
-    public Long getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(Long targetId) {
-        this.targetId = targetId;
-    }
-
-    public PersonState getTargetState() {
-        return targetState;
-    }
-
-    public void setTargetState(PersonState targetState) {
-        this.targetState = targetState;
+    public void setTarget(Person target) {
+        this.target = target;
     }
 
     public Date getTime() {
@@ -107,10 +98,19 @@ public class Consultation {
         this.state = state;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 41 * hash + Objects.hashCode(this.id);
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(this.requester);
+        hash = 29 * hash + Objects.hashCode(this.target);
         return hash;
     }
 
@@ -123,7 +123,10 @@ public class Consultation {
             return false;
         }
         final Consultation other = (Consultation) obj;
-        if (!Objects.equals(this.id, other.id)) {
+        if (!Objects.equals(this.requester, other.requester)) {
+            return false;
+        }
+        if (!Objects.equals(this.target, other.target)) {
             return false;
         }
         return true;
@@ -131,7 +134,52 @@ public class Consultation {
 
     @Override
     public String toString() {
-        return "ConsultationRequest{" + "id=" + id + ", requesterId=" + requesterId + ", targetId=" + targetId + ", targetState=" + targetState + ", time=" + time + '}';
+        return "ConsultationRequest{" + "requester=" + requester.getUsername() + ", target=" + target.getUsername() + ", time=" + time + ", state=" + state.getName() + '}';
+    }
+
+    public static class ConsultationPK implements Serializable{
+        protected Person requester;
+        protected Person target;
+
+        public ConsultationPK() {
+        }
+
+        public ConsultationPK(Person requester, Person target) {
+            this.requester = requester;
+            this.target = target;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 83 * hash + Objects.hashCode(this.requester);
+            hash = 83 * hash + Objects.hashCode(this.target);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ConsultationPK other = (ConsultationPK) obj;
+            if (!Objects.equals(this.requester, other.requester)) {
+                return false;
+            }
+            if (!Objects.equals(this.target, other.target)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "{" + requester + " > " + target + '}';
+        }
+        
     }
 
 }

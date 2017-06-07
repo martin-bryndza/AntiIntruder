@@ -102,9 +102,5 @@ public interface PersonDao extends Dao<Person, Long> {
     void setLastPing(String username, Date when);
     
     Date getLastPing(String username);
-    
-    List<Consultation> getIncomingConsultations(String username);
-    
-    List<Consultation> getOutgoingConsultations(String username);
 
 }

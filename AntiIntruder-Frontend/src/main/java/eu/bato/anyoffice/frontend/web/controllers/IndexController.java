@@ -25,6 +25,7 @@
  */
 package eu.bato.anyoffice.frontend.web.controllers;
 
+import eu.bato.anyoffice.core.person.ConsultationsManager;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.web.data.PasswordObject;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
@@ -60,6 +61,9 @@ public class IndexController extends CommonController {
     
     @Autowired
     protected ConsultationService consultationService;
+    
+    @Autowired
+    protected ConsultationsManager consultationsManager;
 
     private final static Logger log = LoggerFactory.getLogger(PersonStateManager.class);
 
@@ -130,7 +134,7 @@ public class IndexController extends CommonController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                consultationService.addConsultation(auth.getName(), id, "TODO");
+                consultationsManager.addConsultation(auth.getName(), id, "TODO");
             }
         }
     }
@@ -141,7 +145,7 @@ public class IndexController extends CommonController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                consultationService.cancelConsultationByRequester(auth.getName(), id);
+                consultationsManager.cancelConsultationByRequester(auth.getName(), id);
             }
         }
     }

@@ -30,7 +30,7 @@ import java.util.List;
 /**
  *
  * @author Bato
- * @param <T>
+ * @param <T> dto
  */
 public interface Service<T> {
 

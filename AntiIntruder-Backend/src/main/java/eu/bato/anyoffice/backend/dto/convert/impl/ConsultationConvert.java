@@ -27,7 +27,6 @@ package eu.bato.anyoffice.backend.dto.convert.impl;
 
 import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
-import eu.bato.anyoffice.serviceapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,32 +38,31 @@ import org.springframework.stereotype.Component;
 public class ConsultationConvert {
     
     @Autowired
-    private PersonService personService;
+    private PersonConvert personConvert;
     
-    public static Consultation fromDtoToEntity(ConsultationDto dto, String password) {
+    public Consultation fromDtoToEntity(ConsultationDto dto, String password) {
         if (dto == null) {
             return null;
         }
         Consultation e = new Consultation();
-        e.setId(dto.getId());
-        e.setRequesterId(dto.getRequester().getId());
+        e.setRequester(personConvert.fromDtoToEntity(dto.getRequester(), null));
         e.setState(dto.getState());
-        e.setTargetId(dto.getTarget().getId());
-        e.setTargetState(dto.getTarget().getState());
+        e.setTarget(personConvert.fromDtoToEntity(dto.getTarget(), null));
         e.setTime(dto.getTime());
+        e.setMessage(dto.getMessage());
         return e;
     }
 
-    public ConsultationDto fromEntityToDto(Consultation entity) {
+    public static ConsultationDto fromEntityToDto(Consultation entity) {
         if (entity == null) {
             return null;
         }
         ConsultationDto dto = new ConsultationDto();
-        dto.setId(entity.getId());
-        dto.setRequester(personService.findOne(entity.getRequesterId()));
+        dto.setRequester(PersonConvert.fromEntityToDto(entity.getRequester()));
         dto.setState(entity.getState());
-        dto.setTarget(personService.findOne(entity.getTargetId()));
-        dto.setTime(dto.getTime());
+        dto.setTarget(PersonConvert.fromEntityToDto(entity.getTarget()));
+        dto.setTime(entity.getTime());
+        dto.setMessage(entity.getMessage());
         return dto;
     }
     

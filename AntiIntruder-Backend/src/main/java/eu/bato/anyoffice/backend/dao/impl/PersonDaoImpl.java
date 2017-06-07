@@ -27,7 +27,6 @@ package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.ConsultationDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
-import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.model.PersonStateSwitch;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
@@ -201,7 +200,7 @@ public class PersonDaoImpl implements PersonDao {
         e.setDndStart(dndStart.orElse(e.getDndStart()));
     }
 
-@Override
+    @Override
     public boolean isTaken(String username) {
         if (username == null) {
             throw new IllegalArgumentException("Username is null.");
@@ -233,15 +232,4 @@ public class PersonDaoImpl implements PersonDao {
         Person p = findOneByUsername(username);
         return p.getLastPing();
     }
-
-    @Override
-    public List<Consultation> getIncomingConsultations(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<Consultation> getOutgoingConsultations(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }

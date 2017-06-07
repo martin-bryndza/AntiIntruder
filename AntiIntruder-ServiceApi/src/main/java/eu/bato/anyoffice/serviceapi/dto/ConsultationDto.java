@@ -38,6 +38,7 @@ public class ConsultationDto {
     private PersonDto target;
     private Date time;
     private ConsultationState state;
+    private String message;
 
     public Long getId() {
         return id;
@@ -79,5 +80,12 @@ public class ConsultationDto {
         this.state = state;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
     
 }

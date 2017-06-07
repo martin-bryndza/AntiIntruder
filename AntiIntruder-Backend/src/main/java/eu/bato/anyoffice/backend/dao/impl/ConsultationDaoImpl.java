@@ -51,53 +51,70 @@ public class ConsultationDaoImpl implements ConsultationDao {
     final static Logger log = LoggerFactory.getLogger(DisturbanceDaoImpl.class);
 
     @Override
-    public void delete(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Invalid record: null or with no id.");
+    public void delete(Consultation.ConsultationPK pk) {
+        Consultation consultation = findOne(pk);
+        if (consultation == null) {
+            log.error("Consultation " + pk.toString() + " is not in DB");
         }
-        Person person = em.find(Person.class, id);
-        if (person == null) {
-            log.error("Consultation request with id " + id + " is not in DB");
-        }
-        em.remove(person);
+        em.remove(consultation);
     }
 
     @Override
     public List<Consultation> findAll() {
-        return em.createQuery("SELECT tbl FROM ConsultationRequest tbl", Consultation.class).getResultList();
+        return em.createQuery("SELECT tbl FROM Consultation tbl", Consultation.class).getResultList();
     }
 
     @Override
-    public Consultation findOne(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Invalid id: " + id);
+    public Consultation findOne(Consultation.ConsultationPK pk) {
+        if (pk == null) {
+            throw new IllegalArgumentException("Invalid pk: " + pk);
         }
-        return em.createQuery("SELECT e FROM ConsultationRequest e WHERE e.id = :pk", Consultation.class).setParameter("pk", id).getSingleResult();
+        return em.find(Consultation.class, pk);
 
     }
 
     @Override
     public Consultation save(Consultation consultationRequest) {
         if (consultationRequest == null) {
-            throw new IllegalArgumentException("Invalid entity (ConsultationRequest): " + consultationRequest);
+            throw new IllegalArgumentException("Invalid entity (Consultation): " + consultationRequest);
         }
 
         log.debug("Saving " + consultationRequest.toString());
         Consultation modelConsultationRequest = em.merge(consultationRequest);
         log.info("Saved " + modelConsultationRequest.toString() + ".");
-        log.debug(" Assigned entity id: " + modelConsultationRequest.getId());
         return modelConsultationRequest;
     }
 
     @Override
-    public Consultation updateState(Long id, ConsultationState state) {
-        Consultation e = findOne(id);
+    public Consultation setState(Consultation.ConsultationPK pk, ConsultationState state) {
+        Consultation e = findOne(pk);
         if (e.getState().equals(state)) {
-            log.info("Actual {} and wanted {} states are the same. State of consultation {} will not be changed.", e.getState(), state, e.getId());
+            log.info("Actual {} and wanted {} states are the same. State of consultation {} will not be changed.", e.getState(), state, e.getPk().toString());
             return e;
         }
         e.setState(state);
         return e;
+    }
+    
+    @Override
+    public List<Consultation> getIncomingConsultations(Long targetId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Consultation> getOutgoingConsultations(Long requesterId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public List<Long> getTargetsIds(Long requesterId, ConsultationState state) {
+        if (requesterId == null) {
+            throw new IllegalArgumentException("Invalid requesterId: " + requesterId);
+        }
+//        return em.createQuery("SELECT p.id FROM (SELECT e.target FROM Consultation e WHERE e.requester = :id AND e.state = :state) p", Long.class)
+//                .setParameter("id", requesterId).setParameter("state", state).getResultList();
+        return em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester.id = :id AND e.state = :state", Long.class)
+                .setParameter("id", requesterId).setParameter("state", state).getResultList();
     }
 
 }

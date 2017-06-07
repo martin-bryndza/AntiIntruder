@@ -36,9 +36,7 @@ import java.util.List;
  */
 public interface ConsultationService extends Service<ConsultationDto> {
     
-    void addConsultation(String requesterUsername, Long targetId, String message);
-    
-    void cancelConsultationByRequester(String requesterUsername, Long targetId);
+    void setState(String requesterUsername, Long targetId, ConsultationState state);
     
     List<ConsultationDto> getIncomingConsultations(String username);
 

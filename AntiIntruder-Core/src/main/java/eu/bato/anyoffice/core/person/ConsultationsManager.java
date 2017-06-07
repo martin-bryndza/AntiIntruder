@@ -25,7 +25,11 @@
  */
 package eu.bato.anyoffice.core.person;
 
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,38 @@ public class ConsultationsManager {
 
     @Autowired
     private PersonService personService;
+    
+    @Autowired
+    private ConsultationService consultationService;
+    
+    public void addConsultation(String requesterUsername, Long targetId, String message) {
+        nullCheck(requesterUsername, targetId);
+        ConsultationDto dto = new ConsultationDto();
+        dto.setRequester(personService.findOneByUsername(requesterUsername));
+        dto.setState(ConsultationState.PENDING);
+        dto.setTarget(personService.findOne(targetId));
+        dto.setTime(new Date());
+        dto.setMessage(message);
+        consultationService.save(dto);
+    }
+    
+    public void cancelConsultationByRequester(String requesterUsername, Long targetId){
+        nullCheck(requesterUsername, targetId);
+        consultationService.setState(requesterUsername, targetId, ConsultationState.CANCELLED);
+    }
+    
+    private void nullCheck(String username, Long id){
+        if (username == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid parameter: username");
+            log.error("Null parameter: String username", iaex);
+            throw iaex;
+        }
+        if (id == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid parameter: id");
+            log.error("Null parameter: Long id", iaex);
+            throw iaex;
+        }
+    }
 
 //    /**
 //     * Returns all persons that want to interact with this person (username) and
