@@ -25,14 +25,11 @@
  */
 package eu.bato.anyoffice.serviceapi.service;
 
-import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
-import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

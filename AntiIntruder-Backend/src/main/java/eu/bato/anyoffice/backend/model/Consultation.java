@@ -33,6 +33,8 @@ import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -46,6 +48,9 @@ import javax.persistence.ManyToOne;
 @IdClass(ConsultationPK.class)
 public class Consultation {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     @Id
     @ManyToOne
     @JoinColumn(name = "requesterId")
@@ -61,7 +66,15 @@ public class Consultation {
     private ConsultationState state;
     @Column(nullable = false)
     private String message;
-    
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+       
     public ConsultationPK getPk(){
         return new ConsultationPK(requester, target);
     }
@@ -126,10 +139,7 @@ public class Consultation {
         if (!Objects.equals(this.requester, other.requester)) {
             return false;
         }
-        if (!Objects.equals(this.target, other.target)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.target, other.target);
     }
 
     @Override

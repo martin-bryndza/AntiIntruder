@@ -27,11 +27,11 @@ package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.ConsultationDao;
 import eu.bato.anyoffice.backend.model.Consultation;
-import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -58,6 +58,15 @@ public class ConsultationDaoImpl implements ConsultationDao {
         }
         em.remove(consultation);
     }
+    
+    @Override
+    public void delete(Long id) {
+        Consultation consultation = findOne(id);
+        if (consultation == null) {
+            log.error("Consultation with ID " + id + " is not in DB");
+        }
+        em.remove(consultation);
+    }
 
     @Override
     public List<Consultation> findAll() {
@@ -70,6 +79,15 @@ public class ConsultationDaoImpl implements ConsultationDao {
             throw new IllegalArgumentException("Invalid pk: " + pk);
         }
         return em.find(Consultation.class, pk);
+
+    }
+    
+    @Override
+    public Consultation findOne(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Invalid ID: " + id);
+        }
+        return em.createQuery("SELECT e FROM Consultation e WHERE e.id = :pk", Consultation.class).setParameter("pk", id).getSingleResult();
 
     }
 
@@ -112,9 +130,13 @@ public class ConsultationDaoImpl implements ConsultationDao {
             throw new IllegalArgumentException("Invalid requesterId: " + requesterId);
         }
 //        return em.createQuery("SELECT p.id FROM (SELECT e.target FROM Consultation e WHERE e.requester = :id AND e.state = :state) p", Long.class)
-//                .setParameter("id", requesterId).setParameter("state", state).getResultList();
-        return em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester.id = :id AND e.state = :state", Long.class)
-                .setParameter("id", requesterId).setParameter("state", state).getResultList();
+//                .query("id", requesterId).query("state", state).getResultList();
+        log.info("em" + em);
+        TypedQuery<Long> query = em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester.id = :id AND e.state = :state", Long.class);
+        query = query.setParameter("id", requesterId);
+        query = query.setParameter("state", state);
+        List<Long> resultList = query.getResultList();
+        return resultList;
     }
 
 }

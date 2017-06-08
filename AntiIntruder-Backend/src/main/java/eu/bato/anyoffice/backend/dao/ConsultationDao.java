@@ -35,7 +35,16 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Bato
  */
 @Transactional
-public interface ConsultationDao extends Dao<Consultation, Consultation.ConsultationPK> {
+public interface ConsultationDao extends Dao<Consultation, Long> {
+    
+    /**
+     * Deletes a given entity.
+     *
+     * @param pk - id of the entity to delete.
+     */
+    void delete(Consultation.ConsultationPK pk);
+    
+    Consultation findOne(Consultation.ConsultationPK pk);
     
     Consultation setState(Consultation.ConsultationPK pk, ConsultationState state);
     

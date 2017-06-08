@@ -40,11 +40,12 @@ public class ConsultationConvert {
     @Autowired
     private PersonConvert personConvert;
     
-    public Consultation fromDtoToEntity(ConsultationDto dto, String password) {
+    public Consultation fromDtoToEntity(ConsultationDto dto) {
         if (dto == null) {
             return null;
         }
         Consultation e = new Consultation();
+        e.setId(dto.getId());
         e.setRequester(personConvert.fromDtoToEntity(dto.getRequester(), null));
         e.setState(dto.getState());
         e.setTarget(personConvert.fromDtoToEntity(dto.getTarget(), null));
@@ -58,6 +59,7 @@ public class ConsultationConvert {
             return null;
         }
         ConsultationDto dto = new ConsultationDto();
+        dto.setId(entity.getId());
         dto.setRequester(PersonConvert.fromEntityToDto(entity.getRequester()));
         dto.setState(entity.getState());
         dto.setTarget(PersonConvert.fromEntityToDto(entity.getTarget()));

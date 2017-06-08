@@ -29,6 +29,7 @@ import eu.bato.anyoffice.backend.dao.ConsultationDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.ConsultationConvert;
 import eu.bato.anyoffice.backend.model.Consultation;
+import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
@@ -68,7 +69,7 @@ public class ConsultationServiceImpl implements ConsultationService {
             @Override
             public Long doMethod() {
                 ConsultationDto dto = (ConsultationDto) getU();
-                Consultation entity = consultationConvert.fromDtoToEntity(dto, (String) getV());
+                Consultation entity = consultationConvert.fromDtoToEntity(dto);
                 if (entity.getState() == null) {
                     entity.setState(ConsultationState.PENDING);
                 }
@@ -76,7 +77,7 @@ public class ConsultationServiceImpl implements ConsultationService {
                     entity.setTime(new Date());
                 }
                 Consultation savedEntity = consultationDao.save(entity);
-                return savedEntity.????;
+                return savedEntity.getId();
             }
         }.tryMethod();
     }
@@ -127,9 +128,14 @@ public class ConsultationServiceImpl implements ConsultationService {
     
     @Override
     public void setState(String requesterUsername, Long targetId, ConsultationState state){
-        if (id == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid id in parameter: null");
-            log.error("ID is null", iaex);
+        if (requesterUsername == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid requesterUsername parameter: null");
+            log.error("requesterUsername is null", iaex);
+            throw iaex;
+        }
+        if (targetId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid targetId parameter: null");
+            log.error("targetId is null", iaex);
             throw iaex;
         }
         if (state == null) {
@@ -137,10 +143,13 @@ public class ConsultationServiceImpl implements ConsultationService {
             log.error("ConsultationState is null", iaex);
             throw iaex;
         }
-        new DataAccessExceptionVoidTemplate(id, state) {
+        new DataAccessExceptionVoidTemplate(requesterUsername, targetId, state) {
             @Override
             public void doMethod() {
-                consultationDao.setState((Long) getU(), (ConsultationState) getV());
+                Person requester = personDao.findOneByUsername((String) getU());
+                Person target = personDao.findOne((Long) getV());
+                Consultation.ConsultationPK pk = new Consultation.ConsultationPK(requester, target);
+                consultationDao.setState(pk, (ConsultationState) getX());
             }
         }.tryMethod();
     }
