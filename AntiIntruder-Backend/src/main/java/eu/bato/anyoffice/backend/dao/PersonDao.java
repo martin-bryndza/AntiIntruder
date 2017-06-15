@@ -25,11 +25,9 @@
  */
 package eu.bato.anyoffice.backend.dao;
 
-import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import javax.persistence.NoResultException;
 import org.springframework.transaction.annotation.Transactional;

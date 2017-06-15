@@ -26,14 +26,20 @@
 package eu.bato.anyoffice.backend.dao.impl;
 
 import eu.bato.anyoffice.backend.dao.ConsultationDao;
+import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.model.Consultation;
+import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,11 +48,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @author bryndza
  */
 @Repository
-@Transactional
+@Transactional(noRollbackFor = NoResultException.class)
 public class ConsultationDaoImpl implements ConsultationDao {
 
     @PersistenceContext
     private EntityManager em;
+    
+    @Autowired
+    private PersonDao personDao;
 
     final static Logger log = LoggerFactory.getLogger(DisturbanceDaoImpl.class);
 
@@ -63,7 +72,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
     public void delete(Long id) {
         Consultation consultation = findOne(id);
         if (consultation == null) {
-            log.error("Consultation with ID " + id + " is not in DB");
+            log.error("Consultation with ID " + id + " is not in the DB");
         }
         em.remove(consultation);
     }
@@ -87,18 +96,18 @@ public class ConsultationDaoImpl implements ConsultationDao {
         if (id == null) {
             throw new IllegalArgumentException("Invalid ID: " + id);
         }
-        return em.createQuery("SELECT e FROM Consultation e WHERE e.id = :pk", Consultation.class).setParameter("pk", id).getSingleResult();
+        return em.createQuery("SELECT e FROM Consultation e WHERE e.id = :id", Consultation.class).setParameter("id", id).getSingleResult();
 
     }
 
     @Override
-    public Consultation save(Consultation consultationRequest) {
-        if (consultationRequest == null) {
-            throw new IllegalArgumentException("Invalid entity (Consultation): " + consultationRequest);
+    public Consultation save(Consultation consultation) {
+        if (consultation == null) {
+            throw new IllegalArgumentException("Invalid entity (Consultation): " + consultation);
         }
 
-        log.debug("Saving " + consultationRequest.toString());
-        Consultation modelConsultationRequest = em.merge(consultationRequest);
+        log.debug("Saving " + consultation.toString());
+        Consultation modelConsultationRequest = em.merge(consultation);
         log.info("Saved " + modelConsultationRequest.toString() + ".");
         return modelConsultationRequest;
     }
@@ -107,7 +116,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
     public Consultation setState(Consultation.ConsultationPK pk, ConsultationState state) {
         Consultation e = findOne(pk);
         if (e.getState().equals(state)) {
-            log.info("Actual {} and wanted {} states are the same. State of consultation {} will not be changed.", e.getState(), state, e.getPk().toString());
+            log.info("Actual {} and wanted {} states are the same. State of consultation {} will not be changed.", e.getState(), state, e.getId());
             return e;
         }
         e.setState(state);
@@ -129,11 +138,12 @@ public class ConsultationDaoImpl implements ConsultationDao {
         if (requesterId == null) {
             throw new IllegalArgumentException("Invalid requesterId: " + requesterId);
         }
-//        return em.createQuery("SELECT p.id FROM (SELECT e.target FROM Consultation e WHERE e.requester = :id AND e.state = :state) p", Long.class)
-//                .query("id", requesterId).query("state", state).getResultList();
-        log.info("em" + em);
-        TypedQuery<Long> query = em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester.id = :id AND e.state = :state", Long.class);
-        query = query.setParameter("id", requesterId);
+        if (state == null) {
+            throw new IllegalArgumentException("Invalid state: " + state);
+        }
+        Person requester = personDao.findOne(requesterId);
+        TypedQuery<Long> query = em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester = :rq AND e.state = :state", Long.class);
+        query = query.setParameter("rq", requester);
         query = query.setParameter("state", state);
         List<Long> resultList = query.getResultList();
         return resultList;

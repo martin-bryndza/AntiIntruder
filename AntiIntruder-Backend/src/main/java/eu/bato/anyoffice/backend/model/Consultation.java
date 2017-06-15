@@ -31,34 +31,39 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 
 /**
  *
  * @author bryndza
  */
 @javax.persistence.Entity
-@IdClass(ConsultationPK.class)
-public class Consultation {
+public class Consultation implements Serializable {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Id
+    
+    @EmbeddedId
+    private ConsultationPK pk;
+    
+    @MapsId("requesterId")
     @ManyToOne
-    @JoinColumn(name = "requesterId")
+    @JoinColumn(name = "requesterId", nullable = false, updatable = false)
     private Person requester;
-    @Id
+    
+    @MapsId("targetId")
     @ManyToOne
-    @JoinColumn(name = "targetId")
+    @JoinColumn(name = "targetId", nullable = false, updatable = false)
     private Person target;
+    
     @Column(nullable = false)
     private Date time;
     @Enumerated(EnumType.STRING)
@@ -74,9 +79,13 @@ public class Consultation {
     public void setId(Long id) {
         this.id = id;
     }
-       
-    public ConsultationPK getPk(){
-        return new ConsultationPK(requester, target);
+
+    public ConsultationPK getPk() {
+        return pk;
+    }
+
+    public void setPk(ConsultationPK pk) {
+        this.pk = pk;
     }
 
     public Person getRequester() {
@@ -144,26 +153,27 @@ public class Consultation {
 
     @Override
     public String toString() {
-        return "ConsultationRequest{" + "requester=" + requester.getUsername() + ", target=" + target.getUsername() + ", time=" + time + ", state=" + state.getName() + '}';
+        return "Consultation{" + "requester=" + requester.getUsername() + ", target=" + target.getUsername() + ", time=" + time + ", state=" + state.getName() + '}';
     }
 
+    @Embeddable
     public static class ConsultationPK implements Serializable{
-        protected Person requester;
-        protected Person target;
+        protected Long requesterId;
+        protected Long targetId;
 
         public ConsultationPK() {
         }
 
-        public ConsultationPK(Person requester, Person target) {
-            this.requester = requester;
-            this.target = target;
+        public ConsultationPK(Long requesterId, Long targetId) {
+            this.requesterId = requesterId;
+            this.targetId = targetId;
         }
 
         @Override
         public int hashCode() {
             int hash = 3;
-            hash = 83 * hash + Objects.hashCode(this.requester);
-            hash = 83 * hash + Objects.hashCode(this.target);
+            hash = 83 * hash + Objects.hashCode(this.requesterId);
+            hash = 83 * hash + Objects.hashCode(this.targetId);
             return hash;
         }
 
@@ -176,10 +186,10 @@ public class Consultation {
                 return false;
             }
             final ConsultationPK other = (ConsultationPK) obj;
-            if (!Objects.equals(this.requester, other.requester)) {
+            if (!Objects.equals(this.requesterId, other.requesterId)) {
                 return false;
             }
-            if (!Objects.equals(this.target, other.target)) {
+            if (!Objects.equals(this.targetId, other.targetId)) {
                 return false;
             }
             return true;
@@ -187,7 +197,7 @@ public class Consultation {
 
         @Override
         public String toString() {
-            return "{" + requester + " > " + target + '}';
+            return "{" + requesterId + " > " + targetId + '}';
         }
         
     }

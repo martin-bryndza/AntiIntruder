@@ -234,56 +234,6 @@ public class Person implements Serializable {
         this.awayStart = awayStart.orElse(null);
     }
 
-//    public List<Entity> getOutgoingInteractionRequests() {
-//        return outgoingInteractionRequests;
-//    }
-//
-//    public void setOutgoingInteractionRequests(List<Entity> outgoingInteractionRequests) {
-//        this.outgoingInteractionRequests = outgoingInteractionRequests;
-//    }
-//
-//    public void addOutgoingInteractionRequest(Entity person) {
-//        if (this.outgoingInteractionRequests == null) {
-//            this.outgoingInteractionRequests = new LinkedList<>();
-//        }
-//        this.outgoingInteractionRequests.add(person);
-//    }
-//
-//    public void removeOutgoingInteractionRequest(Entity person) {
-//        if (this.outgoingInteractionRequests != null) {
-//            this.outgoingInteractionRequests.remove(person);
-//        }
-//    }
-//
-//    public void removeAllOutgoingInteractionRequests() {
-//        this.outgoingInteractionRequests.clear();
-//    }  
-//    
-//    public List<Person> getIncomingInteractionRequests() {
-//        return incomingInteractionRequests;
-//    }
-//
-//    public void setIncomingInteractionRequests(List<Person> persons) {
-//        this.incomingInteractionRequests = persons;
-//    }
-//
-//    public void addIncomingInteractionRequests(Person persons) {
-//        if (this.incomingInteractionRequests == null) {
-//            this.incomingInteractionRequests = new LinkedList<>();
-//        }
-//        this.incomingInteractionRequests.add(persons);
-//    }
-//
-//    public void removeIncomingInteractionRequests(Person interactingPerson) {
-//        if (this.incomingInteractionRequests != null) {
-//            this.incomingInteractionRequests.remove(interactingPerson);
-//        }
-//    }
-//
-//    public void removeAllIncomingInteractionRequests() {
-//        this.incomingInteractionRequests.clear();
-//    }
-
     @Override
     public int hashCode() {
         int hash = 5;

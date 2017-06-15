@@ -28,13 +28,14 @@ package eu.bato.anyoffice.backend.dao;
 import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import java.util.List;
+import javax.persistence.NoResultException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Bato
  */
-@Transactional
+@Transactional(noRollbackFor = NoResultException.class)
 public interface ConsultationDao extends Dao<Consultation, Long> {
     
     /**

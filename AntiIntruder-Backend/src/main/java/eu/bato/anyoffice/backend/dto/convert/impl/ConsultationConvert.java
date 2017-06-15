@@ -46,6 +46,7 @@ public class ConsultationConvert {
         }
         Consultation e = new Consultation();
         e.setId(dto.getId());
+        e.setPk(new Consultation.ConsultationPK(dto.getRequester().getId(), dto.getTarget().getId()));
         e.setRequester(personConvert.fromDtoToEntity(dto.getRequester(), null));
         e.setState(dto.getState());
         e.setTarget(personConvert.fromDtoToEntity(dto.getTarget(), null));

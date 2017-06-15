@@ -147,9 +147,7 @@ public class ConsultationServiceImpl implements ConsultationService {
             @Override
             public void doMethod() {
                 Person requester = personDao.findOneByUsername((String) getU());
-                Person target = personDao.findOne((Long) getV());
-                Consultation.ConsultationPK pk = new Consultation.ConsultationPK(requester, target);
-                consultationDao.setState(pk, (ConsultationState) getX());
+                consultationDao.setState(new Consultation.ConsultationPK(requester.getId(), (Long) getV()), (ConsultationState) getX());
             }
         }.tryMethod();
     }

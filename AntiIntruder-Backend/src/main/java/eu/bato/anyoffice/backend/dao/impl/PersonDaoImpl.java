@@ -55,9 +55,6 @@ public class PersonDaoImpl implements PersonDao {
     @PersistenceContext
     private EntityManager em;
 
-    @Autowired
-    ConsultationDao consultationRequestDao;
-
     @Override
     public void delete(Long id) {
         if (id == null) {
