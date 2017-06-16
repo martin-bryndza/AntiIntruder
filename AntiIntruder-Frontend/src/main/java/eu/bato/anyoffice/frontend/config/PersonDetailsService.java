@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -62,12 +62,12 @@ public class PersonDetailsService implements UserDetailsService {
 
     @PostConstruct
     protected void initialize() {
-            
+
         if (!personService.isPresent("adminAnyOffice")) {
             PersonDto sampleUser = new PersonDto();
             sampleUser.setUsername("adminAnyOffice");
             sampleUser.setDisplayName("Administrator");
-            sampleUser.setRole(PersonRole.ADMIN);
+            sampleUser.setRole(PersonRole.ROLE_ADMIN);
             personService.register(sampleUser, encoder.encode(environment.getProperty("auth.admin.password", "1234")));
         }
 
@@ -81,7 +81,7 @@ public class PersonDetailsService implements UserDetailsService {
             sampleUser.setDisplayName("Martin Bryndza");
             sampleUser.setDescription("QA Engineer ETNA");
             sampleUser.setLocation("R&D Open Space");
-            sampleUser.setRole(PersonRole.USER);
+            sampleUser.setRole(PersonRole.ROLE_USER);
             personService.register(sampleUser, encoder.encode("bato"));
         }
 
@@ -91,7 +91,7 @@ public class PersonDetailsService implements UserDetailsService {
             sampleUser.setDisplayName("Michal Ordelt");
             sampleUser.setDescription("Developer in ETNA (KM)");
             sampleUser.setLocation("R&D Open Space");
-            sampleUser.setRole(PersonRole.USER);
+            sampleUser.setRole(PersonRole.ROLE_USER);
             personService.register(sampleUser, encoder.encode("olda"));
         }
 
@@ -101,7 +101,7 @@ public class PersonDetailsService implements UserDetailsService {
             sampleUser.setDisplayName("Ondrej Myska");
             sampleUser.setDescription("Developer in ETNA (FX)");
             sampleUser.setLocation("R&D Open Space");
-            sampleUser.setRole(PersonRole.USER);
+            sampleUser.setRole(PersonRole.ROLE_USER);
             personService.register(sampleUser, encoder.encode("myska"));
         }
 
@@ -114,14 +114,9 @@ public class PersonDetailsService implements UserDetailsService {
         if (!optDetails.isPresent()) {
             throw new UsernameNotFoundException("User with username " + username + " was not found.");
         }
-        optDetails = personService.getLoginDetails(username);
-        if (!optDetails.isPresent()) {
-            throw new UsernameNotFoundException("User with username " + username + " was not found.");
-        }
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(optDetails.get().getRole().name()));
         return new User(username, optDetails.get().getPassword(), authorities);
-
     }
 
 }

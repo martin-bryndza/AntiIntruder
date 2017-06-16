@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -66,26 +66,29 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
     private Environment environment;
 
     public LdapAuthenticationProvider() {
-
     }
 
     public void initialize() {
         String domain = environment.getProperty(LDAP_DOMAIN, "2008r2ad.test");
         String url = environment.getProperty(LDAP_URL, "ldap://10.0.10.170");
         String rootDn = environment.getProperty(LDAP_ROOT_DN, "DC=2008r2ad,DC=test");
-        ap = new ActiveDirectoryLdapAuthenticationProvider(domain, url, rootDn);
+        log.debug("Initializing LDAP Auth Provder:" + domain + "; " + url + "; " + rootDn);
+        ActiveDirectoryLdapAuthenticationProvider adp = new ActiveDirectoryLdapAuthenticationProvider(domain, url, rootDn);
+        adp.setConvertSubErrorCodesToExceptions(true);
+        ap = adp;
     }
 
     @Override
     public Authentication authenticate(Authentication a) throws AuthenticationException {
         String username = a.getName();
-        log.info("Authenticating: " + username);
+        log.info("Authenticating (LDAP): " + username + ":" + a.getCredentials().toString());
         try {
             ap.authenticate(a);
         } catch (AuthenticationException e) {
             if (username.equals("adminAnyOffice") && environment.getProperty("auth.admin.password", "1234").equals(a.getCredentials().toString())) {
                 log.warn("Administrator authenticated from: {}", a.getDetails());
             } else {
+                log.error(e.getLocalizedMessage());
                 throw e;
             }
         }
@@ -95,7 +98,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
             log.info("User with username {} logged in through AD for the first time", username);
             PersonDto dto = new PersonDto();
             dto.setUsername(username);
-            dto.setRole(PersonRole.USER);
+            dto.setRole(PersonRole.ROLE_USER);
             dto.setDisplayName(username);
             personService.register(dto, encoder.encode(a.getCredentials().toString()));
         }

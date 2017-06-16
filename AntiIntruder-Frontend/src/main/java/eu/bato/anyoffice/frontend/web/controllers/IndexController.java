@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -33,6 +33,8 @@ import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ResourceService;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -56,6 +58,8 @@ public class IndexController extends CommonController {
     protected ResourceService entityService;
     @Autowired
     protected PersonStateManager personStateManager;
+
+    private final static Logger log = LoggerFactory.getLogger(PersonStateManager.class);
 
     private PersonDto adminPerson = null;
 
@@ -91,7 +95,7 @@ public class IndexController extends CommonController {
             Authentication auth = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             PersonDto currentPerson = personService.findOneByUsername(auth.getName());
             model.addAttribute("currentPerson", currentPerson);
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
                 otherPersons.remove(currentPerson);
             }
         }
@@ -100,7 +104,7 @@ public class IndexController extends CommonController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public String submitFormHandler(@ModelAttribute PersonDto person, @ModelAttribute PasswordObject password) {
-        person.setRole(PersonRole.USER);
+        person.setRole(PersonRole.ROLE_USER);
         person.setState(PersonState.UNKNOWN);
         personService.register(person, password.getValue());
         return "redirect:";
@@ -117,7 +121,7 @@ public class IndexController extends CommonController {
     public void interact(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
                 personService.addInteractionEntity(auth.getName(), id);
             }
         }
@@ -128,7 +132,7 @@ public class IndexController extends CommonController {
     public void cancelInteract(@RequestParam Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.USER.name()))) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
                 personService.removeInteractionEntity(auth.getName(), id);
             }
         }

@@ -1,5 +1,11 @@
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
+
+if (!hasProperty('mainClass')) {
+    ext.mainClass = 'eu.bato.anyoffice.frontend.Application'
+}
+
+description = 'frontend'
 
 war {
     baseName = 'anyoffice'
@@ -24,24 +30,26 @@ dependencies {
     compile project(':AntiIntruder-ServiceApi')
     compile project(':AntiIntruder-Backend')
     compile project(':AntiIntruder-Core')
-	
-    compile 'org.aspectj:aspectjweaver:1.8.4'
+    	
+    compile 'org.aspectj:aspectjweaver:1.8.10'
     
-    compile 'org.thymeleaf:thymeleaf-spring4:2.1.3.RELEASE'
-    compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:1.2.6'
+//    compile 'org.thymeleaf:thymeleaf-spring4'
+    compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
     
-    compile ('org.springframework.boot:spring-boot-starter-thymeleaf:1.2.3.RELEASE')
-    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
+    compile ('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile ('org.springframework.boot:spring-boot-devtools')
+//    compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
+//    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
     
     // Spring Security
-    compile 'org.springframework.security:spring-security-web:3.2.5.RELEASE'
-    compile 'org.springframework.security:spring-security-config:3.2.5.RELEASE'
+    compile 'org.springframework.security:spring-security-web:4.2.2.RELEASE'
+    compile 'org.springframework.security:spring-security-config:4.2.2.RELEASE'
     
     //for LDAP
     compile('org.springframework.boot:spring-boot-starter-security:' + project.ext.springBootVersion)
-    compile('org.springframework.security:spring-security-ldap:4.0.0.RELEASE')
+    compile('org.springframework.security:spring-security-ldap:4.2.2.RELEASE')
 //    compile('org.springframework:spring-tx:' + project.ext.springBootVersion) // because of an issue with gradle, otherwise an older one would be fetched
-    compile("org.apache.directory.server:apacheds-server-jndi:1.5.5")
+    compile("org.apache.directory.server:apacheds-server-jndi:2.0.0-M23")
     
-    compile 'joda-time:joda-time:2.3'
+    compile 'joda-time:joda-time:2.9.9'
 }

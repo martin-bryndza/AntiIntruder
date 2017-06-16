@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -63,7 +63,7 @@ public class ResourceController extends CommonController {
     @RequestMapping(value = "resource/add", method = RequestMethod.POST)
     public String submitFormHandler(@ModelAttribute PersonDto person, @ModelAttribute PasswordObject password) {
         person.setState(PersonState.AVAILABLE); //TODO: replace with default state for entity type
-        person.setRole(PersonRole.USER);
+        person.setRole(PersonRole.ROLE_USER);
         personService.register(person, password.getValue());
         return "redirect:";
     }

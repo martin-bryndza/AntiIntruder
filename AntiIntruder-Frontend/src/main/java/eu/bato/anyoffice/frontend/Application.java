@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -53,7 +52,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 @SpringBootApplication // adds @Configuration, @EnableAutoConfiguration, @ComponentScan
 //@EnableWebMvc
-@EnableAutoConfiguration
 public class Application extends WebMvcConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -97,17 +95,11 @@ public class Application extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public LocalValidatorFactoryBean validator() {
+    public Validator mvcValidator() {
         LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
         validatorFactoryBean.setValidationMessageSource(messageSource);
         return validatorFactoryBean;
     }
-
-    @Override
-    public Validator getValidator() {
-        return validator();
-    }
-
 //    @Bean
 //    public ITemplateResolver templateResolver(){
 //        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();

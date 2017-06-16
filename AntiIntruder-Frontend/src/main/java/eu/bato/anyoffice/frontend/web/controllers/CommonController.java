@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -65,10 +65,9 @@ public class CommonController {
         apps.add(new OtherPageObject("SQ6 (120)", "http://10.0.10.150", false));
         return apps;
     }
-
+    
     @ModelAttribute("app")
     public String app() {
         return "anyoffice";
     }
-
 }

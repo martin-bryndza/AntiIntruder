@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -78,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .headers().frameOptions().addHeaderWriter(new XFrameOptionsHeaderWriter(new RegExpAllowFromStrategy("/.*/"))).and()
+                .headers().frameOptions().and().addHeaderWriter(new XFrameOptionsHeaderWriter(new RegExpAllowFromStrategy("/.*/"))).and()
                 .addFilterBefore(authenticationFilter(), LogoutFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
@@ -86,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/css/**").permitAll()
                 .antMatchers("/js/**").permitAll()
-                .antMatchers("/api/**").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers("/api/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .antMatchers(HttpMethod.GET, "/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers("/logout").authenticated()
@@ -95,14 +95,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/faq").permitAll()
                 .antMatchers(HttpMethod.GET, "/otherApp").permitAll()
                 .antMatchers("/downloadClient").permitAll()
-                .antMatchers(HttpMethod.GET, "/changeState").hasAuthority("ADMIN")
-                .antMatchers(HttpMethod.POST, "/").hasAuthority("ADMIN")
-                .antMatchers(HttpMethod.DELETE, "/**").hasAuthority("ADMIN")
-                .antMatchers(HttpMethod.POST, "/interact").hasAnyAuthority("ADMIN", "USER")
-                .antMatchers(HttpMethod.POST, "/cancelinteract").hasAnyAuthority("ADMIN", "USER")
-                .antMatchers("/personEdit/").hasAnyAuthority("ADMIN", "USER")
-                .antMatchers(HttpMethod.POST, "/personEdit/save").hasAnyAuthority("ADMIN", "USER")
-                .antMatchers(HttpMethod.GET, "/graph").hasAnyAuthority("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, "/changeState").hasAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.POST, "/").hasAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/**").hasAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.POST, "/interact").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .antMatchers(HttpMethod.POST, "/cancelinteract").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .antMatchers("/personEdit/").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .antMatchers(HttpMethod.POST, "/personEdit/save").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .antMatchers(HttpMethod.GET, "/graph").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
@@ -128,7 +128,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     LdapAuthenticationProvider ldapAuthenticationProvider() {
         LdapAuthenticationProvider provider = new LdapAuthenticationProvider();
-//        provider.initialize();
         return provider;
     }
 

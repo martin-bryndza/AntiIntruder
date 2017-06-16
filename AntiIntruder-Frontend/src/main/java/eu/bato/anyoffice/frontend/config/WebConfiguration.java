@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -26,8 +26,9 @@
 package eu.bato.anyoffice.frontend.config;
 
 import eu.bato.anyoffice.frontend.Application;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
  * @author bryndza
  */
 @Configuration
+@EnableAutoConfiguration
 public class WebConfiguration extends SpringBootServletInitializer {
 
     @Override

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015, Martin Bryndza
  * All rights reserved.
  *
@@ -62,7 +62,7 @@ public class GraphController extends CommonController {
         model.addAttribute("currentPerson", currentPerson);
 
         //check input and prepare attributes
-        if ((usernameGraph == null || usernameGraph.isEmpty()) || (!usernameGraph.equals(currentPerson.getUsername()) && !authentication.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ADMIN.name())))) {
+        if ((usernameGraph == null || usernameGraph.isEmpty()) || (!usernameGraph.equals(currentPerson.getUsername()) && !authentication.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_ADMIN.name())))) {
             usernameGraph = currentPerson.getUsername();
         }
         model.addAttribute("usernameGraph", usernameGraph);
