@@ -43,8 +43,8 @@
                                         <button type="submit" th:text='#{Delete}'>Delete</button>
                                     </form>
                                 </td>
-                                <td th:if="${#httpServletRequest.isUserInRole('ROLE_USER')}" th:switch="${#lists.contains(consultationsIds, ent.id)}" style="text-align: center;">
-                                    <a th:case="true" class='clickable' th:onclick="'javascipt:cancelinteract('+${ent.id}+');'">
+                                <td th:if="${#httpServletRequest.isUserInRole('ROLE_USER')}" th:switch="${#maps.containsKey(consultations,ent.id)}" style="text-align: center;">
+                                    <a th:case="true" class='clickable' th:onclick="'javascipt:cancelinteract('+${consultations[ent.id].id}+');'">
                                         <img title="Do not notify me when person becomes available" th:title="'Do not notify me when ' + ${ent.displayName} + ' becomes available'" class="tableimg" alt='remove' th:alt="#{Remove_consultation}" src='../static/images/binoculars-on.png' th:src="@{/images/binoculars-on.png}"/>
                                     </a>
                                     <a th:case="false" class='clickable' th:onclick="'javascipt:interact('+${ent.id}+');'">

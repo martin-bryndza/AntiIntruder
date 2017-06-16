@@ -121,13 +121,13 @@
                 retrieveColleaguesUrl("/colleagues");
             }
             function interact(id) {
-                var url = '/interact?id=' + id;
+                var url = '/interact?targetId=' + id;
                 $.post(url, function() {
                     retrieveColleagues();
                 });
             }
             function cancelinteract(id) {
-                var url = '/cancelinteract?id=' + id;
+                var url = '/cancelinteract?consultationId=' + id;
                 $.post(url, function() {
                     retrieveColleagues();
                 });

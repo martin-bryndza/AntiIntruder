@@ -23,41 +23,63 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.serviceapi.service;
+package eu.bato.anyoffice.frontend.web.data;
 
-import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
-import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
-import java.util.List;
-
+import java.util.Collection;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
- * @author Bato
+ * @author bryndza
  */
-public interface ConsultationService extends Service<ConsultationDto> {
+public class User implements UserDetails{
     
-    void setState(Long consultationId, ConsultationState state);
-    
-    List<ConsultationDto> getIncomingConsultations(Long targetId, ConsultationState state);
+    private final Long id;
+    private final org.springframework.security.core.userdetails.User user;
 
-    List<ConsultationDto> getOutgoingConsultations(Long requesterId, ConsultationState state);
-    
-    /**
-     * Filters consultations in the "state" requested by the "username".
-     * @param username The requester's username
-     * @param state The state of the consultations to filter
-     * @return List of IDs of target persons
-     */
-    List<Long> getTargetsIds(String username, ConsultationState state);
-    
-    /**
-     * Filters consultations in the "state" where the "targetId" is the target.
-     *
-     * @param targetId The target's ID
-     * @param state The state of the consultations to filter
-     * @return List of IDs of requesters
-     */
-    List<Long> getRequestersIds(Long targetId, ConsultationState state);
-    
+    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.user = new org.springframework.security.core.userdetails.User(username, password, authorities);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getAuthorities();
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return user.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return user.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return user.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isEnabled();
+    }
 
 }

@@ -37,22 +37,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(noRollbackFor = NoResultException.class)
 public interface ConsultationDao extends Dao<Consultation, Long> {
+     
+    Consultation setState(Long id, ConsultationState state);
     
-    /**
-     * Deletes a given entity.
-     *
-     * @param pk - id of the entity to delete.
-     */
-    void delete(Consultation.ConsultationPK pk);
-    
-    Consultation findOne(Consultation.ConsultationPK pk);
-    
-    Consultation setState(Consultation.ConsultationPK pk, ConsultationState state);
-    
-    List<Consultation> getIncomingConsultations(Long targetId);
+    List<Consultation> getIncomingConsultations(Long targetId, ConsultationState state);
 
-    List<Consultation> getOutgoingConsultations(Long requesterId);
+    List<Consultation> getOutgoingConsultations(Long requesterId, ConsultationState state);
     
     public List<Long> getTargetsIds(Long requesterId, ConsultationState state);
+    
+    public List<Long> getRequestersIds(Long targetId, ConsultationState state);
 
 }

@@ -26,6 +26,8 @@
 package eu.bato.anyoffice.frontend.web.controllers;
 
 import eu.bato.anyoffice.frontend.web.data.OtherPageObject;
+import eu.bato.anyoffice.frontend.web.data.User;
+import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -69,5 +74,19 @@ public class CommonController {
     @ModelAttribute("app")
     public String app() {
         return "anyoffice";
+    }
+    
+    /**
+     * Gets the ID of the currently authenticated user.
+     * @return The ID or -1 if no user is authenticated or the user is administrator.
+     */
+    protected Long getCurrentUserId(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getName().equals("anonymousUser")) {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
+                return ((User) auth.getPrincipal()).getId();
+            } 
+        }
+        return -1L;
     }
 }

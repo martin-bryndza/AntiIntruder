@@ -29,7 +29,6 @@ import eu.bato.anyoffice.backend.dao.ConsultationDao;
 import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.dto.convert.impl.ConsultationConvert;
 import eu.bato.anyoffice.backend.model.Consultation;
-import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionNonVoidTemplate;
 import eu.bato.anyoffice.backend.service.common.DataAccessExceptionVoidTemplate;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
@@ -38,7 +37,6 @@ import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 import javax.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,15 +125,10 @@ public class ConsultationServiceImpl implements ConsultationService {
     }
     
     @Override
-    public void setState(String requesterUsername, Long targetId, ConsultationState state){
-        if (requesterUsername == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid requesterUsername parameter: null");
-            log.error("requesterUsername is null", iaex);
-            throw iaex;
-        }
-        if (targetId == null) {
-            IllegalArgumentException iaex = new IllegalArgumentException("Invalid targetId parameter: null");
-            log.error("targetId is null", iaex);
+    public void setState(Long consultationId, ConsultationState state){
+        if (consultationId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid consultationId parameter: null");
+            log.error("consultationId is null", iaex);
             throw iaex;
         }
         if (state == null) {
@@ -143,33 +136,52 @@ public class ConsultationServiceImpl implements ConsultationService {
             log.error("ConsultationState is null", iaex);
             throw iaex;
         }
-        new DataAccessExceptionVoidTemplate(requesterUsername, targetId, state) {
+        new DataAccessExceptionVoidTemplate(consultationId, state) {
             @Override
             public void doMethod() {
-                Person requester = personDao.findOneByUsername((String) getU());
-                consultationDao.setState(new Consultation.ConsultationPK(requester.getId(), (Long) getV()), (ConsultationState) getX());
+                consultationDao.setState((Long) getU(), (ConsultationState) getV());
             }
         }.tryMethod();
     }
     
     @Override
-    public List<ConsultationDto> getIncomingConsultations(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<ConsultationDto> getIncomingConsultations(Long targetId, ConsultationState state) {
+        if (targetId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid targetId in parameter: null");
+            log.error("PersonServiceImpl.getIncomingConsultations() called on null parameter: Long targetId", iaex);
+            throw iaex;
+        }
+        return (List<ConsultationDto>) new DataAccessExceptionNonVoidTemplate(targetId, state) {
+            @Override
+            public List<ConsultationDto> doMethod() {
+                List<Consultation> outgoingConsultations = consultationDao.getIncomingConsultations((Long) getU(), (ConsultationState) getV());
+                List<ConsultationDto> result = new LinkedList<>();
+                outgoingConsultations.stream().forEach((c) -> {
+                    result.add(ConsultationConvert.fromEntityToDto(c));
+                });
+                return result;
+            }
+        }.tryMethod();
     }
 
     @Override
-    public List<ConsultationDto> getOutgoingConsultations(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<ConsultationDto> getIncomingConsultations(String username, ConsultationState state) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<ConsultationDto> getOutgoingConsultations(String username, ConsultationState state) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<ConsultationDto> getOutgoingConsultations(Long requesterId, ConsultationState state) {
+        if (requesterId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid requesterId in parameter: null");
+            log.error("PersonServiceImpl.getOutgoingConsultations() called on null parameter: Long requesterId", iaex);
+            throw iaex;
+        }
+        return (List<ConsultationDto>) new DataAccessExceptionNonVoidTemplate(requesterId, state) {
+            @Override
+            public List<ConsultationDto> doMethod() {
+                List<Consultation> outgoingConsultations = consultationDao.getOutgoingConsultations((Long) getU(), (ConsultationState) getV());
+                List<ConsultationDto> result = new LinkedList<>();
+                outgoingConsultations.stream().forEach((c) -> {
+                    result.add(ConsultationConvert.fromEntityToDto(c));
+                });
+                return result;
+            }
+        }.tryMethod();
     }
 
     @Override
@@ -189,8 +201,18 @@ public class ConsultationServiceImpl implements ConsultationService {
     }
 
     @Override
-    public List<Long> getRequestersIds(String username, ConsultationState state) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Long> getRequestersIds(Long targetId, ConsultationState state) {
+        if (targetId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid targetId in parameter: null");
+            log.error("PersonServiceImpl.getRequestersIds() called on null parameter: Long targetId", iaex);
+            throw iaex;
+        }
+        return (List<Long>) new DataAccessExceptionNonVoidTemplate(targetId, state) {
+            @Override
+            public List<Long> doMethod() {
+                return consultationDao.getRequestersIds((Long) getU(), (ConsultationState) getV());
+            }
+        }.tryMethod();
     }
 
 }

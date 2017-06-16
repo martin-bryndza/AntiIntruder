@@ -33,7 +33,6 @@ import java.util.Optional;
  * @author Bato
  */
 public class PersonDto {
-
     private String description;
     private String displayName;
     private Long id;

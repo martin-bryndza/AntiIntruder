@@ -28,13 +28,16 @@ package eu.bato.anyoffice.frontend.web.controllers;
 import eu.bato.anyoffice.core.person.ConsultationsManager;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.web.data.PasswordObject;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,11 +91,14 @@ public class IndexController extends CommonController {
         model.addAttribute("states", PersonState.values());
         addCurrentAndPersons(model);
         model.addAttribute("now", new Date().getTime());
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                model.addAttribute("consultationsIds", consultationService.getTargetsIds(auth.getName(), ConsultationState.PENDING));
-            }
+        Long uid = getCurrentUserId();
+        if (uid != -1) {
+            List<ConsultationDto> outgoingConsultations = consultationService.getOutgoingConsultations(uid, ConsultationState.PENDING);
+            Map<Long, ConsultationDto> consultations = new HashMap<>();
+            outgoingConsultations.stream().forEach((c) -> {
+                consultations.put(c.getTarget().getId(), c);
+            });
+            model.addAttribute("consultations", consultations);
         }
         return "fragments/colleagues :: colleagues";
     }
@@ -130,23 +136,19 @@ public class IndexController extends CommonController {
 
     @RequestMapping(value = "/interact", method = RequestMethod.POST)
     @ResponseBody
-    public void interact(@RequestParam Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                consultationsManager.addConsultation(auth.getName(), id, "TODO");
-            }
+    public void interact(@RequestParam Long targetId) {
+        Long uid = getCurrentUserId();
+        if (uid != -1){
+            consultationsManager.addConsultation(uid, targetId, "I want to talk to you real quick.");
         }
     }
 
     @RequestMapping(value = "/cancelinteract", method = RequestMethod.POST)
     @ResponseBody
-    public void cancelInteract(@RequestParam Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getName().equals("anonymousUser")) {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(PersonRole.ROLE_USER.name()))) {
-                consultationsManager.cancelConsultationByRequester(auth.getName(), id);
-            }
+    public void cancelInteract(@RequestParam Long consultationId) {
+        Long uid = getCurrentUserId();
+        if (uid != -1) {
+                consultationsManager.cancelConsultationByRequester(consultationId);
         }
     }
 

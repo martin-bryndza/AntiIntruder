@@ -25,21 +25,18 @@
  */
 package eu.bato.anyoffice.backend.model;
 
-import eu.bato.anyoffice.backend.model.Consultation.ConsultationPK;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 
 /**
  *
@@ -48,18 +45,14 @@ import javax.persistence.MapsId;
 @javax.persistence.Entity
 public class Consultation implements Serializable {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
-    @EmbeddedId
-    private ConsultationPK pk;
-    
-    @MapsId("requesterId")
     @ManyToOne
     @JoinColumn(name = "requesterId", nullable = false, updatable = false)
     private Person requester;
     
-    @MapsId("targetId")
     @ManyToOne
     @JoinColumn(name = "targetId", nullable = false, updatable = false)
     private Person target;
@@ -78,14 +71,6 @@ public class Consultation implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public ConsultationPK getPk() {
-        return pk;
-    }
-
-    public void setPk(ConsultationPK pk) {
-        this.pk = pk;
     }
 
     public Person getRequester() {
@@ -154,52 +139,6 @@ public class Consultation implements Serializable {
     @Override
     public String toString() {
         return "Consultation{" + "requester=" + requester.getUsername() + ", target=" + target.getUsername() + ", time=" + time + ", state=" + state.getName() + '}';
-    }
-
-    @Embeddable
-    public static class ConsultationPK implements Serializable{
-        protected Long requesterId;
-        protected Long targetId;
-
-        public ConsultationPK() {
-        }
-
-        public ConsultationPK(Long requesterId, Long targetId) {
-            this.requesterId = requesterId;
-            this.targetId = targetId;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 3;
-            hash = 83 * hash + Objects.hashCode(this.requesterId);
-            hash = 83 * hash + Objects.hashCode(this.targetId);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final ConsultationPK other = (ConsultationPK) obj;
-            if (!Objects.equals(this.requesterId, other.requesterId)) {
-                return false;
-            }
-            if (!Objects.equals(this.targetId, other.targetId)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "{" + requesterId + " > " + targetId + '}';
-        }
-        
     }
 
 }

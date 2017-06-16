@@ -30,8 +30,6 @@ import eu.bato.anyoffice.backend.dao.PersonDao;
 import eu.bato.anyoffice.backend.model.Consultation;
 import eu.bato.anyoffice.backend.model.Person;
 import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -58,15 +56,6 @@ public class ConsultationDaoImpl implements ConsultationDao {
     private PersonDao personDao;
 
     final static Logger log = LoggerFactory.getLogger(DisturbanceDaoImpl.class);
-
-    @Override
-    public void delete(Consultation.ConsultationPK pk) {
-        Consultation consultation = findOne(pk);
-        if (consultation == null) {
-            log.error("Consultation " + pk.toString() + " is not in DB");
-        }
-        em.remove(consultation);
-    }
     
     @Override
     public void delete(Long id) {
@@ -81,16 +70,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
     public List<Consultation> findAll() {
         return em.createQuery("SELECT tbl FROM Consultation tbl", Consultation.class).getResultList();
     }
-
-    @Override
-    public Consultation findOne(Consultation.ConsultationPK pk) {
-        if (pk == null) {
-            throw new IllegalArgumentException("Invalid pk: " + pk);
-        }
-        return em.find(Consultation.class, pk);
-
-    }
-    
+ 
     @Override
     public Consultation findOne(Long id) {
         if (id == null) {
@@ -113,8 +93,8 @@ public class ConsultationDaoImpl implements ConsultationDao {
     }
 
     @Override
-    public Consultation setState(Consultation.ConsultationPK pk, ConsultationState state) {
-        Consultation e = findOne(pk);
+    public Consultation setState(Long id, ConsultationState state) {
+        Consultation e = findOne(id);
         if (e.getState().equals(state)) {
             log.info("Actual {} and wanted {} states are the same. State of consultation {} will not be changed.", e.getState(), state, e.getId());
             return e;
@@ -124,13 +104,31 @@ public class ConsultationDaoImpl implements ConsultationDao {
     }
     
     @Override
-    public List<Consultation> getIncomingConsultations(Long targetId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Consultation> getIncomingConsultations(Long targetId, ConsultationState state) {
+        if (targetId == null) {
+            throw new IllegalArgumentException("Invalid targetId: " + targetId);
+        }
+        if (state == null) {
+            throw new IllegalArgumentException("Invalid state: " + state);
+        }
+        Person target = personDao.findOne(targetId);
+        TypedQuery<Consultation> query = em.createQuery("SELECT e FROM Consultation e WHERE e.target = :target AND e.state = :state", Consultation.class);
+        query = query.setParameter("target", target).setParameter("state", state);
+        return query.getResultList();
     }
 
     @Override
-    public List<Consultation> getOutgoingConsultations(Long requesterId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Consultation> getOutgoingConsultations(Long requesterId, ConsultationState state) {
+        if (requesterId == null) {
+            throw new IllegalArgumentException("Invalid requesterId: " + requesterId);
+        }
+        if (state == null) {
+            throw new IllegalArgumentException("Invalid state: " + state);
+        }
+        Person requester = personDao.findOne(requesterId);
+        TypedQuery<Consultation> query = em.createQuery("SELECT e FROM Consultation e WHERE e.requester = :rq AND e.state = :state", Consultation.class);
+        query = query.setParameter("rq", requester).setParameter("state", state);
+        return query.getResultList();
     }
     
     @Override
@@ -143,10 +141,22 @@ public class ConsultationDaoImpl implements ConsultationDao {
         }
         Person requester = personDao.findOne(requesterId);
         TypedQuery<Long> query = em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester = :rq AND e.state = :state", Long.class);
-        query = query.setParameter("rq", requester);
-        query = query.setParameter("state", state);
-        List<Long> resultList = query.getResultList();
-        return resultList;
+        query = query.setParameter("rq", requester).setParameter("state", state);
+        return query.getResultList();
+    }
+    
+    @Override
+    public List<Long> getRequestersIds(Long targetId, ConsultationState state) {
+        if (targetId == null) {
+            throw new IllegalArgumentException("Invalid targetId: " + targetId);
+        }
+        if (state == null) {
+            throw new IllegalArgumentException("Invalid state: " + state);
+        }
+        Person target = personDao.findOne(targetId);
+        TypedQuery<Long> query = em.createQuery("SELECT e.requester.id FROM Consultation e WHERE e.target = :target AND e.state = :state", Long.class);
+        query = query.setParameter("target", target).setParameter("state", state);
+        return query.getResultList();
     }
 
 }
