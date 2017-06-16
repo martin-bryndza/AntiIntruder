@@ -23,29 +23,63 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.dto.convert.impl;
+package eu.bato.anyoffice.frontend.web.data;
 
-import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
+import java.util.Collection;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
- * @author Bato
+ * @author bryndza
  */
-public class InteractionPersonConvert {
+public class User implements UserDetails{
+    
+    private final Long id;
+    private final org.springframework.security.core.userdetails.User user;
 
-    public static InteractionPersonDto fromEntityToDto(Person entity) {
-        if (entity == null) {
-            return null;
-        }
-        InteractionPersonDto dto = new InteractionPersonDto();
-        dto.setId(entity.getId());
-        dto.setUsername(entity.getUsername());
-        dto.setState(entity.getState());
-        dto.setDisplayName(entity.getDisplayName());
-        dto.setLocation(entity.getLocation());
-        dto.setDndStart(entity.getDndStart().getTime());
-        return dto;
+    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.user = new org.springframework.security.core.userdetails.User(username, password, authorities);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getAuthorities();
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return user.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return user.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return user.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isEnabled();
     }
 
 }

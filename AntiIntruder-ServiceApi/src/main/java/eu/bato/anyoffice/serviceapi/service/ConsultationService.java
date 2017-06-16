@@ -23,19 +23,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.backend.dao;
+package eu.bato.anyoffice.serviceapi.service;
 
-import eu.bato.anyoffice.backend.model.Entity;
-import eu.bato.anyoffice.backend.model.Resource;
-import org.springframework.transaction.annotation.Transactional;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import java.util.List;
+
 
 /**
  *
  * @author Bato
  */
-@Transactional
-public interface ResourceDao extends Dao<Resource, Long> {
+public interface ConsultationService extends Service<ConsultationDto> {
+    
+    void setState(Long consultationId, ConsultationState state);
+    
+    List<ConsultationDto> getIncomingConsultations(Long targetId, ConsultationState state);
 
-    Entity updateState(Long id, Long stateId);
+    List<ConsultationDto> getOutgoingConsultations(Long requesterId, ConsultationState state);
+    
+    /**
+     * Filters consultations in the "state" requested by the "username".
+     * @param username The requester's username
+     * @param state The state of the consultations to filter
+     * @return List of IDs of target persons
+     */
+    List<Long> getTargetsIds(String username, ConsultationState state);
+    
+    /**
+     * Filters consultations in the "state" where the "targetId" is the target.
+     *
+     * @param targetId The target's ID
+     * @param state The state of the consultations to filter
+     * @return List of IDs of requesters
+     */
+    List<Long> getRequestersIds(Long targetId, ConsultationState state);
+    
 
 }

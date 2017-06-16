@@ -25,6 +25,7 @@
  */
 package eu.bato.anyoffice.frontend.config;
 
+import eu.bato.anyoffice.frontend.web.data.User;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -108,15 +108,16 @@ public class PersonDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Authenticating: " + username);
+        PersonDto person = personService.findOneByUsername(username);
         Optional<LoginDetailsDto> optDetails = personService.getLoginDetails(username);
         if (!optDetails.isPresent()) {
             throw new UsernameNotFoundException("User with username " + username + " was not found.");
         }
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(optDetails.get().getRole().name()));
-        return new User(username, optDetails.get().getPassword(), authorities);
+        return new User(person.getId(), username, optDetails.get().getPassword(), authorities);
     }
 
 }

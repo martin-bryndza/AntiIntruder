@@ -25,7 +25,6 @@
  */
 package eu.bato.anyoffice.serviceapi.dto;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,8 +32,12 @@ import java.util.Optional;
  *
  * @author Bato
  */
-public class PersonDto extends EntityDto {
-
+public class PersonDto {
+    private String description;
+    private String displayName;
+    private Long id;
+    private Long lastStateChange;
+    private String location;
     private PersonState state;
     private String username;
     private PersonRole role;
@@ -42,9 +45,48 @@ public class PersonDto extends EntityDto {
     private Long dndEnd;
     private Optional<Long> awayStart = Optional.empty();
     private Optional<Long> lastPing = Optional.empty();
-    private List<Long> interactionEntitiesIds;
     private String hipChatToken;
     private String hipChatEmail;
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public Long getLastStateChange() {
+        return lastStateChange;
+    }
+
+    public void setLastStateChange(Long lastStateChange) {
+        this.lastStateChange = lastStateChange;
+    }
 
     public String getHipChatToken() {
         return hipChatToken;
@@ -118,23 +160,10 @@ public class PersonDto extends EntityDto {
         this.lastPing = lastPing;
     }
 
-    /**
-     * Returns IDs of all entities, that this person interacts with.
-     *
-     * @return list of IDs
-     */
-    public List<Long> getInteractionEntitiesIds() {
-        return interactionEntitiesIds;
-    }
-
-    public void setInteractionEntitiesIds(List<Long> interactionEntitiesIds) {
-        this.interactionEntitiesIds = interactionEntitiesIds;
-    }
-
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 13 * hash + Objects.hashCode(super.getId());
+        hash = 13 * hash + Objects.hashCode(this.id);
         return hash;
     }
 
@@ -146,13 +175,13 @@ public class PersonDto extends EntityDto {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final EntityDto other = (EntityDto) obj;
-        return Objects.equals(super.getId(), other.getId());
+        final PersonDto other = (PersonDto) obj;
+        return Objects.equals(this.id, other.id);
     }
 
     @Override
     public String toString() {
-        return "PersonDto{" + "state=" + state + ", username=" + username + ", role=" + role + '}';
+        return "PersonDto{" + "description=" + description + ", displayName=" + displayName + ", id=" + id + ", username=" + username + ", role=" + role + '}';
     }
 
 }

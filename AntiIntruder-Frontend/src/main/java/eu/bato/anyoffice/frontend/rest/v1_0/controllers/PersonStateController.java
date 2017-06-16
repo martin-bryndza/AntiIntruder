@@ -25,15 +25,17 @@
  */
 package eu.bato.anyoffice.frontend.rest.v1_0.controllers;
 
-import eu.bato.anyoffice.core.person.PersonInteractionsManager;
+import eu.bato.anyoffice.core.person.ConsultationsManager;
 import eu.bato.anyoffice.core.person.PersonStateManager;
 import eu.bato.anyoffice.frontend.rest.Versions;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
+import eu.bato.anyoffice.frontend.web.data.User;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationDto;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,10 +68,13 @@ public class PersonStateController {
     PersonStateManager personStateManager;
 
     @Autowired
-    PersonInteractionsManager personInteractionsManager;
+    ConsultationsManager consultationsManager;
 
     @Autowired
     PersonService personService;
+    
+    @Autowired
+    ConsultationService consultationService;
 
     @RequestMapping(value = "login", method = GET)
     @ResponseStatus(HttpStatus.OK)
@@ -88,7 +93,6 @@ public class PersonStateController {
     @RequestMapping(value = "state", method = GET)
     public @ResponseBody
     PersonState getCurrentState(Authentication authentication) {
-        ping(authentication); // temporal, until all clients are updated
         return personStateManager.getCurrentState(authentication.getName());
     }
 
@@ -151,12 +155,9 @@ public class PersonStateController {
 
     @RequestMapping(value = "requests", method = GET)
     public @ResponseBody
-    Integer getNumberOfRequests(Authentication authentication) {
-        Set<InteractionPersonDto> interactingPersons = personInteractionsManager.getInteractingPersons(authentication.getName());
-        int result = interactingPersons.size();
-        log.debug("GET requests for user {}, response: {}", authentication.getName(), result);
-        // by now, the confirmation of the fact, that the interacting persons have been see, is done here. In the future this should be done by a call from client
-        personInteractionsManager.seenInteractingEntities(authentication.getName(), interactingPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
+    Integer getNumberOfIncomingConsultations(Authentication authentication) {
+        int result = consultationService.getRequestersIds(getCurrentUserId(authentication), ConsultationState.PENDING).size();
+        log.debug("GET number of incoming consultations for user {}, response: {}", authentication.getName(), result);
         return result;
     }
 
@@ -168,13 +169,11 @@ public class PersonStateController {
      * @param authentication
      * @return map (username: displayName, location, dndStart)
      */
-    @RequestMapping(value = "availableInteractionPersons", method = GET)
+    @RequestMapping(value = "incomingConsultations", method = GET)
     public @ResponseBody
-    Set<InteractionPersonDto> getNewAvailableInteractionPersons(Authentication authentication) {
-        Set<InteractionPersonDto> interactionPersons = personInteractionsManager.getInteractionPersons(authentication.getName(), PersonState.AVAILABLE);
-        log.debug("GET availableInteractionPersons for user {}, response size: {}", authentication.getName(), interactionPersons.size());
-        // by now, the confirmation of the fact, that the interaction persons have been see, is done here. In the future this should be done by a call from client
-        personInteractionsManager.seenInteractionEntities(authentication.getName(), interactionPersons.stream().map(p -> p.getId()).collect(Collectors.toSet()));
+    List<ConsultationDto> getPendingIncomingConsultations(Authentication authentication) {
+        List<ConsultationDto> interactionPersons = consultationService.getIncomingConsultations(getCurrentUserId(authentication), ConsultationState.PENDING);
+        log.debug("GET incomingConsultations for user {}, response size: {}", authentication.getName(), interactionPersons.size());
         return interactionPersons;
     }
 
@@ -199,6 +198,16 @@ public class PersonStateController {
     public void noteDisturbance(@RequestBody Boolean aoUser, Authentication authentication) {
         log.info("Noting disturbance by AnyOffice user: " + aoUser + " to person " + authentication.getName());
         personService.noteDisturbance(authentication.getName(), aoUser);
+    }
+    
+    /**
+     * Gets the ID of the currently authenticated user.
+     *
+     * @param authentication
+     * @return The ID.
+     */
+    private Long getCurrentUserId(Authentication authentication) {
+        return ((User) authentication.getPrincipal()).getId();    
     }
 
 }

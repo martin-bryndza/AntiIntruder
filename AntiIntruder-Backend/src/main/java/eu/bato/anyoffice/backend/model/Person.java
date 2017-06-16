@@ -27,6 +27,7 @@ package eu.bato.anyoffice.backend.model;
 
 import eu.bato.anyoffice.serviceapi.dto.PersonRole;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -37,6 +38,9 @@ import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
@@ -52,15 +56,26 @@ import org.hibernate.annotations.MetaValue;
  */
 @javax.persistence.Entity
 @Table(name = "Person")
-public class Person extends Entity {
+public class Person implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     @Column(columnDefinition = "VARCHAR(100)", nullable = false, unique = true)
     private String username;
     @Column(columnDefinition = "VARCHAR(250)", nullable = false)
     private String password;
+    @Column(columnDefinition = "VARCHAR(150)", nullable = false)
+    private String displayName;    
+    @Column(columnDefinition = "VARCHAR(250)", nullable = true)
+    private String description;
+    @Column(columnDefinition = "VARCHAR(125)", nullable = true)
+    private String location;
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
-    private PersonState state = PersonState.UNKNOWN;
+    private PersonState state = PersonState.UNKNOWN; 
+    @Column(nullable = false, name = "LAST_STATE_CHANGE")
+    private Date lastStateChange;
     @Enumerated(EnumType.STRING)
     private PersonRole role;
     @Column(nullable = false, name = "DND_START")
@@ -71,21 +86,40 @@ public class Person extends Entity {
     private Date awayStart;
     @Column(nullable = true, name = "LAST_PING")
     private Date lastPing;
-    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
-    @AnyMetaDef(
-            idType = "long",
-            metaType = "string",
-            metaValues = {
-                @MetaValue(value = "P", targetEntity = Person.class),
-                @MetaValue(value = "R", targetEntity = Resource.class)})
-    @Cascade(CascadeType.ALL)
-    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<Entity> interactionEntities;
+    
+//    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
+//    @AnyMetaDef(
+//            idType = "long",
+//            metaType = "string",
+//            metaValues = {
+//                @MetaValue(value = "P", targetEntity = Person.class)})
+//    @Cascade(CascadeType.ALL)
+//    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
+//    private List<Entity> outgoingInteractionRequests;
+//    
+//    @ManyToAny(fetch = FetchType.LAZY, metaColumn = @Column(name = "ENTITY_TYPE"))
+//    @AnyMetaDef(
+//            idType = "long",
+//            metaType = "string",
+//            metaValues = {
+//                @MetaValue(value = "P", targetEntity = Person.class)})
+//    @Cascade(CascadeType.ALL)
+//    @JoinTable(name = "INTERACTION", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "person_id"))
+//    private List<Person> incomingInteractionRequests;
+    
     @Column(columnDefinition = "VARCHAR(100)", nullable = true)
     private String hipChatToken;
     @Column(columnDefinition = "VARCHAR(100)", nullable = true)
     private String hipChatEmail;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+    
     public String getHipChatToken() {
         return hipChatToken;
     }
@@ -117,6 +151,14 @@ public class Person extends Entity {
     public void setRole(PersonRole role) {
         this.role = role;
     }
+    
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+    
+    public String getDisplayName() {
+        return displayName;
+    }
 
     public String getUsername() {
         return username;
@@ -133,6 +175,30 @@ public class Person extends Entity {
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+    
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    public Date getLastStateChange() {
+        return lastStateChange;
+    }
+
+    protected void setLastStateChange(Date lastStateChange) {
+        this.lastStateChange = lastStateChange;
+    }
 
     public PersonState getState() {
         return state;
@@ -140,7 +206,7 @@ public class Person extends Entity {
 
     public void setState(PersonState state) {
         final Long currentMillis = Calendar.getInstance().getTimeInMillis();
-        super.setLastStateChange(new Date(currentMillis));
+        this.setLastStateChange(new Date(currentMillis));
         this.state = state;
     }
 
@@ -166,31 +232,6 @@ public class Person extends Entity {
 
     public void setAwayStart(Optional<Date> awayStart) {
         this.awayStart = awayStart.orElse(null);
-    }
-
-    public List<Entity> getInteractionEntities() {
-        return interactionEntities;
-    }
-
-    public void setInteractionEntities(List<Entity> interactionEntities) {
-        this.interactionEntities = interactionEntities;
-    }
-
-    public void addInteractionEntity(Entity interactionEntity) {
-        if (this.interactionEntities == null) {
-            this.interactionEntities = new LinkedList<>();
-        }
-        this.interactionEntities.add(interactionEntity);
-    }
-
-    public void removeInteractionEntity(Entity interactionEntity) {
-        if (this.interactionEntities != null) {
-            this.interactionEntities.remove(interactionEntity);
-        }
-    }
-
-    public void removeAllInteractionEntities() {
-        this.interactionEntities.clear();
     }
 
     @Override

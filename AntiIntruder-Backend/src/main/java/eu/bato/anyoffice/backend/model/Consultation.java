@@ -25,33 +25,45 @@
  */
 package eu.bato.anyoffice.backend.model;
 
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 /**
- * Entity prepared for use with as a state of a resource.
  *
- * @author Bato
+ * @author bryndza
  */
-@Entity
-public class State {
+@javax.persistence.Entity
+public class Consultation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(columnDefinition = "VARCHAR(50)", nullable = false)
-    private String name;
-
-    private long maxDuration;
-    private long minDuration;
-
-    @ManyToOne(optional = true)
-    private State defaultSuccessor;
+    
+    @ManyToOne
+    @JoinColumn(name = "requesterId", nullable = false, updatable = false)
+    private Person requester;
+    
+    @ManyToOne
+    @JoinColumn(name = "targetId", nullable = false, updatable = false)
+    private Person target;
+    
+    @Column(nullable = false)
+    private Date time;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ConsultationState state;
+    @Column(nullable = false)
+    private String message;
 
     public Long getId() {
         return id;
@@ -61,65 +73,51 @@ public class State {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Person getRequester() {
+        return requester;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRequester(Person requester) {
+        this.requester = requester;
     }
 
-    /**
-     *
-     * @return Maximum state duration in milliseconds or 0 for not specified
-     */
-    public long getMaxDuration() {
-        return maxDuration;
+    public Person getTarget() {
+        return target;
     }
 
-    /**
-     *
-     * @param maxDuration Maximum state duration in milliseconds or 0 for not
-     * specified
-     */
-    public void setMaxDuration(long maxDuration) {
-        this.maxDuration = maxDuration;
+    public void setTarget(Person target) {
+        this.target = target;
     }
 
-    /**
-     *
-     * @return Minimum state duration in milliseconds or 0 for not specified
-     */
-    public long getMinDuration() {
-        return minDuration;
+    public Date getTime() {
+        return time;
     }
 
-    /**
-     *
-     * @param minDuration Minimum state duration in milliseconds or 0 for not
-     * specified
-     */
-    public void setMinDuration(long minDuration) {
-        this.minDuration = minDuration;
+    public void setTime(Date time) {
+        this.time = time;
     }
 
-    /**
-     * Gets the default successor of this state. If the given successor is null,
-     * this object will returned as its successor.
-     *
-     * @return Default successor state of this state.
-     */
-    public State getDefaultSuccessor() {
-        return defaultSuccessor == null ? this : defaultSuccessor;
+    public ConsultationState getState() {
+        return state;
     }
 
-    public void setDefaultSuccessor(State defaultSuccessor) {
-        this.defaultSuccessor = defaultSuccessor;
+    public void setState(ConsultationState state) {
+        this.state = state;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(this.requester);
+        hash = 29 * hash + Objects.hashCode(this.target);
         return hash;
     }
 
@@ -131,13 +129,16 @@ public class State {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final State other = (State) obj;
-        return Objects.equals(this.id, other.id);
+        final Consultation other = (Consultation) obj;
+        if (!Objects.equals(this.requester, other.requester)) {
+            return false;
+        }
+        return Objects.equals(this.target, other.target);
     }
 
     @Override
     public String toString() {
-        return "State{" + "id=" + id + ", name=" + name + ", maxDuration=" + maxDuration + ", minDuration=" + minDuration + '}';
+        return "Consultation{" + "requester=" + requester.getUsername() + ", target=" + target.getUsername() + ", time=" + time + ", state=" + state.getName() + '}';
     }
 
 }

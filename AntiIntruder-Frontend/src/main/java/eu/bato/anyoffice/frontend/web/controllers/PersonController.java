@@ -26,7 +26,6 @@
 package eu.bato.anyoffice.frontend.web.controllers;
 
 import eu.bato.anyoffice.core.integration.hipchat.HipChatClient;
-import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

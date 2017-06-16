@@ -25,19 +25,20 @@
  */
 package eu.bato.anyoffice.serviceapi.dto;
 
-import java.util.Objects;
+import java.util.Date;
 
 /**
  *
  * @author Bato
  */
-public abstract class EntityDto {
-
-    private String description;
-    private String displayName;
+public class ConsultationDto {
+    
     private Long id;
-    private Long lastStateChange;
-    private String location;
+    private PersonDto requester;
+    private PersonDto target;
+    private Date time;
+    private ConsultationState state;
+    private String message;
 
     public Long getId() {
         return id;
@@ -47,63 +48,44 @@ public abstract class EntityDto {
         this.id = id;
     }
 
-    public String getLocation() {
-        return location;
+    public PersonDto getRequester() {
+        return requester;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setRequester(PersonDto requester) {
+        this.requester = requester;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public PersonDto getTarget() {
+        return target;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setTarget(PersonDto target) {
+        this.target = target;
     }
 
-    public String getDescription() {
-        return description;
+    public Date getTime() {
+        return time;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public void setTime(Date time) {
+        this.time = time;
     }
 
-    public Long getLastStateChange() {
-        return lastStateChange;
+    public ConsultationState getState() {
+        return state;
     }
 
-    public void setLastStateChange(Long lastStateChange) {
-        this.lastStateChange = lastStateChange;
+    public void setState(ConsultationState state) {
+        this.state = state;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 13 * hash + Objects.hashCode(this.id);
-        return hash;
+    public String getMessage() {
+        return message;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final EntityDto other = (EntityDto) obj;
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
-        return true;
+    public void setMessage(String message) {
+        this.message = message;
     }
-
-    @Override
-    public String toString() {
-        return "EntityDto{" + "description=" + description + ", displayName=" + displayName + ", id=" + id + '}';
-    }
-
+    
 }

@@ -34,19 +34,28 @@ import org.springframework.dao.RecoverableDataAccessException;
  * abstract doMethod(). This class is used when code is expected to include no
  * return statement.
  */
-public abstract class DataAccessExceptionVoidTemplate<U, V> {
+public abstract class DataAccessExceptionVoidTemplate<U, V, X> {
 
     private final U u;
     private final V v;
+    private final X x;
 
     public DataAccessExceptionVoidTemplate(U u) {
         this.u = u;
         this.v = null;
+        this.x = null;
     }
 
     public DataAccessExceptionVoidTemplate(U u, V v) {
         this.u = u;
         this.v = v;
+        this.x = null;
+    }
+    
+    public DataAccessExceptionVoidTemplate(U u, V v, X x) {
+        this.u = u;
+        this.v = v;
+        this.x = x;
     }
 
     public void tryMethod() {
@@ -65,6 +74,10 @@ public abstract class DataAccessExceptionVoidTemplate<U, V> {
 
     public V getV() {
         return v;
+    }
+    
+    public X getX() {
+        return x;
     }
 
 }

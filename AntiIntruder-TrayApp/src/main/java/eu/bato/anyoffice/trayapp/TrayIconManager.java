@@ -347,7 +347,7 @@ class TrayIconManager {
 
     private void showPendingConsultationsPopup(PersonState newState) {
         if (!newState.isAwayState()) {
-            List<InteractionPerson> availableConsulters = client.getNewAvailableConsulters();
+            List<InteractionPerson> availableConsulters = client.getCurrentIncomingConsultations();
             if (!availableConsulters.isEmpty()) {
                 availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
             }

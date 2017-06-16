@@ -26,13 +26,10 @@
 package eu.bato.anyoffice.serviceapi.service;
 
 import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
-import eu.bato.anyoffice.serviceapi.dto.InteractionEntityDto;
-import eu.bato.anyoffice.serviceapi.dto.InteractionPersonDto;
 import eu.bato.anyoffice.serviceapi.dto.LoginDetailsDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import eu.bato.anyoffice.serviceapi.dto.PersonState;
 import eu.bato.anyoffice.serviceapi.dto.PersonStateSwitchDto;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -108,6 +105,15 @@ public interface PersonService extends Service<PersonDto> {
      * @return
      */
     PersonState getState(String username);
+    
+    /**
+     * Sets State of the Person identified by id to the State identified by
+     * stateId.
+     *
+     * @param id Id of the Person
+     * @param personState Id of the State
+     */
+    void updateState(Long id, PersonState personState);
 
     PersonDto findOneByUsername(String username);
 
@@ -122,84 +128,76 @@ public interface PersonService extends Service<PersonDto> {
 
     boolean isPresent(String username);
 
-    /**
-     * Adds a request for interaction of this person (username) with an entity
-     * (id).
-     *
-     * @param username
-     * @param id
-     */
-    void addInteractionEntity(String username, Long id);
-
-    /**
-     * Removes interaction with entity (id) that this person (username) wants to
-     * interact with
-     *
-     * @param username
-     * @param id
-     */
-    void removeInteractionEntity(String username, Long id);
-
-    /**
-     * Removes all interactions with entities that this person (username) wants
-     * to interact with
-     *
-     * @param username
-     */
-    void removeAllInteractionEntities(String username);
-
-    /**
-     * Removes interactions with selected entities (IDs) that this person
-     * (username) wants to interact with
-     *
-     * @param username
-     * @param ids
-     */
-    void removeInteractionEntities(String username, Collection<Long> ids);
-
-    /**
-     * Returns entities that person (username) wants to interact with.
-     *
-     * @param username
-     * @return
-     */
-    List<InteractionEntityDto> getInteractionEntities(String username);
-
-    /**
-     * Returns persons that person (username) wants to interact with.
-     *
-     * @param username
-     * @return
-     */
-    List<InteractionPersonDto> getInteractionPersons(String username);
-
-    /**
-     * Returns persons that person (username) wants to interact with and are
-     * currently in the requested state.
-     *
-     * @param username
-     * @param state
-     * @return
-     */
-    List<InteractionPersonDto> getInteractionPersons(String username, PersonState state);
-
-    /**
-     * Returns all persons that want to interact with this person (username)
-     *
-     * @param username
-     * @return
-     */
-    List<InteractionPersonDto> getInteractingPersons(String username);
-
-    InteractionPersonDto findOneByUsernameAsInteractionPerson(String username);
-
-    /**
-     * Removes interactions with all persons that want to interact with this
-     * person (username)
-     *
-     * @param username
-     */
-    void removeAllInteractingPersons(String username);
+//    /**
+//     * Adds a request for interaction of this person (username) with an entity
+//     * (id).
+//     *
+//     * @param username
+//     * @param id
+//     */
+//    void addInteractionEntity(String username, Long id);
+//
+//    /**
+//     * Removes interaction with entity (id) that this person (username) wants to
+//     * interact with
+//     *
+//     * @param username
+//     * @param id
+//     */
+//    void removeInteractionEntity(String username, Long id);
+//
+//    /**
+//     * Removes all interactions with entities that this person (username) wants
+//     * to interact with
+//     *
+//     * @param username
+//     */
+//    void removeAllInteractionEntities(String username);
+//
+//    /**
+//     * Removes interactions with selected entities (IDs) that this person
+//     * (username) wants to interact with
+//     *
+//     * @param username
+//     * @param ids
+//     */
+//    void removeInteractionEntities(String username, Collection<Long> ids);
+//
+//    /**
+//     * Returns persons that person (username) wants to interact with.
+//     *
+//     * @param username
+//     * @return
+//     */
+//    List<InteractionPersonDto> getInteractionPersons(String username);
+//
+//    /**
+//     * Returns persons that person (username) wants to interact with and are
+//     * currently in the requested state.
+//     *
+//     * @param username
+//     * @param state
+//     * @return
+//     */
+//    List<InteractionPersonDto> getInteractionPersons(String username, PersonState state);
+//
+//    /**
+//     * Returns all persons that want to interact with this person (username)
+//     *
+//     * @param username
+//     * @return
+//     */
+//    List<InteractionPersonDto> getInteractingPersons(String username);
+//
+//    InteractionPersonDto findOneByUsernameAsInteractionPerson(String username);
+//
+//    /**
+//     * Removes interactions with all persons that want to interact with this
+//     * person (username)
+//     *
+//     * @param username
+//     */
+//    void removeAllInteractingPersons(String username);
 
     void setLocation(String username, String location);
 

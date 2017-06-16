@@ -26,11 +26,9 @@
 package eu.bato.anyoffice.backend.dto.convert.impl;
 
 import eu.bato.anyoffice.backend.model.Person;
-import eu.bato.anyoffice.serviceapi.dto.HipChatCredentials;
 import eu.bato.anyoffice.serviceapi.dto.PersonDto;
 import java.util.Date;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /**
@@ -80,7 +78,7 @@ public class PersonConvert {
         dto.setDndStart(entity.getDndStart().getTime());
         Date ping = entity.getLastPing();
         dto.setLastPing(Optional.ofNullable(ping == null ? null : entity.getLastPing().getTime()));
-        dto.setInteractionEntitiesIds(entity.getInteractionEntities().stream().map(p -> p.getId()).collect(Collectors.toList()));
+//        dto.setInteractionEntitiesIds(entity.getOutgoingInteractionRequests().stream().map(p -> p.getId()).collect(Collectors.toList()));
         dto.setHipChatEmail(entity.getHipChatEmail());
         dto.setHipChatToken(entity.getHipChatToken());
         return dto;

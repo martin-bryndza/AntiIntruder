@@ -25,14 +25,27 @@
  */
 package eu.bato.anyoffice.backend.dao;
 
-import eu.bato.anyoffice.backend.model.ConsultationRequest;
+import eu.bato.anyoffice.backend.model.Consultation;
+import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
+import java.util.List;
+import javax.persistence.NoResultException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Bato
  */
-@Transactional
-public interface ConsultationRequestDao extends Dao<ConsultationRequest, Long> {
+@Transactional(noRollbackFor = NoResultException.class)
+public interface ConsultationDao extends Dao<Consultation, Long> {
+     
+    Consultation setState(Long id, ConsultationState state);
+    
+    List<Consultation> getIncomingConsultations(Long targetId, ConsultationState state);
+
+    List<Consultation> getOutgoingConsultations(Long requesterId, ConsultationState state);
+    
+    public List<Long> getTargetsIds(Long requesterId, ConsultationState state);
+    
+    public List<Long> getRequestersIds(Long targetId, ConsultationState state);
 
 }
