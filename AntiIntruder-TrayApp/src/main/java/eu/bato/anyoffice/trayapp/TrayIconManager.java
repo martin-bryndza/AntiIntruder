@@ -27,10 +27,11 @@ package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
-import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
+import eu.bato.anyoffice.trayapp.entities.Consultation;
 import eu.bato.anyoffice.trayapp.entities.PersonLocation;
 import java.awt.AWTException;
 import java.awt.CheckboxMenuItem;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
@@ -61,7 +62,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -103,7 +103,7 @@ class TrayIconManager {
     private final UpdateIconMouseListener updateIconMouseListener;
 
     private final SwitchToStateFrame switchToDndFrame;
-    private final AvailableConsultersMessageFrame availableConsultersMessageFrame;
+    private final IncomingConsultationsMessageFrame availableConsultersMessageFrame;
     private final DndCustomPeriodFrame dndCustomPeriodFrame;
 
     private final RestClient client;
@@ -119,7 +119,7 @@ class TrayIconManager {
         icon = Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/logo.png"));
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToStateFrame();
-        availableConsultersMessageFrame = new AvailableConsultersMessageFrame();
+        availableConsultersMessageFrame = new IncomingConsultationsMessageFrame();
         dndCustomPeriodFrame = new DndCustomPeriodFrame();
         statesMenuItems = new HashMap<>();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
@@ -296,25 +296,26 @@ class TrayIconManager {
 
         String newLocation = client.getLocation();
 
-        showPendingConsultationsPopup(newState);
+        showPendingConsultationsList(newState);
 
         Long current = new Date().getTime();
 
         //change tool tip message of tray icon and states menu items accordingly (due to elapsed time)
+        String optionalMessage = " (" + Configuration.getInstance().getProperty(Property.CURRENT_USER) + ")";
         if (newState.equals(PersonState.DO_NOT_DISTURB)) {
             Long end = client.getDndEnd() - current;
-            trayIcon.setToolTip("Do not disturb will end in " + millisToMins(end) + " minutes.");
-            statesMenuItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + millisToMins(end) + " min.)");
+            trayIcon.setToolTip("Do not disturb will end in " + millisToMins(end) + " minutes." + optionalMessage);
+            statesMenuItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (ends in " + millisToMins(end) + " min.)" + optionalMessage);
         } else if (newState.equals(PersonState.AVAILABLE)) {
             Long start = client.getDndStart();
             if (start > current) {
-                trayIcon.setToolTip("Do not disturb will be available in " + millisToMins(start - current) + " minutes.");
+                trayIcon.setToolTip("Do not disturb will be available in " + millisToMins(start - current) + " minutes." + optionalMessage);
                 statesMenuItems.get(PersonState.DO_NOT_DISTURB).setLabel(PersonState.DO_NOT_DISTURB.getDisplayName() + " (in " + millisToMins(start - current) + " min.)");
             } else {
-                trayIcon.setToolTip(PersonState.AVAILABLE.getDescription());
+                trayIcon.setToolTip(PersonState.AVAILABLE.getDescription() + optionalMessage);
             }
         } else {
-            trayIcon.setToolTip(newState.getDescription());
+            trayIcon.setToolTip(newState.getDescription() + optionalMessage);
         }
 
         //check if any change of visual components is necessary
@@ -345,16 +346,13 @@ class TrayIconManager {
         return end / 60000;
     }
 
-    private void showPendingConsultationsPopup(PersonState newState) {
-        if (!newState.isAwayState()) {
-            List<InteractionPerson> availableConsulters = client.getCurrentIncomingConsultations();
-            if (!availableConsulters.isEmpty()) {
-                availableConsultersMessageFrame.showAvailableConsultersMessage(availableConsulters);
-            }
-            // if I can see a consultation request means, that I am or I've just recently been AVAILABLE
-            int requests = client.getNumberOfRequests();
-            if (requests > 0) {
-                showInfoBubble(" You have " + requests + " pending request" + (requests > 1 ? "s" : "") + " for consultation.");
+    private void showPendingConsultationsList(PersonState newState) {
+        if (newState.equals(PersonState.AVAILABLE)) {
+            List<Consultation> incomingConsultations = client.getCurrentIncomingConsultations();
+            if (!incomingConsultations.isEmpty()) {
+                availableConsultersMessageFrame.showIncomingConsultationsMessage(incomingConsultations);
+            } else {
+                availableConsultersMessageFrame.hideIncomingConsultationsMessage();
             }
         }
     }
@@ -640,7 +638,6 @@ class TrayIconManager {
             popup.addSeparator();
 
             // States menu items
-            Configuration conf = Configuration.getInstance();
             final CheckboxMenuItem availableItem = new CheckboxMenuItem(PersonState.AVAILABLE.getDisplayName());
             final CheckboxMenuItem dndDefaultItem = new CheckboxMenuItem(PersonState.DO_NOT_DISTURB.getDisplayName());
             if (currentState.equals(PersonState.AVAILABLE)) {
@@ -1312,14 +1309,14 @@ class TrayIconManager {
     /**
      * Frame for displaying people available to be contacted.
      */
-    private class AvailableConsultersMessageFrame extends javax.swing.JFrame {
+    private class IncomingConsultationsMessageFrame extends javax.swing.JFrame {
 
         private JLabel mainLabel;
         private javax.swing.JScrollPane jScrollPane1;
         private JButton dismissButton;
-        private JTable jTable1;
+        private JTable consultationsTable;
 
-        public AvailableConsultersMessageFrame() {
+        public IncomingConsultationsMessageFrame() {
             initComponents();
             showOnTop(false);
             this.setLocationRelativeTo(null);
@@ -1335,14 +1332,11 @@ class TrayIconManager {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    showOnTop(false);
+                    JOptionPane.showMessageDialog(dismissButton, "Sorry, not supported yet.");
                 }
             });
-//            dismissButton.addActionListener((ActionEvent) -> {
-//                showOnTop(false);
-//            });
 
-            setTitle("Any Office - New consultations possible.");
+            setTitle("Any Office - Pending consultations");
             setResizable(false);
             setType(java.awt.Window.Type.POPUP);
             addKeyListener(new java.awt.event.KeyAdapter() {
@@ -1352,15 +1346,15 @@ class TrayIconManager {
                 }
             });
 
-            jTable1 = new javax.swing.JTable();
-            jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            consultationsTable = new javax.swing.JTable();
+            consultationsTable.setModel(new javax.swing.table.DefaultTableModel(
                     new Object[][]{},
                     new String[]{
-                        "Who", "At least how long", "Where"//, " "
+                        "Who", "What", " "
                     }
             ) {
                 Class[] types = new Class[]{
-                    java.lang.String.class, java.lang.String.class, java.lang.String.class//, java.lang.Object.class
+                    java.lang.String.class, java.lang.String.class, java.lang.Object.class
                 };
 
                 @Override
@@ -1370,20 +1364,20 @@ class TrayIconManager {
 
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return false;
+                    return columnIndex == 2;
                 }
+                
             });
-            jTable1.setEnabled(false);
-            jTable1.setRowSelectionAllowed(false);
-            jTable1.setSelectionBackground(new java.awt.Color(255, 255, 255));
-            jTable1.setShowHorizontalLines(false);
-            jTable1.setShowVerticalLines(false);
-            jTable1.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
+            consultationsTable.setEnabled(true);
+            consultationsTable.setRowSelectionAllowed(false);
+            consultationsTable.setSelectionBackground(new java.awt.Color(255, 255, 255));
+            consultationsTable.setShowHorizontalLines(false);
+            consultationsTable.setShowVerticalLines(false);
+            consultationsTable.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
 
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
-            layout.setHorizontalGroup(
-                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                             .addContainerGap()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1395,8 +1389,7 @@ class TrayIconManager {
                             .addComponent(dismissButton)
                             .addContainerGap())
             );
-            layout.setVerticalGroup(
-                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                             .addContainerGap()
                             .addComponent(mainLabel)
@@ -1415,50 +1408,35 @@ class TrayIconManager {
             this.setAlwaysOnTop(show);
             this.setVisible(show);
             if (!show) {
-                DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
-                int rowCount = dm.getRowCount();
-                for (int i = rowCount - 1; i >= 0; i--) {
-                    dm.removeRow(i);
-                }
+                DefaultTableModel dm = (DefaultTableModel) consultationsTable.getModel();
+                dm.setRowCount(0);
             }
         }
 
-        void showAvailableConsultersMessage(List<InteractionPerson> availableConsulters) {
-            if (availableConsulters.isEmpty()) {
+        void showIncomingConsultationsMessage(List<Consultation> consultations) {
+            DefaultTableModel model = (DefaultTableModel) consultationsTable.getModel();
+            model.setRowCount(0); //clear all rows that may have been added in the previous call
+            if (consultations.isEmpty()) {
+                hideIncomingConsultationsMessage();
                 return;
             }
-            List<String[]> consulters = new LinkedList<>();
-            for (InteractionPerson p : availableConsulters) {
-                Long millis = p.getDndStart() - new Date().getTime();
-                Integer minutes = 0;
-                Integer seconds = 0;
-                if (millis > 0) {
-                    minutes = millis.intValue() / 60000;
-                    seconds = millis.intValue() % 60;
-                }
-                String name = p.getDisplayName();
-                String until = minutes + "m " + seconds + "s";
-                String where = p.getLocation();
-                String[] labels = {name, until, where};
-//                JButton b = new JButton("Postpone");
-//                b.setToolTipText("Remind again in 10 minutes or when available again.");
-//                b.addActionListener((ActionEvent) -> {
-//                    JOptionPane.showMessageDialog(this, "Sorry, not supported yet.");
-//                });
-                consulters.add(labels);
+            
+            Map<Integer, Long> consultationsIds = new HashMap<>();
+            for (Consultation c : consultations) {
+                consultationsIds.put(model.getRowCount(), c.getId());
+                model.addRow(new Object[]{c.getRequesterName(), c.getMessage(), "Done"});
             }
 
-            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            for (String[] s : consulters) {
-                model.addRow(new Object[]{s[0], s[1], s[2]/*, "Postpone"*/});
-            }
+            jScrollPane1.setViewportView(consultationsTable);
 
-            jScrollPane1.setViewportView(jTable1);
-
-//            jTable1.getColumn(" ").setCellRenderer(new ButtonRenderer());
-//            jTable1.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox()));
+            consultationsTable.getColumn(" ").setCellRenderer(new ButtonRenderer());
+            consultationsTable.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox(), consultationsIds));
             pack();
             showOnTop(true);
+        }
+        
+        void hideIncomingConsultationsMessage(){
+            showOnTop(false);
         }
 
         private void formKeyReleased(java.awt.event.KeyEvent evt) {
@@ -1491,14 +1469,16 @@ class TrayIconManager {
         private final class ButtonEditor extends DefaultCellEditor {
 
             protected JButton button;
-
             private String label;
-
             private boolean isPushed;
+            Map<Integer, Long> consultationsIds;
+            private Long consultationId;
+            private Color background;
 
-            public ButtonEditor(JCheckBox checkBox) {
+            public ButtonEditor(JCheckBox checkBox, Map<Integer,Long> consultationsIds) {
                 super(checkBox);
-                log.debug("ButtonEditor initialized");
+                this.consultationsIds = consultationsIds;
+                this.background = Color.blue;
                 button = new JButton();
                 button.setOpaque(true);
                 button.addActionListener(new ActionListener() {
@@ -1513,26 +1493,30 @@ class TrayIconManager {
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value,
                     boolean isSelected, int row, int column) {
-                log.debug("getTableCellEditorComponent({}, {}, {}, {}, {}) called", table, value, isSelected, row, column);
+                log.debug("getTableCellEditorComponent");
                 if (isSelected) {
-                    button.setForeground(table.getSelectionForeground());
-                    button.setBackground(table.getSelectionBackground());
+                    button.setForeground(Color.yellow);
+                    button.setBackground(background);
                 } else {
-                    button.setForeground(table.getForeground());
-                    button.setBackground(table.getBackground());
+                    button.setForeground(Color.red);
+                    button.setBackground(background);
                 }
                 label = (value == null) ? "" : value.toString();
                 button.setText(label);
-                button.setToolTipText("Remind again in 10 minutes or when available again.");
+                button.setToolTipText("Settle the consultation.");
                 isPushed = true;
+                consultationId = consultationsIds.get(row);
                 return button;
             }
 
             @Override
             public Object getCellEditorValue() {
-                log.debug("getCellEditorValue called; isPushed={}", isPushed);
+                log.debug("getCellEditorValue");
                 if (isPushed) {
-                    JOptionPane.showMessageDialog(button, "Sorry, not supported yet.");
+                    this.button.setEnabled(false);
+                    this.background = Color.green;
+                    log.debug("Settled " + consultationId);
+                    client.settleConsultation(consultationId);
                 }
                 isPushed = false;
                 return label;
@@ -1540,16 +1524,17 @@ class TrayIconManager {
 
             @Override
             public boolean stopCellEditing() {
-                log.debug("stopCellEditing called");
+                log.debug("stopCellEditing");
                 isPushed = false;
                 return super.stopCellEditing();
             }
 
             @Override
             protected void fireEditingStopped() {
-                log.debug("fireEditingStopped() called");
+                log.debug("fireEditingStopped");
                 super.fireEditingStopped();
             }
+            
         }
     }
 

@@ -80,4 +80,13 @@ public class ConsultationsManager {
         consultationService.setState(consultationId, ConsultationState.CANCELLED);
     }
     
+    public void settleConsultation(Long consultationId){
+        if (consultationId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid parameter: consultationId");
+            log.error("Null parameter: Long consultationId", iaex);
+            throw iaex;
+        }
+        consultationService.setState(consultationId, ConsultationState.DONE);
+    }
+    
 }

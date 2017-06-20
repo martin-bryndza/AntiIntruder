@@ -162,12 +162,10 @@ public class PersonStateController {
     }
 
     /**
-     * Returns list of all persons, that have been requested for interaction and
-     * are available now. The interaction request is canceled automatically
-     * after performing this operation.
+     * Returns all pending incoming consultations.
      *
      * @param authentication
-     * @return map (username: displayName, location, dndStart)
+     * @return List of consultations
      */
     @RequestMapping(value = "incomingConsultations", method = GET)
     public @ResponseBody
@@ -198,6 +196,13 @@ public class PersonStateController {
     public void noteDisturbance(@RequestBody Boolean aoUser, Authentication authentication) {
         log.info("Noting disturbance by AnyOffice user: " + aoUser + " to person " + authentication.getName());
         personService.noteDisturbance(authentication.getName(), aoUser);
+    }
+    
+    @RequestMapping(value = "settleConsultation", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void settleConsultation(@RequestBody Long consultationId, Authentication authentication) {
+        log.info("Settling consultation with id " + consultationId +" by user: " + authentication.getName());
+        consultationsManager.settleConsultation(consultationId);
     }
     
     /**

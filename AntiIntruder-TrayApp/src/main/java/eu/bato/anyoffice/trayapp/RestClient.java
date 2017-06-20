@@ -27,6 +27,7 @@ package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
+import eu.bato.anyoffice.trayapp.entities.Consultation;
 import eu.bato.anyoffice.trayapp.entities.InteractionPerson;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -227,8 +228,8 @@ public class RestClient {
     /**
      * Sends info to server info about machine unlock.
      *
-     * @return Current state of person after machine unlock or
-     * PersonState.UNKNOWN, if an error occurred
+     * @return Current state of consultation after machine unlock or
+ PersonState.UNKNOWN, if an error occurred
      */
     PersonState returnFromAway() {
         return lock(false, false);
@@ -241,8 +242,8 @@ public class RestClient {
     /**
      * Sends info to server info about machine lock.
      *
-     * @return Current state of person after machine unlock or
-     * PersonState.UNKNOWN, if an error occurred
+     * @return Current state of consultation after machine unlock or
+ PersonState.UNKNOWN, if an error occurred
      */
     PersonState goAway() {
         return lock(true, false);
@@ -306,12 +307,12 @@ public class RestClient {
      *
      * @return number of people newly available for consultation
      */
-    List<InteractionPerson> getCurrentIncomingConsultations() {
+    List<Consultation> getCurrentIncomingConsultations() {
         ResponseEntity<String> response;
         try {
             response = exchange(uri + "incomingConsultations", HttpMethod.GET, new HttpEntity<>(headers), String.class);
             log.debug("GET current incoming consultations response:" + response.getStatusCode().toString() + " body:" + response.getBody());
-            return parseListInteractionPerson(response.getBody());
+            return parseListConsultation(response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to GET current incoming consultations.");
             return new LinkedList<>();
@@ -382,6 +383,22 @@ public class RestClient {
             log.info("Note disturbance of aoUser \"{}\" response: {}; body: {}", aoUser, response.getStatusCode().toString(), response.getBody());
         } catch (RestClientException | IllegalArgumentException e) {
             log.error("Unable to note disturbance.");
+        }
+    }
+    
+    /**
+     * Sends request to server to settle consultation
+     *
+     * @param consultationId 
+     */
+    void settleConsultation(Long consultationId) {
+        HttpEntity<String> entity = createEntity(consultationId);
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "settleConsultation", HttpMethod.PUT, entity, String.class);
+            log.info("Settle consultation with ID \"{}\" response: {}; body: {}", consultationId, response.getStatusCode().toString(), response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to settle consultation.");
         }
     }
 
@@ -486,9 +503,6 @@ public class RestClient {
             for (Object o : array) {
                 result.add((String) o);
             }
-//            array.stream().forEach((o) -> {
-//                result.add((String) o);
-//            });
         } catch (ParseException ex) {
             log.error("Error while parsing List from body: {}", responseBody, ex);
         }
@@ -503,9 +517,6 @@ public class RestClient {
             for (Object o : array) {
                 result.add(jsonObjectToInteractionPerson((JSONObject) o));
             }
-//            array.stream().forEach((o) -> {
-//                result.add(jsonObjectToInteractionPerson((JSONObject) o));
-//            });
         } catch (ParseException ex) {
             log.error("Error while parsing List from body: {}", responseBody, ex);
         }
@@ -534,57 +545,31 @@ public class RestClient {
         person.setUsername((String) obj.get("username"));
         return person;
     }
-//    private class PersonStateMessageConverter extends AbstractHttpMessageConverter<PersonState> {
-//
-//        public PersonStateMessageConverter() {
-//        }
-//
-//        public PersonStateMessageConverter(MediaType supportedMediaType) {
-//            super(supportedMediaType);
-//        }
-//
-//        public PersonStateMessageConverter(MediaType... supportedMediaTypes) {
-//            super(supportedMediaTypes);
-//        }
-//
-//        @Override
-//        protected boolean supports(Class<?> clazz) {
-//            return PersonState.class.equals(clazz);
-//        }
-//
-//        @Override
-//        protected PersonState readInternal(Class<? extends PersonState> clazz, HttpInputMessage httpInputMessage) throws IOException, HttpMessageNotReadableException {
-//            java.util.Scanner s = new java.util.Scanner(httpInputMessage.getBody()).useDelimiter("\\A");
-//            String theString = s.hasNext() ? s.next() : "";
-//            PersonState state;
-//            try {
-//                state = PersonState.valueOf(theString.replace("\"", ""));
-//            } catch (IllegalArgumentException e) {
-//                log.error("Unable to parse PersonState from name " + theString + " provided by server.");
-//                return PersonState.UNKNOWN;
-//            }
-//            return state;
-//        }
-//
-//        @Override
-//        protected void writeInternal(PersonState state, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-//            OutputStreamWriter out = null;
-//            try {
-//                out = new OutputStreamWriter(httpOutputMessage.getBody());
-//                out.write(state.name());
-//            } catch (IOException e) {
-//                log.error("Unable to write to HttpOutputMessage.", e);
-//            } finally {
-//                if (out != null) {
-//                    try {
-//                        out.close();
-//                    } catch (IOException e) {
-//                        out = null;
-//                    }
-//                }
-//            }
-//        }
-//
-//    }
+    
+    private List<Consultation> parseListConsultation(String responseBody) {
+        List<Consultation> result = new LinkedList<>();
+        JSONParser parser = new JSONParser();
+        try {
+            JSONArray array = (JSONArray) parser.parse(responseBody);
+            for (Object o : array) {
+                result.add(jsonObjectToConsultation((JSONObject) o));
+            }
+        } catch (ParseException ex) {
+            log.error("Error while parsing List of Consultation from body: {}", responseBody, ex);
+        }
+        return result;
+    }
+
+    private Consultation jsonObjectToConsultation(JSONObject obj) {
+        Consultation consultation = new Consultation();
+        consultation.setId((Long) obj.get("id"));
+        consultation.setMessage((String) obj.getOrDefault("message", ""));
+        consultation.setTime((Long) obj.getOrDefault("dndStart", null));
+        JSONObject requester = (JSONObject) obj.get("requester");
+        consultation.setRequesterLocation((String) requester.getOrDefault("location", "UNKNOWN"));
+        consultation.setRequesterName((String) requester.getOrDefault("displayName", "UNKNOWN"));
+        consultation.setRequesterState(PersonState.valueOf((String) requester.getOrDefault("state", "UNKNOWN")));
+        return consultation;
+    }
 
 }

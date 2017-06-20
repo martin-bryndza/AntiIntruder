@@ -33,13 +33,10 @@ dependencies {
     	
     compile 'org.aspectj:aspectjweaver:1.8.10'
     
-//    compile 'org.thymeleaf:thymeleaf-spring4'
     compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
     
     compile ('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile ('org.springframework.boot:spring-boot-devtools')
-//    compile ('org.springframework.boot:spring-boot-starter-web:' + project.ext.springBootVersion)
-//    providedRuntime ('org.springframework.boot:spring-boot-starter-tomcat:' + project.ext.springBootVersion)
     
     // Spring Security
     compile 'org.springframework.security:spring-security-web:4.2.2.RELEASE'
@@ -48,7 +45,6 @@ dependencies {
     //for LDAP
     compile('org.springframework.boot:spring-boot-starter-security:' + project.ext.springBootVersion)
     compile('org.springframework.security:spring-security-ldap:4.2.2.RELEASE')
-//    compile('org.springframework:spring-tx:' + project.ext.springBootVersion) // because of an issue with gradle, otherwise an older one would be fetched
     compile("org.apache.directory.server:apacheds-server-jndi:2.0.0-M23")
     
     compile 'joda-time:joda-time:2.9.9'

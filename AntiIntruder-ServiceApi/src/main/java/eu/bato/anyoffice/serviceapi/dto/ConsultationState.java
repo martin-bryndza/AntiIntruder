@@ -31,7 +31,7 @@ package eu.bato.anyoffice.serviceapi.dto;
  */
 public enum ConsultationState {
 
-    PENDING, CANCELLED, DONE, EXPIRED;
+    PENDING, IN_PROGRESS, DONE, CANCELLED, EXPIRED;
 
     public String getName() {
         return name();
