@@ -35,10 +35,14 @@ public class Consultation {
     
     private Long id;
     private String requesterName;
-    private eu.bato.anyoffice.trayapp.PersonState requesterState;
+    private PersonState requesterState;
     private String requesterLocation;
+    private String targetName;
+    private PersonState targetState;
+    private String targetLocation;
     private Long time;
     private String message;
+    private PendingConsultationState pendingState;
 
     public Long getId() {
         return id;
@@ -56,11 +60,11 @@ public class Consultation {
         this.requesterName = requesterName;
     }
 
-    public eu.bato.anyoffice.trayapp.PersonState getRequesterState() {
+    public PersonState getRequesterState() {
         return requesterState;
     }
 
-    public void setRequesterState(eu.bato.anyoffice.trayapp.PersonState requesterState) {
+    public void setRequesterState(PersonState requesterState) {
         this.requesterState = requesterState;
     }
 
@@ -70,6 +74,30 @@ public class Consultation {
 
     public void setRequesterLocation(String requesterLocation) {
         this.requesterLocation = requesterLocation;
+    }
+
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
+    }
+
+    public PersonState getTargetState() {
+        return targetState;
+    }
+
+    public void setTargetState(PersonState targetState) {
+        this.targetState = targetState;
+    }
+
+    public String getTargetLocation() {
+        return targetLocation;
+    }
+
+    public void setTargetLocation(String targetLocation) {
+        this.targetLocation = targetLocation;
     }
 
     public Long getTime() {
@@ -86,6 +114,14 @@ public class Consultation {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public PendingConsultationState getPendingState() {
+        return pendingState;
+    }
+
+    public void setPendingState(PendingConsultationState pendingState) {
+        this.pendingState = pendingState;
     }
 
     @Override
@@ -109,6 +145,10 @@ public class Consultation {
         }
         return true;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Consultation{" + "id=" + id + ", requesterName=" + requesterName + ", requesterState=" + requesterState + ", requesterLocation=" + requesterLocation + ", time=" + time + ", message=" + message + '}';
+    }
     
 }

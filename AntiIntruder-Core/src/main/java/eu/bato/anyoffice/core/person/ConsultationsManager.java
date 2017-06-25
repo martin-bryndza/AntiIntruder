@@ -30,6 +30,8 @@ import eu.bato.anyoffice.serviceapi.dto.ConsultationState;
 import eu.bato.anyoffice.serviceapi.service.ConsultationService;
 import eu.bato.anyoffice.serviceapi.service.PersonService;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +89,48 @@ public class ConsultationsManager {
             throw iaex;
         }
         consultationService.setState(consultationId, ConsultationState.DONE);
+    }
+
+    public void callRequester(Long consultationId) {
+        if (consultationId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid parameter: consultationId");
+            log.error("Null parameter: Long consultationId", iaex);
+            throw iaex;
+        }
+        if (consultationService.getState(consultationId).isActiveState()){
+            consultationService.setState(consultationId, ConsultationState.WAITING_FOR_REQUESTER);
+        }
+    }
+
+    public void cancelCallToRequester(Long consultationId) {
+        if (consultationId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid parameter: consultationId");
+            log.error("Null parameter: Long consultationId", iaex);
+            throw iaex;
+        }
+        if (consultationService.getState(consultationId).isActiveState()) {
+            consultationService.setState(consultationId, ConsultationState.PENDING);
+        }
+    }
+
+    public List<ConsultationDto> getActiveIncomingConsultations(Long targetId) {
+        List<ConsultationDto> result = new LinkedList<>();
+        for (ConsultationState state: ConsultationState.values()){
+            if (state.isActiveState()){
+                result.addAll(consultationService.getIncomingConsultations(targetId, state));
+            }
+        }
+        return result;
+    }
+
+    public List<ConsultationDto> getActiveOutgoingConsultations(Long requesterId) {
+        List<ConsultationDto> result = new LinkedList<>();
+        for (ConsultationState state : ConsultationState.values()) {
+            if (state.isActiveState()) {
+                result.addAll(consultationService.getOutgoingConsultations(requesterId, state));
+            }
+        }
+        return result;
     }
     
 }

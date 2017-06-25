@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package eu.bato.anyoffice.trayapp;
+package eu.bato.anyoffice.trayapp.entities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -31,7 +31,17 @@ package eu.bato.anyoffice.serviceapi.dto;
  */
 public enum ConsultationState {
 
-    PENDING, IN_PROGRESS, DONE, CANCELLED, EXPIRED;
+    PENDING(true), WAITING_FOR_REQUESTER(true), IN_PROGRESS(true), DONE(false), CANCELLED(false);
+    
+    private final Boolean activeState;
+    
+    ConsultationState(Boolean archived){
+        this.activeState = archived;
+    }
+
+    public Boolean isActiveState() {
+        return activeState;
+    }
 
     public String getName() {
         return name();

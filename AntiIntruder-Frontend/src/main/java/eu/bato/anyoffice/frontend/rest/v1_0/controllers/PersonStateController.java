@@ -156,13 +156,13 @@ public class PersonStateController {
     @RequestMapping(value = "requests", method = GET)
     public @ResponseBody
     Integer getNumberOfIncomingConsultations(Authentication authentication) {
-        int result = consultationService.getRequestersIds(getCurrentUserId(authentication), ConsultationState.PENDING).size();
+        int result = consultationsManager.getActiveIncomingConsultations(getCurrentUserId(authentication)).size();
         log.debug("GET number of incoming consultations for user {}, response: {}", authentication.getName(), result);
         return result;
     }
 
     /**
-     * Returns all pending incoming consultations.
+     * Returns all active incoming consultations.
      *
      * @param authentication
      * @return List of consultations
@@ -170,9 +170,23 @@ public class PersonStateController {
     @RequestMapping(value = "incomingConsultations", method = GET)
     public @ResponseBody
     List<ConsultationDto> getPendingIncomingConsultations(Authentication authentication) {
-        List<ConsultationDto> interactionPersons = consultationService.getIncomingConsultations(getCurrentUserId(authentication), ConsultationState.PENDING);
-        log.debug("GET incomingConsultations for user {}, response size: {}", authentication.getName(), interactionPersons.size());
-        return interactionPersons;
+        List<ConsultationDto> incomingConsultations = consultationsManager.getActiveIncomingConsultations(getCurrentUserId(authentication));
+        log.debug("GET incomingConsultations for user {}, response size: {}", authentication.getName(), incomingConsultations.size());
+        return incomingConsultations;
+    }
+    
+    /**
+     * Returns all active outgoing consultations.
+     *
+     * @param authentication
+     * @return List of consultations
+     */
+    @RequestMapping(value = "outgoingConsultations", method = GET)
+    public @ResponseBody
+    List<ConsultationDto> getPendingOutgoingConsultations(Authentication authentication) {
+        List<ConsultationDto> outgoingConsultations = consultationsManager.getActiveOutgoingConsultations(getCurrentUserId(authentication));
+        log.debug("GET outgoingConsultations for user {}, response size: {}", authentication.getName(), outgoingConsultations.size());
+        return outgoingConsultations;
     }
 
     @RequestMapping(value = "dndStart", method = GET)
@@ -203,6 +217,20 @@ public class PersonStateController {
     public void settleConsultation(@RequestBody Long consultationId, Authentication authentication) {
         log.info("Settling consultation with id " + consultationId +" by user: " + authentication.getName());
         consultationsManager.settleConsultation(consultationId);
+    }
+    
+    @RequestMapping(value = "callRequester", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void callRequester(@RequestBody Long consultationId, Authentication authentication) {
+        log.info("Calling requester of consultation with id " + consultationId + " by user: " + authentication.getName());
+        consultationsManager.callRequester(consultationId);
+    }
+    
+    @RequestMapping(value = "cancelCallToRequester", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelCallToRequester(@RequestBody Long consultationId, Authentication authentication) {
+        log.info("Cancelling call to requester of consultation with id " + consultationId + " by user: " + authentication.getName());
+        consultationsManager.cancelCallToRequester(consultationId);
     }
     
     /**

@@ -58,6 +58,7 @@ public interface ConsultationService extends Service<ConsultationDto> {
      * @return List of IDs of requesters
      */
     List<Long> getRequestersIds(Long targetId, ConsultationState state);
-    
 
+    ConsultationState getState(Long consultationId);
+    
 }

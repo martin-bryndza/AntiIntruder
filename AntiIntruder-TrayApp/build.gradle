@@ -86,6 +86,13 @@ task pack(type: Zip, dependsOn:["preparePropertiesFiles", "fatJar"]) {
     destinationDir = file("deploy")
 }
 
+task(debug, dependsOn: 'classes', type: JavaExec) {
+    main = 'eu.bato.anyoffice.trayapp.Main'
+    classpath = sourceSets.main.runtimeClasspath
+//    args 'server', 'my-application.yml'
+    debug true
+}
+
 clean {
     delete("dist")
     delete("deploy")

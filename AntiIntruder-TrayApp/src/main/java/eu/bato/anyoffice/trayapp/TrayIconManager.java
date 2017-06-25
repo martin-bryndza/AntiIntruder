@@ -25,14 +25,17 @@
  */
 package eu.bato.anyoffice.trayapp;
 
+import eu.bato.anyoffice.trayapp.entities.Credentials;
+import eu.bato.anyoffice.trayapp.Main;
+import eu.bato.anyoffice.trayapp.entities.PersonState;
+import eu.bato.anyoffice.trayapp.RestClient;
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.Consultation;
+import eu.bato.anyoffice.trayapp.entities.PendingConsultationState;
 import eu.bato.anyoffice.trayapp.entities.PersonLocation;
 import java.awt.AWTException;
 import java.awt.CheckboxMenuItem;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -53,6 +56,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -62,13 +66,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -77,12 +80,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
@@ -103,7 +102,7 @@ class TrayIconManager {
     private final UpdateIconMouseListener updateIconMouseListener;
 
     private final SwitchToStateFrame switchToDndFrame;
-    private final IncomingConsultationsMessageFrame availableConsultersMessageFrame;
+    private IncomingConsultationsWindow availableConsultersMessageFrame;
     private final DndCustomPeriodFrame dndCustomPeriodFrame;
 
     private final RestClient client;
@@ -111,6 +110,8 @@ class TrayIconManager {
     private PersonState currentState;
     private String currentLocation;
     private boolean locked;
+    private boolean availableColleaguesMessageDisplayed = false;
+    private Map<Long, CallForRequestedConsultationAlert> callForConsultationsAlerts;
 
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
     private Image icon = null;
@@ -119,9 +120,9 @@ class TrayIconManager {
         icon = Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/logo.png"));
         updateIconMouseListener = new UpdateIconMouseListener();
         switchToDndFrame = new SwitchToStateFrame();
-        availableConsultersMessageFrame = new IncomingConsultationsMessageFrame();
         dndCustomPeriodFrame = new DndCustomPeriodFrame();
         statesMenuItems = new HashMap<>();
+        callForConsultationsAlerts = new HashMap<>();
         String authString = Configuration.getInstance().getProperty(Property.GUID);
         if (authString.isEmpty() || !RestClient.isCorrectCredentials(new Credentials(authString))) {
             client = new RestClient(requestCredentials(false));
@@ -297,6 +298,8 @@ class TrayIconManager {
         String newLocation = client.getLocation();
 
         showPendingConsultationsList(newState);
+        showAvailableConsultationsTargetsTrayMessage();
+        showConsultationTargetCallingMessages();
 
         Long current = new Date().getTime();
 
@@ -348,14 +351,52 @@ class TrayIconManager {
 
     private void showPendingConsultationsList(PersonState newState) {
         if (newState.equals(PersonState.AVAILABLE)) {
-            List<Consultation> incomingConsultations = client.getCurrentIncomingConsultations();
+            List<Consultation> incomingConsultations = client.getActiveIncomingConsultations();
             if (!incomingConsultations.isEmpty()) {
+                if (availableConsultersMessageFrame == null) {
+                    availableConsultersMessageFrame = new IncomingConsultationsWindow(client, icon);
+                }
                 availableConsultersMessageFrame.showIncomingConsultationsMessage(incomingConsultations);
-            } else {
+            } else if (availableConsultersMessageFrame != null){
                 availableConsultersMessageFrame.hideIncomingConsultationsMessage();
+                availableConsultersMessageFrame.dispose();
+                availableConsultersMessageFrame.removeAll();
+                availableConsultersMessageFrame = null;
             }
         }
     }
+    
+    private void showAvailableConsultationsTargetsTrayMessage(){
+        List<Consultation> outgoingConsultations = client.getActiveOutgoingConsultations();
+        for (Consultation c : new LinkedList<>(outgoingConsultations)){
+            if (!PersonState.AVAILABLE.equals(c.getTargetState())){
+                outgoingConsultations.remove(c);
+            }
+        }
+        if (!outgoingConsultations.isEmpty() & !availableColleaguesMessageDisplayed){
+            trayIcon.displayMessage("Available colleagues", "Some of your colleagues, who you'd like to communicate with, are now available. Expect a message from them soon.", TrayIcon.MessageType.INFO);
+            availableColleaguesMessageDisplayed = true;
+        } else if (outgoingConsultations.isEmpty()) {
+            availableColleaguesMessageDisplayed = false;
+        }
+    }
+    
+    private void showConsultationTargetCallingMessages(){
+        List<Consultation> outgoingConsultations = client.getActiveOutgoingConsultations();
+        for (Consultation c: outgoingConsultations){
+            if (c.getPendingState().equals(PendingConsultationState.WAITING_FOR_REQUESTER) & !callForConsultationsAlerts.containsKey(c.getId())){
+                CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c);
+                callForConsultationsAlerts.put(c.getId(), alert);
+                alert.showMessage();
+            }
+            if (c.getPendingState().equals(PendingConsultationState.PENDING) & callForConsultationsAlerts.containsKey(c.getId())) {
+                JFrame alert = callForConsultationsAlerts.get(c.getId());
+                alert.dispatchEvent(new WindowEvent(alert, WindowEvent.WINDOW_CLOSING));
+                // TODO You have missed the consultation alert
+            }
+        }
+    }
+    
 
     private void startDndAutoSwitchTimeoutProcedure() {
         //show bubble, add action to dismiss, start timer to autoswitch
@@ -1306,238 +1347,6 @@ class TrayIconManager {
 
     }
 
-    /**
-     * Frame for displaying people available to be contacted.
-     */
-    private class IncomingConsultationsMessageFrame extends javax.swing.JFrame {
-
-        private JLabel mainLabel;
-        private javax.swing.JScrollPane jScrollPane1;
-        private JButton dismissButton;
-        private JTable consultationsTable;
-
-        public IncomingConsultationsMessageFrame() {
-            initComponents();
-            showOnTop(false);
-            this.setLocationRelativeTo(null);
-            setIconImage(icon);
-        }
-
-        private void initComponents() {
-            mainLabel = new javax.swing.JLabel("Following people are now available:\n");
-            jScrollPane1 = new javax.swing.JScrollPane();
-            dismissButton = new JButton("Dismiss all");
-
-            dismissButton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    JOptionPane.showMessageDialog(dismissButton, "Sorry, not supported yet.");
-                }
-            });
-
-            setTitle("Any Office - Pending consultations");
-            setResizable(false);
-            setType(java.awt.Window.Type.POPUP);
-            addKeyListener(new java.awt.event.KeyAdapter() {
-                @Override
-                public void keyReleased(java.awt.event.KeyEvent evt) {
-                    formKeyReleased(evt);
-                }
-            });
-
-            consultationsTable = new javax.swing.JTable();
-            consultationsTable.setModel(new javax.swing.table.DefaultTableModel(
-                    new Object[][]{},
-                    new String[]{
-                        "Who", "What", " "
-                    }
-            ) {
-                Class[] types = new Class[]{
-                    java.lang.String.class, java.lang.String.class, java.lang.Object.class
-                };
-
-                @Override
-                public Class getColumnClass(int columnIndex) {
-                    return types[columnIndex];
-                }
-
-                @Override
-                public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return columnIndex == 2;
-                }
-                
-            });
-            consultationsTable.setEnabled(true);
-            consultationsTable.setRowSelectionAllowed(false);
-            consultationsTable.setSelectionBackground(new java.awt.Color(255, 255, 255));
-            consultationsTable.setShowHorizontalLines(false);
-            consultationsTable.setShowVerticalLines(false);
-            consultationsTable.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
-
-            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-            getContentPane().setLayout(layout);
-            layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(mainLabel)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addContainerGap(12, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(dismissButton)
-                            .addContainerGap())
-            );
-            layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(mainLabel)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(dismissButton)
-                            .addContainerGap())
-            );
-
-            pack();
-
-        }
-
-        private void showOnTop(boolean show) {
-            this.setAlwaysOnTop(show);
-            this.setVisible(show);
-            if (!show) {
-                DefaultTableModel dm = (DefaultTableModel) consultationsTable.getModel();
-                dm.setRowCount(0);
-            }
-        }
-
-        void showIncomingConsultationsMessage(List<Consultation> consultations) {
-            DefaultTableModel model = (DefaultTableModel) consultationsTable.getModel();
-            model.setRowCount(0); //clear all rows that may have been added in the previous call
-            if (consultations.isEmpty()) {
-                hideIncomingConsultationsMessage();
-                return;
-            }
-            
-            Map<Integer, Long> consultationsIds = new HashMap<>();
-            for (Consultation c : consultations) {
-                consultationsIds.put(model.getRowCount(), c.getId());
-                model.addRow(new Object[]{c.getRequesterName(), c.getMessage(), "Done"});
-            }
-
-            jScrollPane1.setViewportView(consultationsTable);
-
-            consultationsTable.getColumn(" ").setCellRenderer(new ButtonRenderer());
-            consultationsTable.getColumn(" ").setCellEditor(new ButtonEditor(new JCheckBox(), consultationsIds));
-            pack();
-            showOnTop(true);
-        }
-        
-        void hideIncomingConsultationsMessage(){
-            showOnTop(false);
-        }
-
-        private void formKeyReleased(java.awt.event.KeyEvent evt) {
-            if (evt.getKeyCode() == (KeyEvent.VK_ENTER)) {
-                showOnTop(false);
-            }
-        }
-
-        class ButtonRenderer extends JButton implements TableCellRenderer {
-
-            public ButtonRenderer() {
-                setOpaque(true);
-            }
-
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                if (isSelected) {
-                    setForeground(table.getSelectionForeground());
-                    setBackground(table.getSelectionBackground());
-                } else {
-                    setForeground(table.getForeground());
-                    setBackground(UIManager.getColor("Button.background"));
-                }
-                setText((value == null) ? "" : value.toString());
-                return this;
-            }
-        }
-
-        private final class ButtonEditor extends DefaultCellEditor {
-
-            protected JButton button;
-            private String label;
-            private boolean isPushed;
-            Map<Integer, Long> consultationsIds;
-            private Long consultationId;
-            private Color background;
-
-            public ButtonEditor(JCheckBox checkBox, Map<Integer,Long> consultationsIds) {
-                super(checkBox);
-                this.consultationsIds = consultationsIds;
-                this.background = Color.blue;
-                button = new JButton();
-                button.setOpaque(true);
-                button.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        fireEditingStopped();
-                    }
-                });
-            }
-
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value,
-                    boolean isSelected, int row, int column) {
-                log.debug("getTableCellEditorComponent");
-                if (isSelected) {
-                    button.setForeground(Color.yellow);
-                    button.setBackground(background);
-                } else {
-                    button.setForeground(Color.red);
-                    button.setBackground(background);
-                }
-                label = (value == null) ? "" : value.toString();
-                button.setText(label);
-                button.setToolTipText("Settle the consultation.");
-                isPushed = true;
-                consultationId = consultationsIds.get(row);
-                return button;
-            }
-
-            @Override
-            public Object getCellEditorValue() {
-                log.debug("getCellEditorValue");
-                if (isPushed) {
-                    this.button.setEnabled(false);
-                    this.background = Color.green;
-                    log.debug("Settled " + consultationId);
-                    client.settleConsultation(consultationId);
-                }
-                isPushed = false;
-                return label;
-            }
-
-            @Override
-            public boolean stopCellEditing() {
-                log.debug("stopCellEditing");
-                isPushed = false;
-                return super.stopCellEditing();
-            }
-
-            @Override
-            protected void fireEditingStopped() {
-                log.debug("fireEditingStopped");
-                super.fireEditingStopped();
-            }
-            
-        }
-    }
-
     private class SwitchToStateFrame extends javax.swing.JFrame {
 
         private PersonState state;
@@ -1789,4 +1598,4 @@ class TrayIconManager {
         private javax.swing.JToggleButton jToggleButtonRemindLater;
         private javax.swing.JPanel jPanel2;
     }
-}
+    }

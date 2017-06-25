@@ -29,6 +29,8 @@ import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,6 +52,8 @@ class StateCheckService {
     final static Logger log = LoggerFactory.getLogger(StateCheckService.class);
 
     private static StateCheckService instance;
+    
+    private List<ScheduledFuture> tasks;
 
     private StateCheckService() {
 
@@ -63,6 +67,7 @@ class StateCheckService {
     }
 
     void start() {
+        tasks = new LinkedList<>();
         ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(2);
 
         //the state checking task
@@ -71,12 +76,14 @@ class StateCheckService {
         if (period <= 0) {
             log.info("StateCheckTask is disabled.");
         } else {
-            sf = scheduledPool.scheduleWithFixedDelay(new StateCheckTask(), period, period, TimeUnit.MILLISECONDS);
+            sf = scheduledPool.scheduleWithFixedDelay(new StateCheckTask(), 1000, period, TimeUnit.MILLISECONDS);
         }
         final ScheduledFuture stateCheckFuture = sf;
+        tasks.add(stateCheckFuture);
 
         // mouse tracking task
         final ScheduledFuture mousePositionFuture = scheduledPool.scheduleWithFixedDelay(new MousePositionTask(), 10000, 5000, TimeUnit.MILLISECONDS);
+        tasks.add(mousePositionFuture);
 
         // these threads should be scheduled on forever > in case they fail, stop both of them and run them again
         Runnable watchdog = new Runnable() {
@@ -99,6 +106,12 @@ class StateCheckService {
             }
         };
         new Thread(watchdog).start();
+    }
+    
+    void stop(){
+        for (ScheduledFuture task: tasks){
+            task.cancel(true);
+        }
     }
 
     private class StateCheckTask implements Runnable {

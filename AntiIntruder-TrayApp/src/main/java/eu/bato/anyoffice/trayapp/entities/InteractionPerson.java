@@ -25,8 +25,6 @@
  */
 package eu.bato.anyoffice.trayapp.entities;
 
-import eu.bato.anyoffice.trayapp.PersonState;
-
 /**
  *
  * @author Bato

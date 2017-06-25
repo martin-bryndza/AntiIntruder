@@ -93,7 +93,7 @@ public class IndexController extends CommonController {
         model.addAttribute("now", new Date().getTime());
         Long uid = getCurrentUserId();
         if (uid != -1) {
-            List<ConsultationDto> outgoingConsultations = consultationService.getOutgoingConsultations(uid, ConsultationState.PENDING);
+            List<ConsultationDto> outgoingConsultations = consultationsManager.getActiveOutgoingConsultations(uid);
             Map<Long, ConsultationDto> consultations = new HashMap<>();
             outgoingConsultations.stream().forEach((c) -> {
                 consultations.put(c.getTarget().getId(), c);
