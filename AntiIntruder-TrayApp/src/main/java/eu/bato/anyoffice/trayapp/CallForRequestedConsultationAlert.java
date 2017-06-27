@@ -5,22 +5,9 @@
  */
 package eu.bato.anyoffice.trayapp;
 
-import static eu.bato.anyoffice.trayapp.TrayIconManager.log;
 import eu.bato.anyoffice.trayapp.entities.Consultation;
-import eu.bato.anyoffice.trayapp.entities.PendingConsultationState;
-import eu.bato.anyoffice.trayapp.entities.PendingConsultations;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,10 +20,15 @@ import javax.swing.table.DefaultTableModel;
 public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
 
     private final Consultation consultation;
+    private final RestClient client;
     
-    public CallForRequestedConsultationAlert(Consultation consultation) {
+    private final static org.slf4j.Logger log = LoggerFactory.getLogger(CallForRequestedConsultationAlert.class);
+    
+    public CallForRequestedConsultationAlert(Consultation consultation, RestClient client) {
         this.consultation = consultation;
+        this.client = client;
         initComponents();
+        this.setLocationRelativeTo(null);
     }
 
     public Consultation getConsultation() {
@@ -56,10 +48,37 @@ public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
         setResizable(false);
 
         jButton1.setText("I'm coming");
+        
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                log.debug("jButton1");
+                client.acceptCallFromTarget(consultation.getId());
+                showInProgressDialog();
+            }
+        });
 
         jButton2.setText("Not now");
+        
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                log.debug("jButton2");
+                client.cancelCallToRequester(consultation.getId());
+                close();
+            }
+        });
 
-        jButton3.setText("Obsolete");
+        jButton3.setText("Cancel the consultation");
+        
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                log.debug("jButton3");
+                client.cancelConsultationByRequester(consultation.getId());
+                close();
+            }
+        });
 
         jScrollPane2.setBorder(null);
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -68,7 +87,7 @@ public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
         jTextPane1.setEditable(false);
         jTextPane1.setBackground(new java.awt.Color(240, 240, 240));
         jTextPane1.setBorder(null);
-        jTextPane1.setText(consultation.getTargetName() + " has accepted your request for consultation and is waiting for you. ");
+        jTextPane1.setText(consultation.getTargetName() + " has accepted your request for consultation '" + consultation.getMessage() + "' and is waiting for you. ");
         jScrollPane2.setViewportView(jTextPane1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -106,6 +125,25 @@ public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
 
     public void showMessage() {
         new NewJFrame().setVisible(true);
+    }
+    
+    public void showInProgressDialog() {
+        String[] options = {"Settle the consultation", "Request again"};
+        int selectedOption = JOptionPane.showOptionDialog(this,
+                consultation.getTargetName() + " is waiting for you. His probable location is " + consultation.getTargetLocation() + ".",
+                "Hurry up!",
+                JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+        if (selectedOption == JOptionPane.YES_OPTION) {
+            client.settleConsultation(consultation.getId());
+        } else {
+            client.cancelCallToRequester(consultation.getId());
+        }
+        close();
+    }
+    
+    public void close() {
+        setVisible(false);
+        dispose();
     }
                     
     private javax.swing.JButton jButton1;

@@ -5,6 +5,8 @@
  */
 package eu.bato.anyoffice.trayapp;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Bato
@@ -132,8 +134,16 @@ public class NewJFrame extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
-                new NewJFrame().setVisible(true);
+                String[] options = {"1", "2", "3"};
+                final JOptionPane optionPane = new JOptionPane(
+                        "The only way to close this dialog is by\n"
+                        + "pressing one of the following buttons.\n"
+                        + "Do you understand?",
+                        JOptionPane.QUESTION_MESSAGE,
+                        JOptionPane.YES_NO_CANCEL_OPTION, null, options);
+                optionPane.setVisible(true);
             }
         });
     }

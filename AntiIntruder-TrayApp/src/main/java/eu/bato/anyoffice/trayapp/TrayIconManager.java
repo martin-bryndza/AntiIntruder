@@ -66,10 +66,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
@@ -84,6 +86,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestClientException;
 
 /**
@@ -111,7 +114,7 @@ class TrayIconManager {
     private String currentLocation;
     private boolean locked;
     private boolean availableColleaguesMessageDisplayed = false;
-    private Map<Long, CallForRequestedConsultationAlert> callForConsultationsAlerts;
+    private final Map<Long, CallForRequestedConsultationAlert> callForConsultationsAlerts;
 
     private static final Font BOLD_FONT = Font.decode(null).deriveFont(java.awt.Font.BOLD);
     private Image icon = null;
@@ -383,16 +386,56 @@ class TrayIconManager {
     
     private void showConsultationTargetCallingMessages(){
         List<Consultation> outgoingConsultations = client.getActiveOutgoingConsultations();
+        log.debug(outgoingConsultations.toString());
+//        for (Map.Entry<Long, CallForRequestedConsultationAlert> entry: new HashMap<>(callForConsultationsAlerts).entrySet()){
+//            if (!entry.getValue().isVisible()){
+//                log.error("NOT VISIBLE");
+//                callForConsultationsAlerts.remove(entry.getKey());
+//            }
+//        }
+        Set<Long> checkList = new HashSet<>(callForConsultationsAlerts.keySet());
         for (Consultation c: outgoingConsultations){
-            if (c.getPendingState().equals(PendingConsultationState.WAITING_FOR_REQUESTER) & !callForConsultationsAlerts.containsKey(c.getId())){
-                CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c);
-                callForConsultationsAlerts.put(c.getId(), alert);
-                alert.showMessage();
+            if (c.getPendingState().equals(PendingConsultationState.WAITING_FOR_REQUESTER)){
+                    if (!callForConsultationsAlerts.containsKey(c.getId())){
+                        CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c, client);
+                        callForConsultationsAlerts.put(c.getId(), alert);
+                        alert.showMessage();
+                    } else {
+                        checkList.remove(c.getId());
+                    }
             }
             if (c.getPendingState().equals(PendingConsultationState.PENDING) & callForConsultationsAlerts.containsKey(c.getId())) {
-                JFrame alert = callForConsultationsAlerts.get(c.getId());
-                alert.dispatchEvent(new WindowEvent(alert, WindowEvent.WINDOW_CLOSING));
-                // TODO You have missed the consultation alert
+                CallForRequestedConsultationAlert alert = callForConsultationsAlerts.get(c.getId());
+                String[] options = {"Request again", "Cancel the consultation"};
+                int selectedOption = JOptionPane.showOptionDialog(alert,
+                        c.getTargetName() + " responded to your consultation request '" + c.getMessage() + "', but you have missed the call.",
+                        "You have missed a call for consultation",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+                if (selectedOption == JOptionPane.NO_OPTION) {
+                    client.cancelConsultationByRequester(c.getId());
+                }
+                alert.close();
+                callForConsultationsAlerts.remove(c.getId());
+                checkList.remove(c.getId());
+            }
+            if (c.getPendingState().equals(PendingConsultationState.IN_PROGRESS)) {
+                if (!callForConsultationsAlerts.containsKey(c.getId())) {
+                    // this can happen after application restart
+                    CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c, client);
+                    callForConsultationsAlerts.put(c.getId(), alert);
+                    alert.showMessage();
+                    alert.showInProgressDialog();
+                } else {
+                    checkList.remove(c.getId());
+                }
+            }
+        }
+        if (!checkList.isEmpty()) {
+            // These consultations are neither PENDING nor WAITING_FOR_REQUESTER nor IN_PROGRESS
+            // They must have been cancelled by other means.
+            for (Long id: checkList) {
+                callForConsultationsAlerts.get(id).close();
+                callForConsultationsAlerts.remove(id);
             }
         }
     }

@@ -44,8 +44,10 @@ public interface ConsultationDao extends Dao<Consultation, Long> {
 
     List<Consultation> getOutgoingConsultations(Long requesterId, ConsultationState state);
     
-    public List<Long> getTargetsIds(Long requesterId, ConsultationState state);
+    List<Long> getTargetsIds(Long requesterId, ConsultationState state);
     
-    public List<Long> getRequestersIds(Long targetId, ConsultationState state);
+    List<Long> getRequestersIds(Long targetId, ConsultationState state);
+
+    ConsultationState getState(Long id);
 
 }

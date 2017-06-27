@@ -439,6 +439,28 @@ public class RestClient {
         }
     }
     
+    void cancelConsultationByRequester(Long consultationId) {
+        HttpEntity<String> entity = createEntity(consultationId);
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "cancelConsultationByRequester", HttpMethod.PUT, entity, String.class);
+            log.info("Cancel consultation with ID \"{}\" response: {}; body: {}", consultationId, response.getStatusCode().toString(), response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to cancel consultation.");
+        }
+    }
+    
+    void acceptCallFromTarget(Long consultationId) {
+        HttpEntity<String> entity = createEntity(consultationId);
+        ResponseEntity<String> response;
+        try {
+            response = exchange(uri + "acceptCallFromTarget", HttpMethod.PUT, entity, String.class);
+            log.info("Accept call from target of consultation with ID \"{}\" response: {}; body: {}", consultationId, response.getStatusCode().toString(), response.getBody());
+        } catch (RestClientException | IllegalArgumentException e) {
+            log.error("Unable to accept call from target of consultation.");
+        }
+    }
+    
     /**
      *
      * @return true, if the last server request finished successfully, false

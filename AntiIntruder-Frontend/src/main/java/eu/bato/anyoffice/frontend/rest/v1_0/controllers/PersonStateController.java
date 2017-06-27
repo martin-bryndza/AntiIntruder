@@ -233,6 +233,20 @@ public class PersonStateController {
         consultationsManager.cancelCallToRequester(consultationId);
     }
     
+    @RequestMapping(value = "cancelConsultationByRequester", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelConsultationByRequester(@RequestBody Long consultationId, Authentication authentication) {
+        log.info("Cancelling consultation with id " + consultationId + " by user: " + authentication.getName());
+        consultationsManager.cancelConsultationByRequester(consultationId);
+    }
+    
+    @RequestMapping(value = "acceptCallFromTarget", method = PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void acceptCallFromTarget(@RequestBody Long consultationId, Authentication authentication) {
+        log.info("Accepting call from target of consultation with id " + consultationId + " by user: " + authentication.getName());
+        consultationsManager.acceptCallFromTarget(consultationId);
+    }
+    
     /**
      * Gets the ID of the currently authenticated user.
      *

@@ -148,7 +148,9 @@ public class Consultation {
 
     @Override
     public String toString() {
-        return "Consultation{" + "id=" + id + ", requesterName=" + requesterName + ", requesterState=" + requesterState + ", requesterLocation=" + requesterLocation + ", time=" + time + ", message=" + message + '}';
+        return "Consultation{" + "id=" + id + ", requesterName=" + requesterName + ", requesterState=" + requesterState + ", requesterLocation=" + requesterLocation + ", targetName=" + targetName + ", targetState=" + targetState + ", targetLocation=" + targetLocation + ", time=" + time + ", message=" + message + ", pendingState=" + pendingState + '}';
     }
+
+    
     
 }

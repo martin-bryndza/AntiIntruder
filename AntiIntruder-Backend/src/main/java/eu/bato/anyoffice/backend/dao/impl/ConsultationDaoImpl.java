@@ -102,6 +102,11 @@ public class ConsultationDaoImpl implements ConsultationDao {
         e.setState(state);
         return e;
     }
+
+    @Override
+    public ConsultationState getState(Long id) {
+        return findOne(id).getState();
+    }
     
     @Override
     public List<Consultation> getIncomingConsultations(Long targetId, ConsultationState state) {

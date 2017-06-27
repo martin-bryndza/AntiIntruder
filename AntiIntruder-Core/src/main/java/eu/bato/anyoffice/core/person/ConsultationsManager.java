@@ -112,6 +112,15 @@ public class ConsultationsManager {
             consultationService.setState(consultationId, ConsultationState.PENDING);
         }
     }
+    
+    public void acceptCallFromTarget(Long consultationId) {
+        if (consultationId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid parameter: consultationId");
+            log.error("Null parameter: Long consultationId", iaex);
+            throw iaex;
+        }
+        consultationService.setState(consultationId, ConsultationState.IN_PROGRESS);
+    }
 
     public List<ConsultationDto> getActiveIncomingConsultations(Long targetId) {
         List<ConsultationDto> result = new LinkedList<>();

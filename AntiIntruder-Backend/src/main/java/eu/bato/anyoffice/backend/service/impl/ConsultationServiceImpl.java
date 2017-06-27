@@ -215,4 +215,19 @@ public class ConsultationServiceImpl implements ConsultationService {
         }.tryMethod();
     }
 
+    @Override
+    public ConsultationState getState(Long consultationId) {
+        if (consultationId == null) {
+            IllegalArgumentException iaex = new IllegalArgumentException("Invalid consultationId parameter: null");
+            log.error("consultationId is null", iaex);
+            throw iaex;
+        }
+        return (ConsultationState) new DataAccessExceptionNonVoidTemplate(consultationId) {
+            @Override
+            public ConsultationState doMethod() {
+                return consultationDao.getState((Long) getU());
+            }
+        }.tryMethod();
+    }
+
 }
