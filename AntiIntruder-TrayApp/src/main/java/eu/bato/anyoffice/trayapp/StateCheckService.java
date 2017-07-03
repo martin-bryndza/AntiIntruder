@@ -54,6 +54,8 @@ class StateCheckService {
     private static StateCheckService instance;
     
     private List<ScheduledFuture> tasks;
+    
+    private Long currentPeriod = Long.MIN_VALUE;
 
     private StateCheckService() {
 
@@ -65,13 +67,17 @@ class StateCheckService {
         }
         return instance;
     }
-
+    
     void start() {
+        Long period = Configuration.getInstance().getLongProperty(Property.CHECK_INTERVAL);
+        start(period);
+    }
+
+    void start(Long period) {
         tasks = new LinkedList<>();
         ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(2);
 
         //the state checking task
-        Long period = Configuration.getInstance().getLongProperty(Property.CHECK_INTERVAL);
         ScheduledFuture sf = null;
         if (period <= 0) {
             log.info("StateCheckTask is disabled.");
@@ -111,6 +117,25 @@ class StateCheckService {
     void stop(){
         for (ScheduledFuture task: tasks){
             task.cancel(true);
+        }
+    }
+    
+    void setShortRefreshInterval() {     
+        setRefreshInterval(2000L);
+    }
+    
+    void setOneSecondRefreshInterval() {
+        setRefreshInterval(1000L);
+    }
+    
+    void resetRefreshInterval() {  
+        setRefreshInterval(Configuration.getInstance().getLongProperty(Property.CHECK_INTERVAL));
+    }
+    
+    private void setRefreshInterval(Long interval){
+        if (!currentPeriod.equals(interval)) {
+            stop();
+            start(interval);
         }
     }
 

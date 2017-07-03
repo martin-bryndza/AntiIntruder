@@ -117,7 +117,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
             throw new IllegalArgumentException("Invalid state: " + state);
         }
         Person target = personDao.findOne(targetId);
-        TypedQuery<Consultation> query = em.createQuery("SELECT e FROM Consultation e WHERE e.target = :target AND e.state = :state", Consultation.class);
+        TypedQuery<Consultation> query = em.createQuery("SELECT e FROM Consultation e WHERE e.target = :target AND e.state = :state ORDER BY e.id", Consultation.class);
         query = query.setParameter("target", target).setParameter("state", state);
         return query.getResultList();
     }
@@ -131,7 +131,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
             throw new IllegalArgumentException("Invalid state: " + state);
         }
         Person requester = personDao.findOne(requesterId);
-        TypedQuery<Consultation> query = em.createQuery("SELECT e FROM Consultation e WHERE e.requester = :rq AND e.state = :state", Consultation.class);
+        TypedQuery<Consultation> query = em.createQuery("SELECT e FROM Consultation e WHERE e.requester = :rq AND e.state = :state ORDER BY e.id", Consultation.class);
         query = query.setParameter("rq", requester).setParameter("state", state);
         return query.getResultList();
     }
@@ -145,7 +145,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
             throw new IllegalArgumentException("Invalid state: " + state);
         }
         Person requester = personDao.findOne(requesterId);
-        TypedQuery<Long> query = em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester = :rq AND e.state = :state", Long.class);
+        TypedQuery<Long> query = em.createQuery("SELECT e.target.id FROM Consultation e WHERE e.requester = :rq AND e.state = :state ORDER BY e.id", Long.class);
         query = query.setParameter("rq", requester).setParameter("state", state);
         return query.getResultList();
     }
@@ -159,7 +159,7 @@ public class ConsultationDaoImpl implements ConsultationDao {
             throw new IllegalArgumentException("Invalid state: " + state);
         }
         Person target = personDao.findOne(targetId);
-        TypedQuery<Long> query = em.createQuery("SELECT e.requester.id FROM Consultation e WHERE e.target = :target AND e.state = :state", Long.class);
+        TypedQuery<Long> query = em.createQuery("SELECT e.requester.id FROM Consultation e WHERE e.target = :target AND e.state = :state ORDER BY e.id", Long.class);
         query = query.setParameter("target", target).setParameter("state", state);
         return query.getResultList();
     }

@@ -6,6 +6,7 @@
 package eu.bato.anyoffice.trayapp;
 
 import eu.bato.anyoffice.trayapp.entities.Consultation;
+import java.awt.Image;
 import javax.swing.JOptionPane;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +25,12 @@ public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
     
     private final static org.slf4j.Logger log = LoggerFactory.getLogger(CallForRequestedConsultationAlert.class);
     
-    public CallForRequestedConsultationAlert(Consultation consultation, RestClient client) {
+    public CallForRequestedConsultationAlert(Consultation consultation, RestClient client, Image icon) {
         this.consultation = consultation;
         this.client = client;
         initComponents();
         this.setLocationRelativeTo(null);
+        setIconImage(icon);
     }
 
     public Consultation getConsultation() {
@@ -47,34 +49,28 @@ public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
         setTitle("Consultation");
         setResizable(false);
 
-        jButton1.setText("I'm coming");
-        
+        jButton1.setText("I'm coming");        
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                log.debug("jButton1");
                 client.acceptCallFromTarget(consultation.getId());
                 showInProgressDialog();
             }
         });
 
-        jButton2.setText("Not now");
-        
+        jButton2.setText("Not now");        
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                log.debug("jButton2");
                 client.cancelCallToRequester(consultation.getId());
                 close();
             }
         });
 
-        jButton3.setText("Cancel the consultation");
-        
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jButton3.setText("Cancel the consultation");        
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                log.debug("jButton3");
                 client.cancelConsultationByRequester(consultation.getId());
                 close();
             }
@@ -124,7 +120,8 @@ public class CallForRequestedConsultationAlert extends javax.swing.JFrame {
     }                       
 
     public void showMessage() {
-        new NewJFrame().setVisible(true);
+        this.setAlwaysOnTop(true);
+        this.setVisible(true);
     }
     
     public void showInProgressDialog() {

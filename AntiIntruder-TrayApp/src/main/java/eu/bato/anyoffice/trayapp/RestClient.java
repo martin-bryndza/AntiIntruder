@@ -629,6 +629,10 @@ public class RestClient {
         consultation.setRequesterLocation((String) requester.getOrDefault("location", "UNKNOWN"));
         consultation.setRequesterName((String) requester.getOrDefault("displayName", "UNKNOWN"));
         consultation.setRequesterState(PersonState.valueOf((String) requester.getOrDefault("state", "UNKNOWN")));
+        JSONObject target = (JSONObject) obj.get("target");
+        consultation.setTargetLocation((String) target.getOrDefault("location", "UNKNOWN"));
+        consultation.setTargetName((String) target.getOrDefault("displayName", "UNKNOWN"));
+        consultation.setTargetState(PersonState.valueOf((String) target.getOrDefault("state", "UNKNOWN")));
         return consultation;
     }
 

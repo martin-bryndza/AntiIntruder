@@ -5,7 +5,6 @@
  */
 package eu.bato.anyoffice.trayapp;
 
-import static eu.bato.anyoffice.trayapp.TrayIconManager.log;
 import eu.bato.anyoffice.trayapp.entities.Consultation;
 import eu.bato.anyoffice.trayapp.entities.PendingConsultationState;
 import eu.bato.anyoffice.trayapp.entities.PendingConsultations;
@@ -36,6 +35,7 @@ public class IncomingConsultationsWindow extends javax.swing.JFrame {
     private JButton dismissButton;
     private JTable consultationsTable;
     private final RestClient client;
+    private static final int BUTTON_COLUMN_INDEX = 3;
 
     public IncomingConsultationsWindow(RestClient client, Image icon) {
         initComponents();
@@ -68,7 +68,7 @@ public class IncomingConsultationsWindow extends javax.swing.JFrame {
             }
         });
 
-        String[] columnNames = {"Name", "Message", ""};
+        String[] columnNames = {"Name", "Message", "Status", ""};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         consultationsTable = new javax.swing.JTable(model);
         consultationsTable.setEnabled(true);
@@ -87,7 +87,7 @@ public class IncomingConsultationsWindow extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(mainLabel)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 478, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(12, Short.MAX_VALUE))
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -130,6 +130,23 @@ public class IncomingConsultationsWindow extends javax.swing.JFrame {
         }
 
         jScrollPane1.setViewportView(consultationsTable);
+        
+        Consultation inProgressCon = null;
+        for (Consultation c: consultations) {
+            if (c.getPendingState().equals(PendingConsultationState.IN_PROGRESS)) {
+                inProgressCon = c;
+                break;
+            }
+        }
+        
+        if (inProgressCon != null) {
+            // cancel call to other consultations
+            for (Consultation c : consultations) {
+                if (!inProgressCon.equals(c) && c.getPendingState().equals(PendingConsultationState.WAITING_FOR_REQUESTER)) {
+                    client.cancelCallToRequester(c.getId());
+                }
+            }
+        }
 
         for (Consultation c : consultations) {
             String label;
@@ -140,8 +157,7 @@ public class IncomingConsultationsWindow extends javax.swing.JFrame {
             } else {
                 label = "Settle";
             }
-            log.debug(label);
-            model.addRow(new Object[]{c.getRequesterName(), c.getMessage(), label});
+            model.addRow(new Object[]{c.getRequesterName(), c.getMessage(), c.getRequesterState(), label});
         }
 
         Action action = new AbstractAction() {
@@ -165,7 +181,7 @@ public class IncomingConsultationsWindow extends javax.swing.JFrame {
             }
         };
 
-        ButtonColumn buttonColumn = new ButtonColumn(consultationsTable, action, 2);
+        ButtonColumn buttonColumn = new ButtonColumn(consultationsTable, action, BUTTON_COLUMN_INDEX);
         buttonColumn.setMnemonic(KeyEvent.VK_D);
         pack();
         showOnTop(true);

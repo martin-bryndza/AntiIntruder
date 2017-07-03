@@ -25,15 +25,13 @@
  */
 package eu.bato.anyoffice.trayapp;
 
-import eu.bato.anyoffice.trayapp.entities.Credentials;
-import eu.bato.anyoffice.trayapp.Main;
-import eu.bato.anyoffice.trayapp.entities.PersonState;
-import eu.bato.anyoffice.trayapp.RestClient;
 import eu.bato.anyoffice.trayapp.config.Configuration;
 import eu.bato.anyoffice.trayapp.config.Property;
 import eu.bato.anyoffice.trayapp.entities.Consultation;
+import eu.bato.anyoffice.trayapp.entities.Credentials;
 import eu.bato.anyoffice.trayapp.entities.PendingConsultationState;
 import eu.bato.anyoffice.trayapp.entities.PersonLocation;
+import eu.bato.anyoffice.trayapp.entities.PersonState;
 import java.awt.AWTException;
 import java.awt.CheckboxMenuItem;
 import java.awt.Desktop;
@@ -56,7 +54,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -86,7 +83,6 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestClientException;
 
 /**
@@ -301,8 +297,9 @@ class TrayIconManager {
         String newLocation = client.getLocation();
 
         showPendingConsultationsList(newState);
-        showAvailableConsultationsTargetsTrayMessage();
-        showConsultationTargetCallingMessages();
+        List<Consultation> outgoingConsultations = client.getActiveOutgoingConsultations();
+        showAvailableConsultationsTargetsTrayMessage(outgoingConsultations);
+        showConsultationTargetCallingMessages(outgoingConsultations);
 
         Long current = new Date().getTime();
 
@@ -358,6 +355,7 @@ class TrayIconManager {
             if (!incomingConsultations.isEmpty()) {
                 if (availableConsultersMessageFrame == null) {
                     availableConsultersMessageFrame = new IncomingConsultationsWindow(client, icon);
+                    StateCheckService.getInstance().setOneSecondRefreshInterval();
                 }
                 availableConsultersMessageFrame.showIncomingConsultationsMessage(incomingConsultations);
             } else if (availableConsultersMessageFrame != null){
@@ -365,12 +363,12 @@ class TrayIconManager {
                 availableConsultersMessageFrame.dispose();
                 availableConsultersMessageFrame.removeAll();
                 availableConsultersMessageFrame = null;
+                StateCheckService.getInstance().resetRefreshInterval();
             }
         }
     }
     
-    private void showAvailableConsultationsTargetsTrayMessage(){
-        List<Consultation> outgoingConsultations = client.getActiveOutgoingConsultations();
+    private void showAvailableConsultationsTargetsTrayMessage(List<Consultation> outgoingConsultations){
         for (Consultation c : new LinkedList<>(outgoingConsultations)){
             if (!PersonState.AVAILABLE.equals(c.getTargetState())){
                 outgoingConsultations.remove(c);
@@ -378,50 +376,52 @@ class TrayIconManager {
         }
         if (!outgoingConsultations.isEmpty() & !availableColleaguesMessageDisplayed){
             trayIcon.displayMessage("Available colleagues", "Some of your colleagues, who you'd like to communicate with, are now available. Expect a message from them soon.", TrayIcon.MessageType.INFO);
+            StateCheckService.getInstance().setShortRefreshInterval();
             availableColleaguesMessageDisplayed = true;
         } else if (outgoingConsultations.isEmpty()) {
             availableColleaguesMessageDisplayed = false;
+            StateCheckService.getInstance().resetRefreshInterval();
         }
     }
     
-    private void showConsultationTargetCallingMessages(){
-        List<Consultation> outgoingConsultations = client.getActiveOutgoingConsultations();
+    private void showConsultationTargetCallingMessages(List<Consultation> outgoingConsultations){
         log.debug(outgoingConsultations.toString());
-//        for (Map.Entry<Long, CallForRequestedConsultationAlert> entry: new HashMap<>(callForConsultationsAlerts).entrySet()){
-//            if (!entry.getValue().isVisible()){
-//                log.error("NOT VISIBLE");
-//                callForConsultationsAlerts.remove(entry.getKey());
-//            }
-//        }
         Set<Long> checkList = new HashSet<>(callForConsultationsAlerts.keySet());
         for (Consultation c: outgoingConsultations){
             if (c.getPendingState().equals(PendingConsultationState.WAITING_FOR_REQUESTER)){
-                    if (!callForConsultationsAlerts.containsKey(c.getId())){
-                        CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c, client);
-                        callForConsultationsAlerts.put(c.getId(), alert);
-                        alert.showMessage();
-                    } else {
-                        checkList.remove(c.getId());
-                    }
+                if (!callForConsultationsAlerts.containsKey(c.getId())){
+                    // This consultation is in the WAITING state for the first time, so display alert.
+                    CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c, client, icon);
+                    callForConsultationsAlerts.put(c.getId(), alert);
+                    alert.showMessage();
+                    StateCheckService.getInstance().setOneSecondRefreshInterval();              
+                } else {
+                    // Alert has already been displayed. But reopen it if it was closed by X button.
+                    callForConsultationsAlerts.get(c.getId()).setVisible(true);
+                    checkList.remove(c.getId());
+                }
             }
             if (c.getPendingState().equals(PendingConsultationState.PENDING) & callForConsultationsAlerts.containsKey(c.getId())) {
                 CallForRequestedConsultationAlert alert = callForConsultationsAlerts.get(c.getId());
-                String[] options = {"Request again", "Cancel the consultation"};
-                int selectedOption = JOptionPane.showOptionDialog(alert,
-                        c.getTargetName() + " responded to your consultation request '" + c.getMessage() + "', but you have missed the call.",
-                        "You have missed a call for consultation",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-                if (selectedOption == JOptionPane.NO_OPTION) {
-                    client.cancelConsultationByRequester(c.getId());
+                if (alert.isVisible()){
+                    // Only display the notification if alert has not been closed. (The call for consultation could have been cancelled by the requester.)
+                    String[] options = {"Request again", "Cancel the consultation"};
+                    int selectedOption = JOptionPane.showOptionDialog(alert,
+                            c.getTargetName() + " responded to your consultation request '" + c.getMessage() + "', but you have missed the call.",
+                            "You have missed a call for consultation",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+                    if (selectedOption == JOptionPane.NO_OPTION) {
+                        client.cancelConsultationByRequester(c.getId());
+                    }
+                    alert.close();
                 }
-                alert.close();
                 callForConsultationsAlerts.remove(c.getId());
                 checkList.remove(c.getId());
             }
             if (c.getPendingState().equals(PendingConsultationState.IN_PROGRESS)) {
                 if (!callForConsultationsAlerts.containsKey(c.getId())) {
                     // this can happen after application restart
-                    CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c, client);
+                    CallForRequestedConsultationAlert alert = new CallForRequestedConsultationAlert(c, client, icon);
                     callForConsultationsAlerts.put(c.getId(), alert);
                     alert.showMessage();
                     alert.showInProgressDialog();
@@ -437,6 +437,14 @@ class TrayIconManager {
                 callForConsultationsAlerts.get(id).close();
                 callForConsultationsAlerts.remove(id);
             }
+        }
+        if (callForConsultationsAlerts.isEmpty()) {
+            if (availableColleaguesMessageDisplayed) {
+                StateCheckService.getInstance().setShortRefreshInterval();
+            } else {
+                StateCheckService.getInstance().resetRefreshInterval();
+            }
+            
         }
     }
     
